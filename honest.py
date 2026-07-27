@@ -161,8 +161,15 @@ def _cmd_fpr(name):
     _, tool = contract._REGISTRY[name]
     fpr = tool.false_positive_rate()
     if fpr is None:
-        print("  %s: no calibrated false-positive rate present for this exact code." % name)
-        print("  (run: python3 nulltest.py --calibrate --emit-grid <path outside this dir>)")
+        # On-ethos: refuse to quote a rate we cannot verify against the running code. When the
+        # calibrated grid is not installed beside the tool (a pip wheel does not bundle it yet),
+        # point to the published measurement and to how a stranger reproduces it, rather than
+        # printing a number that might not describe this build.
+        print("  %s: no calibrated grid is installed beside this build, so there is no rate this" % name)
+        print("  tool can verify against the code you are running — and it will not quote one it")
+        print("  cannot verify. The calibrated false-positive rate for the published version is at")
+        print("  https://www.honesty.tools/audit ; reproduce it yourself with:")
+        print("      python3 -m nulltest --calibrate --emit-grid ./grid.json   (~a few minutes)")
         return 1
     import json
     print(json.dumps(fpr, indent=1))

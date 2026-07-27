@@ -32,12 +32,15 @@ dependencies = []
 
 [project.urls]
 Homepage = "https://www.honesty.tools"
-Repository = "https://github.com/techno-optimist/honesttools"
+Repository = "https://github.com/techno-optimist/nulltest"
 
 [project.scripts]
 honest = "honest:main"
 
 [tool.setuptools]
-# Flat modules for the skeleton. Phase 1 moves these into a honesttools/ package with the batteries
-# and the calibrated grid shipped as package data.
-py-modules = ["honest", "contract", "nulltest", "nulltest_audit", "render_audit", "claim_gate"]
+# Ship exactly the `honest` CLI's dependency closure — three flat modules — not the whole repo.
+# The audit/gate/render tools are repo-and-site tooling, not part of the installable CLI, so they
+# are not published to PyPI (they would only pollute the top-level namespace). Phase 1.1 moves
+# these three into a proper `honesttools/` package so the calibrated grid and example batteries can
+# ship as package data (today `honest fpr` degrades honestly when the grid is not installed).
+py-modules = ["honest", "contract", "nulltest"]
