@@ -1,0 +1,173 @@
+# Every gate in this repository has, at least once, reported success without having checked.
+# Not one of those was caught by running it — each was caught by deliberately breaking it. So
+# these jobs are written to be breakable, and each was watched failing before it was trusted.
+#
+# What this does NOT do: regenerate any certificate. A verifier that writes the file it is later
+# checked against has no control at all, and that is exactly how a false-fire grid that disagreed
+# with its own code survived in this repository. CI verifies artifacts against code. It never
+# produces the artifact it is verifying — the `read-only` job enforces that mechanically.
+name: verify
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # The practice used to fire on attention. This makes it fire on a calendar.
+    - cron: "17 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  certificates:
+    name: certificates describe the code beside them
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: every committed certificate must carry the sha256 of the tool that produced it
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, sys
+
+          # An explicit list, not a glob. nulltest_audit_results.json is a measurement about other
+          # people's corpora and nulltest_audit_manifest.json is configuration — neither is a
+          # claim about this code, and sweeping them in here would manufacture failures and teach
+          # everyone to ignore this job.
+          CERTS = ["nulltest_grid.json", "nulltest_parity.json"]
+
+          actual = hashlib.sha256(open("nulltest.py", "rb").read()).hexdigest()
+          bad, checked = [], 0
+          for f in CERTS:
+              if not os.path.exists(f):
+                  continue
+              try:
+                  d = json.load(open(f))
+              except Exception:
+                  bad.append("%s: unparseable" % f)
+                  continue
+              stamped = d.get("tool_sha256") or (d.get("provenance") or {}).get("tool_sha256")
+              if stamped is None:
+                  # A certificate with no provenance cannot be checked, so it cannot be trusted.
+                  # This is the state nulltest_grid.json was in when it disagreed with its own
+                  # code for two days and nothing noticed.
+                  bad.append("%s: NO tool_sha256 — unverifiable, therefore not evidence" % f)
+                  continue
+              checked += 1
+              if stamped != actual:
+                  bad.append("%s: stamped %s but nulltest.py is %s — this certificate does not "
+                             "describe this code" % (f, stamped[:16], actual[:16]))
+
+          if checked == 0 and not bad:
+              # A check with no denominator printing "0 failures" is this repo's signature bug.
+              sys.exit("no certificates were checked — refusing to report success")
+          print("checked %d certificate(s) against nulltest.py %s" % (checked, actual[:16]))
+          if bad:
+              sys.exit("\n".join(bad))
+          PY
+
+  batteries:
+    name: published verdicts still reproduce
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: re-score every battery and compare to the published table
+        run: |
+          python3 - <<'PY'
+          import json, subprocess, sys, os
+
+          rows = {r["name"].split("/", 1)[-1]: r
+                  for r in json.load(open("nulltest_audit_results.json"))["rows"]
+                  if r["name"].startswith("aperture/")}
+          files = sorted(f[:-5] for f in os.listdir("batteries") if f.endswith(".json"))
+          if not files:
+              sys.exit("no batteries found — refusing to report success")
+
+          # The page claims the audit table includes every one of our own batteries. That claim
+          # was false for weeks, because a battery could be written and served without anyone
+          # adding it to the manifest and nothing compared the two lists.
+          missing = [f for f in files if f not in rows]
+          fail = ["battery on disk but absent from the published table: %s" % m for m in missing]
+
+          for f in files:
+              if f not in rows:
+                  continue
+              out = subprocess.run([sys.executable, "nulltest.py", "batteries/%s.json" % f,
+                                    "--json", "--n-perm", "600"],
+                                   capture_output=True, text=True, timeout=900)
+              got = json.loads(out.stdout)["verdict"]
+              want = rows[f].get("verdict")
+              mark = "ok " if got == want else "FAIL"
+              print("  %s %-32s published=%-13s recomputed=%s" % (mark, f, want, got))
+              if got != want:
+                  fail.append("%s: table says %s, code says %s" % (f, want, got))
+
+          print("re-scored %d batteries" % len(files))
+          if fail:
+              sys.exit("\n".join(fail))
+          PY
+
+  parity:
+    name: browser and CLI are one instrument
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: nulltest.js and nulltest.py must agree cell by cell
+        run: bash nulltest_parity.sh
+
+  selftest:
+    name: the checker can fire, and can decline to guess
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: read-only selftest — exit 2 (INDISTINGUISHABLE) is a pass, exit 1 is not
+        run: |
+          set +e
+          python3 nulltest.py --selftest --seeds 25 --n-perm 200
+          code=$?
+          set -e
+          # 0 = every row's upper bound below the ceiling. 2 = the ceiling sits inside an
+          # interval, which at 25 seeds is the honest answer and NOT a failure: a 25-seed point
+          # estimate of a ~5% rate fails a perfectly calibrated tool about half the time. 1 = a
+          # row's LOWER bound cleared the ceiling, or the planted-separable control did not fire.
+          # Only 1 is a real failure. The certificate comes from --calibrate, not from this.
+          echo "selftest exit code: $code"
+          if [ "$code" = "1" ]; then echo "::error::the null test over-fires, or failed to fire on a planted-separable battery"; exit 1; fi
+          if [ "$code" != "0" ] && [ "$code" != "2" ]; then echo "::error::selftest crashed"; exit 1; fi
+
+  read-only:
+    name: no gate regenerates its own evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - name: run the checks, then require the tree to be byte-identical
+        run: |
+          # THE STANDING RULE, MECHANISED. If replaying a check leaves the tree dirty, the check
+          # wrote the evidence it was supposed to be testing, and its green is worth nothing.
+          # nulltest --selftest used to write nulltest_grid.json on every run; nulltest_parity.sh
+          # used to write nulltest_parity.json on every run. Both are read-only now, and this job
+          # is what keeps them that way.
+          python3 nulltest.py --selftest --seeds 3 --n-perm 50 >/dev/null 2>&1 || true
+          bash nulltest_parity.sh >/dev/null 2>&1 || true
+          python3 nulltest.py batteries/photon-entities.json --json >/dev/null 2>&1 || true
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::a gate modified the working tree while running — it is certifying itself"
+            git status --porcelain
+            git diff
+            exit 1
+          fi
+          echo "tree clean after replay — no gate wrote its own evidence"
