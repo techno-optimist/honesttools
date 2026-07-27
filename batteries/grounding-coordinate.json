@@ -1,0 +1,974 @@
+[
+ {
+  "entity": "Tversky & Kahneman (1974), \"Judgment under Uncertainty: Heuristics and Biases\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Tversky & Kahneman (1974), \"Judgment under Uncertainty: Heuristics and Biases\"."
+ },
+ {
+  "entity": "Verhoeven & Castellanos (1981), \"Hierarchical Saliency in Perceptual Grouping\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Verhoeven & Castellanos (1981), \"Hierarchical Saliency in Perceptual Grouping\"."
+ },
+ {
+  "entity": "Hardy & Ramanujan (1918), \"Asymptotic Formulae in Combinatory Analysis\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Hardy & Ramanujan (1918), \"Asymptotic Formulae in Combinatory Analysis\"."
+ },
+ {
+  "entity": "Margolis & Trenholme (1995), \"A Variational Principle for Adaptive Inference\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Margolis & Trenholme (1995), \"A Variational Principle for Adaptive Inference\"."
+ },
+ {
+  "entity": "Cox & Snell (1968), \"A General Definition of Residuals\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Cox & Snell (1968), \"A General Definition of Residuals\"."
+ },
+ {
+  "entity": "Okonkwo & Reinholt (2007), \"Sparse Coding under Bounded Curvature\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Okonkwo & Reinholt (2007), \"Sparse Coding under Bounded Curvature\"."
+ },
+ {
+  "entity": "Black & Scholes (1973), \"The Pricing of Options and Corporate Liabilities\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Black & Scholes (1973), \"The Pricing of Options and Corporate Liabilities\"."
+ },
+ {
+  "entity": "Halloran & Pietrzak (1969), \"On the Stability of Coupled Relaxation Oscillators\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Halloran & Pietrzak (1969), \"On the Stability of Coupled Relaxation Oscillators\"."
+ },
+ {
+  "entity": "Hodgkin & Huxley (1952), \"A Quantitative Description of Membrane Current\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Hodgkin & Huxley (1952), \"A Quantitative Description of Membrane Current\"."
+ },
+ {
+  "entity": "Sundqvist & Mehrabian (2002), \"Latent Drift in Stochastic Reward Fields\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Sundqvist & Mehrabian (2002), \"Latent Drift in Stochastic Reward Fields\"."
+ },
+ {
+  "entity": "Watson & Crick (1953), \"Molecular Structure of Nucleic Acids\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Watson & Crick (1953), \"Molecular Structure of Nucleic Acids\"."
+ },
+ {
+  "entity": "Brennecke & Olarte (1988), \"The Topology of Constrained Belief Revision\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Brennecke & Olarte (1988), \"The Topology of Constrained Belief Revision\"."
+ },
+ {
+  "entity": "Cohen & Levesque (1990), \"Intention Is Choice with Commitment\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Cohen & Levesque (1990), \"Intention Is Choice with Commitment\"."
+ },
+ {
+  "entity": "Lindqvist & Ashworth (1976), \"Asymptotic Bounds for Recursive Partition Schemes\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Lindqvist & Ashworth (1976), \"Asymptotic Bounds for Recursive Partition Schemes\"."
+ },
+ {
+  "entity": "Aharonov & Bohm (1959), \"Significance of Electromagnetic Potentials in the Quantum Theory\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Aharonov & Bohm (1959), \"Significance of Electromagnetic Potentials in the Quantum Theory\"."
+ },
+ {
+  "entity": "Cattaneo & Whitlock (1993), \"Phase Coherence in Dissipative Lattice Models\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Cattaneo & Whitlock (1993), \"Phase Coherence in Dissipative Lattice Models\"."
+ },
+ {
+  "entity": "Diffie & Hellman (1976), \"New Directions in Cryptography\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Diffie & Hellman (1976), \"New Directions in Cryptography\"."
+ },
+ {
+  "entity": "Rasmussen & Foglesong (1984), \"A Calculus of Indexed Intentional States\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Rasmussen & Foglesong (1984), \"A Calculus of Indexed Intentional States\"."
+ },
+ {
+  "entity": "Lakoff & Johnson (1980), \"Metaphors We Live By\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Lakoff & Johnson (1980), \"Metaphors We Live By\"."
+ },
+ {
+  "entity": "Bj\u00f8rnstad & Karpinski (1999), \"Entropy Gradients in Nonstationary Channels\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Bj\u00f8rnstad & Karpinski (1999), \"Entropy Gradients in Nonstationary Channels\"."
+ },
+ {
+  "entity": "Maturana & Varela (1980), \"Autopoiesis and Cognition\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Maturana & Varela (1980), \"Autopoiesis and Cognition\"."
+ },
+ {
+  "entity": "Devereaux & Saltzman (1972), \"Spectral Decomposition of Cognitive Load\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Devereaux & Saltzman (1972), \"Spectral Decomposition of Cognitive Load\"."
+ },
+ {
+  "entity": "Newman & Girvan (2004), \"Finding and Evaluating Community Structure in Networks\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Newman & Girvan (2004), \"Finding and Evaluating Community Structure in Networks\"."
+ },
+ {
+  "entity": "Nakashima & Wexler (2006), \"Manifold Alignment under Weak Supervision\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Nakashima & Wexler (2006), \"Manifold Alignment under Weak Supervision\"."
+ },
+ {
+  "entity": "Bennett & Brassard (1984), \"Quantum Cryptography: Public Key Distribution and Coin Tossing\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Bennett & Brassard (1984), \"Quantum Cryptography: Public Key Distribution and Coin Tossing\"."
+ },
+ {
+  "entity": "Petrosyan & Holdsworth (1990), \"The Geometry of Boundary-Constrained Diffusion\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Petrosyan & Holdsworth (1990), \"The Geometry of Boundary-Constrained Diffusion\"."
+ },
+ {
+  "entity": "Granovetter (1973), \"The Strength of Weak Ties\"",
+  "label": 0,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Granovetter (1973), \"The Strength of Weak Ties\"."
+ },
+ {
+  "entity": "Engelhardt & Marchetti (1985), \"Self-Organizing Criticality in Symbolic Systems\"",
+  "label": 1,
+  "category": "two_author_papers",
+  "prompt": "Tell me about Engelhardt & Marchetti (1985), \"Self-Organizing Criticality in Symbolic Systems\"."
+ },
+ {
+  "entity": "Trousseau's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Trousseau's sign."
+ },
+ {
+  "entity": "Verhagen's sign",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Verhagen's sign."
+ },
+ {
+  "entity": "Chvostek's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Chvostek's sign."
+ },
+ {
+  "entity": "Kessler-Brandt sign",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Kessler-Brandt sign."
+ },
+ {
+  "entity": "Murphy's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Murphy's sign."
+ },
+ {
+  "entity": "Mulready's point",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Mulready's point."
+ },
+ {
+  "entity": "McBurney's point",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about McBurney's point."
+ },
+ {
+  "entity": "Talverton's reflex",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Talverton's reflex."
+ },
+ {
+  "entity": "Tinel's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Tinel's sign."
+ },
+ {
+  "entity": "Sorensen-Pike maneuver",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Sorensen-Pike maneuver."
+ },
+ {
+  "entity": "Froment's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Froment's sign."
+ },
+ {
+  "entity": "Bickerstaff's groove sign",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Bickerstaff's groove sign."
+ },
+ {
+  "entity": "Leser-Trelat sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Leser-Trelat sign."
+ },
+ {
+  "entity": "Wendholt's test",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Wendholt's test."
+ },
+ {
+  "entity": "Hoover's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Hoover's sign."
+ },
+ {
+  "entity": "Drummel's sign",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Drummel's sign."
+ },
+ {
+  "entity": "Cullen's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Cullen's sign."
+ },
+ {
+  "entity": "Castaledo's reflex",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Castaledo's reflex."
+ },
+ {
+  "entity": "Grey Turner's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Grey Turner's sign."
+ },
+ {
+  "entity": "Penhallow-Reuss sign",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Penhallow-Reuss sign."
+ },
+ {
+  "entity": "Lhermitte's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Lhermitte's sign."
+ },
+ {
+  "entity": "Maitland's heel sign",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Maitland's heel sign."
+ },
+ {
+  "entity": "Dalrymple's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Dalrymple's sign."
+ },
+ {
+  "entity": "Garrucci's maneuver",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Garrucci's maneuver."
+ },
+ {
+  "entity": "Westermark sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Westermark sign."
+ },
+ {
+  "entity": "Lindqvist-Soto test",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Lindqvist-Soto test."
+ },
+ {
+  "entity": "Romana's sign",
+  "label": 0,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Romana's sign."
+ },
+ {
+  "entity": "Renquist's notch sign",
+  "label": 1,
+  "category": "eponymous_signs",
+  "prompt": "Tell me about Renquist's notch sign."
+ },
+ {
+  "entity": "Marcinkiewicz interpolation theorem",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Marcinkiewicz interpolation theorem."
+ },
+ {
+  "entity": "Vranesevi\u0107 interpolation theorem",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Vranesevi\u0107 interpolation theorem."
+ },
+ {
+  "entity": "Erd\u0151s\u2013Ko\u2013Rado theorem",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Erd\u0151s\u2013Ko\u2013Rado theorem."
+ },
+ {
+  "entity": "Hal\u00e1sz\u2013Kem\u00e9ny\u2013Bord\u00f3 theorem",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Hal\u00e1sz\u2013Kem\u00e9ny\u2013Bord\u00f3 theorem."
+ },
+ {
+  "entity": "Hajnal\u2013Szemer\u00e9di theorem",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Hajnal\u2013Szemer\u00e9di theorem."
+ },
+ {
+  "entity": "Steindl\u2013Marczewicz theorem",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Steindl\u2013Marczewicz theorem."
+ },
+ {
+  "entity": "Routh\u2013Hurwitz criterion",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Routh\u2013Hurwitz criterion."
+ },
+ {
+  "entity": "Forsberg\u2013Quillet criterion",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Forsberg\u2013Quillet criterion."
+ },
+ {
+  "entity": "Wagner\u2013Whitin algorithm",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Wagner\u2013Whitin algorithm."
+ },
+ {
+  "entity": "Drechsler\u2013Vanko algorithm",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Drechsler\u2013Vanko algorithm."
+ },
+ {
+  "entity": "Chv\u00e1tal\u2013Sankoff constant",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Chv\u00e1tal\u2013Sankoff constant."
+ },
+ {
+  "entity": "Tarnowski\u2013Eckmann constant",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Tarnowski\u2013Eckmann constant."
+ },
+ {
+  "entity": "Sazonov's theorem",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Sazonov's theorem."
+ },
+ {
+  "entity": "Brenner's theorem",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Brenner's theorem."
+ },
+ {
+  "entity": "Krein\u2013Milman theorem",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Krein\u2013Milman theorem."
+ },
+ {
+  "entity": "Liskov\u2013Tannehill theorem",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Liskov\u2013Tannehill theorem."
+ },
+ {
+  "entity": "Lyapunov\u2013Schmidt reduction",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Lyapunov\u2013Schmidt reduction."
+ },
+ {
+  "entity": "Maddalena\u2013Reuther reduction",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Maddalena\u2013Reuther reduction."
+ },
+ {
+  "entity": "Helly's theorem",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Helly's theorem."
+ },
+ {
+  "entity": "Vossen's theorem",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Vossen's theorem."
+ },
+ {
+  "entity": "Bramble\u2013Hilbert lemma",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Bramble\u2013Hilbert lemma."
+ },
+ {
+  "entity": "Carlsmith\u2013Roeg lemma",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Carlsmith\u2013Roeg lemma."
+ },
+ {
+  "entity": "Cheeger inequality",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Cheeger inequality."
+ },
+ {
+  "entity": "Trefilov inequality",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Trefilov inequality."
+ },
+ {
+  "entity": "Sylvester\u2013Gallai theorem",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Sylvester\u2013Gallai theorem."
+ },
+ {
+  "entity": "Habermann\u2013Krause theorem",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Habermann\u2013Krause theorem."
+ },
+ {
+  "entity": "P\u00f3lya\u2013Szeg\u0151 inequality",
+  "label": 0,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about P\u00f3lya\u2013Szeg\u0151 inequality."
+ },
+ {
+  "entity": "Bohren\u2013Saalfeld inequality",
+  "label": 1,
+  "category": "eponymous_theorems",
+  "prompt": "Tell me about Bohren\u2013Saalfeld inequality."
+ },
+ {
+  "entity": "Hennig Brand",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Hennig Brand."
+ },
+ {
+  "entity": "Wendel Strauch",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Wendel Strauch."
+ },
+ {
+  "entity": "Maria Sibylla Merian",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Maria Sibylla Merian."
+ },
+ {
+  "entity": "Anna Theresia V\u00f6geli",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Anna Theresia V\u00f6geli."
+ },
+ {
+  "entity": "Praxagoras of Cos",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Praxagoras of Cos."
+ },
+ {
+  "entity": "Pherecydes of Thanos",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Pherecydes of Thanos."
+ },
+ {
+  "entity": "Caterina Sforza",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Caterina Sforza."
+ },
+ {
+  "entity": "Ginevra Malatesti",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Ginevra Malatesti."
+ },
+ {
+  "entity": "Olaus Rudbeck",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Olaus Rudbeck."
+ },
+ {
+  "entity": "Lars Hjorthberg",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Lars Hjorthberg."
+ },
+ {
+  "entity": "Ahmad ibn Fadlan",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Ahmad ibn Fadlan."
+ },
+ {
+  "entity": "Yusuf ibn Qarawi",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Yusuf ibn Qarawi."
+ },
+ {
+  "entity": "Mary Anning",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Mary Anning."
+ },
+ {
+  "entity": "Edith Carrowmore",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Edith Carrowmore."
+ },
+ {
+  "entity": "Hipparchia of Maroneia",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Hipparchia of Maroneia."
+ },
+ {
+  "entity": "Aristokleia of Pergaea",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Aristokleia of Pergaea."
+ },
+ {
+  "entity": "Jan Swammerdam",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Jan Swammerdam."
+ },
+ {
+  "entity": "Pieter Vandeghein",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Pieter Vandeghein."
+ },
+ {
+  "entity": "Tycho Brahe",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Tycho Brahe."
+ },
+ {
+  "entity": "Brage Stjernholm",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Brage Stjernholm."
+ },
+ {
+  "entity": "\u00c9milie du Ch\u00e2telet",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about \u00c9milie du Ch\u00e2telet."
+ },
+ {
+  "entity": "H\u00e9l\u00e8ne de Vaucresson",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about H\u00e9l\u00e8ne de Vaucresson."
+ },
+ {
+  "entity": "Nilakantha Somayaji",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Nilakantha Somayaji."
+ },
+ {
+  "entity": "Madhusudana Bhatatiri",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Madhusudana Bhatatiri."
+ },
+ {
+  "entity": "Hanaoka Seishu",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about Hanaoka Seishu."
+ },
+ {
+  "entity": "Tachibana Genshu",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Tachibana Genshu."
+ },
+ {
+  "entity": "William Smellie",
+  "label": 0,
+  "category": "obscure_people",
+  "prompt": "Tell me about William Smellie."
+ },
+ {
+  "entity": "Andrew Carwardine",
+  "label": 1,
+  "category": "obscure_people",
+  "prompt": "Tell me about Andrew Carwardine."
+ },
+ {
+  "entity": "Dwyer & Michaels",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Dwyer & Michaels."
+ },
+ {
+  "entity": "Halverson & Crewe",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Halverson & Crewe."
+ },
+ {
+  "entity": "Burns & McDonnell",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Burns & McDonnell."
+ },
+ {
+  "entity": "Maycott & Tring Engineers",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Maycott & Tring Engineers."
+ },
+ {
+  "entity": "Haskell & White",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Haskell & White."
+ },
+ {
+  "entity": "Brandt & McAllister",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Brandt & McAllister."
+ },
+ {
+  "entity": "Pillsbury Winthrop",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Pillsbury Winthrop."
+ },
+ {
+  "entity": "Pennick & Whorl",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Pennick & Whorl."
+ },
+ {
+  "entity": "Gurney's Seed & Nursery",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Gurney's Seed & Nursery."
+ },
+ {
+  "entity": "Tilbury Carrowgate",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Tilbury Carrowgate."
+ },
+ {
+  "entity": "Ghirardelli Chocolate",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Ghirardelli Chocolate."
+ },
+ {
+  "entity": "Esterbrook & Sons",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Esterbrook & Sons."
+ },
+ {
+  "entity": "Crane & Co.",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Crane & Co.."
+ },
+ {
+  "entity": "Marlow's Seed & Provender",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Marlow's Seed & Provender."
+ },
+ {
+  "entity": "Vollrath Company",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Vollrath Company."
+ },
+ {
+  "entity": "Calderini Confections",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Calderini Confections."
+ },
+ {
+  "entity": "Dunn-Edwards Paints",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Dunn-Edwards Paints."
+ },
+ {
+  "entity": "Threnody Works",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Threnody Works."
+ },
+ {
+  "entity": "Pendleton Woolen Mills",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Pendleton Woolen Mills."
+ },
+ {
+  "entity": "Carrick-Bowen Paints",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Carrick-Bowen Paints."
+ },
+ {
+  "entity": "Filson",
+  "label": 0,
+  "category": "firms",
+  "prompt": "Tell me about Filson."
+ },
+ {
+  "entity": "Wessitt Woolen Mills",
+  "label": 1,
+  "category": "firms",
+  "prompt": "Tell me about Wessitt Woolen Mills."
+ },
+ {
+  "entity": "zanubrutinib",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about zanubrutinib."
+ },
+ {
+  "entity": "zelistramab",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about zelistramab."
+ },
+ {
+  "entity": "oteseconazole",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about oteseconazole."
+ },
+ {
+  "entity": "calpitorvir",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about calpitorvir."
+ },
+ {
+  "entity": "fosmanogepix",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about fosmanogepix."
+ },
+ {
+  "entity": "nefulibatinib",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about nefulibatinib."
+ },
+ {
+  "entity": "danicopan",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about danicopan."
+ },
+ {
+  "entity": "doravexenib",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about doravexenib."
+ },
+ {
+  "entity": "vorasidenib",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about vorasidenib."
+ },
+ {
+  "entity": "trabociclib",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about trabociclib."
+ },
+ {
+  "entity": "futibatinib",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about futibatinib."
+ },
+ {
+  "entity": "veltisoconazole",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about veltisoconazole."
+ },
+ {
+  "entity": "pacritinib",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about pacritinib."
+ },
+ {
+  "entity": "ostimanopix",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about ostimanopix."
+ },
+ {
+  "entity": "brincidofovir",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about brincidofovir."
+ },
+ {
+  "entity": "rilucopan",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about rilucopan."
+ },
+ {
+  "entity": "olodaterol",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about olodaterol."
+ },
+ {
+  "entity": "samivasidenib",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about samivasidenib."
+ },
+ {
+  "entity": "navitoclax",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about navitoclax."
+ },
+ {
+  "entity": "endaviroxil",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about endaviroxil."
+ },
+ {
+  "entity": "tucatinib",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about tucatinib."
+ },
+ {
+  "entity": "palmoraterol",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about palmoraterol."
+ },
+ {
+  "entity": "remdesivir",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about remdesivir."
+ },
+ {
+  "entity": "cazritoclax",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about cazritoclax."
+ },
+ {
+  "entity": "lonafarnib",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about lonafarnib."
+ },
+ {
+  "entity": "lufetinib",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about lufetinib."
+ },
+ {
+  "entity": "elacestrant",
+  "label": 0,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about elacestrant."
+ },
+ {
+  "entity": "brextacestrant",
+  "label": 1,
+  "category": "drugs_compounds",
+  "prompt": "Tell me about brextacestrant."
+ }
+]

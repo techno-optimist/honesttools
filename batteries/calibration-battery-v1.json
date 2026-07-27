@@ -1,0 +1,1199 @@
+{
+ "name": "calibration-battery-v1",
+ "source": "/battery.js \u2014 the public battery behind /calibrate",
+ "battery_version": "1",
+ "battery_hash": "dcf0cfb23b8c7322",
+ "built": "2026-06-10",
+ "surface_floor": {
+  "GENERATED_BY": "nulltest.py \u2014 never hand-typed. An artifact must not assert its own verdict.",
+  "tool": "nulltest.py",
+  "verdict": "DISQUALIFIED",
+  "worst_cell": "lexicality/book",
+  "worst_a_star": 1.0,
+  "family_adjusted_p": 0.0017,
+  "cells": 18,
+  "cells_separating": 16,
+  "permutations": 600,
+  "reading": "16 of 18 cells separate. Character n-grams reach A* 1.000 on book, firm, painting and person. A model-free classifier separates real from fabricated entities by spelling.",
+  "CORRECTION_2026_07_26": "this block previously hand-carried cells_separating: 17. Running nulltest on this exact served file prints 16. The retraction's own arithmetic was wrong, which is the failure mode the retraction was about."
+ },
+ "consequence": "Disclosed on /calibrate 2026-07-25. Any AUROC measured on this battery is partly a measure of string shape. The shuffled-label null shipped on that page tests whether a signal beats chance, not whether labels are recoverable from surface form, so it cannot detect this.",
+ "battery": [
+  {
+   "entity": "1984",
+   "label": 0,
+   "category": "book",
+   "q": "Tell me about the novel 1984.",
+   "group": "open"
+  },
+  {
+   "entity": "Don Quixote",
+   "label": 0,
+   "category": "book",
+   "q": "Tell me about the novel Don Quixote.",
+   "group": "open"
+  },
+  {
+   "entity": "Hamlet",
+   "label": 0,
+   "category": "book",
+   "q": "Tell me about the novel Hamlet.",
+   "group": "open"
+  },
+  {
+   "entity": "Moby-Dick",
+   "label": 0,
+   "category": "book",
+   "q": "Tell me about the novel Moby-Dick.",
+   "group": "open"
+  },
+  {
+   "entity": "Pride and Prejudice",
+   "label": 0,
+   "category": "book",
+   "q": "Tell me about the novel Pride and Prejudice.",
+   "group": "open"
+  },
+  {
+   "entity": "The Odyssey",
+   "label": 0,
+   "category": "book",
+   "q": "Tell me about the novel The Odyssey.",
+   "group": "open"
+  },
+  {
+   "entity": "War and Peace",
+   "label": 0,
+   "category": "book",
+   "q": "Tell me about the novel War and Peace.",
+   "group": "open"
+  },
+  {
+   "entity": "1984",
+   "label": 0,
+   "category": "book",
+   "q": "Who wrote the novel 1984?",
+   "group": "short"
+  },
+  {
+   "entity": "Don Quixote",
+   "label": 0,
+   "category": "book",
+   "q": "Who wrote the novel Don Quixote?",
+   "group": "short"
+  },
+  {
+   "entity": "Hamlet",
+   "label": 0,
+   "category": "book",
+   "q": "Who wrote the novel Hamlet?",
+   "group": "short"
+  },
+  {
+   "entity": "Moby-Dick",
+   "label": 0,
+   "category": "book",
+   "q": "Who wrote the novel Moby-Dick?",
+   "group": "short"
+  },
+  {
+   "entity": "Pride and Prejudice",
+   "label": 0,
+   "category": "book",
+   "q": "Who wrote the novel Pride and Prejudice?",
+   "group": "short"
+  },
+  {
+   "entity": "The Odyssey",
+   "label": 0,
+   "category": "book",
+   "q": "Who wrote the novel The Odyssey?",
+   "group": "short"
+  },
+  {
+   "entity": "War and Peace",
+   "label": 0,
+   "category": "book",
+   "q": "Who wrote the novel War and Peace?",
+   "group": "short"
+  },
+  {
+   "entity": "Glass over Brackwald",
+   "label": 1,
+   "category": "book",
+   "q": "Tell me about the novel Glass over Brackwald.",
+   "group": "open"
+  },
+  {
+   "entity": "Hollow of the Vornovian Kings",
+   "label": 1,
+   "category": "book",
+   "q": "Tell me about the novel Hollow of the Vornovian Kings.",
+   "group": "open"
+  },
+  {
+   "entity": "Reckoning at Tarrowmere",
+   "label": 1,
+   "category": "book",
+   "q": "Tell me about the novel Reckoning at Tarrowmere.",
+   "group": "open"
+  },
+  {
+   "entity": "The Almandine Gate",
+   "label": 1,
+   "category": "book",
+   "q": "Tell me about the novel The Almandine Gate.",
+   "group": "open"
+  },
+  {
+   "entity": "The Cindermoor Testament",
+   "label": 1,
+   "category": "book",
+   "q": "Tell me about the novel The Cindermoor Testament.",
+   "group": "open"
+  },
+  {
+   "entity": "The Estrennia Letters",
+   "label": 1,
+   "category": "book",
+   "q": "Tell me about the novel The Estrennia Letters.",
+   "group": "open"
+  },
+  {
+   "entity": "The Saltmarsh Compass",
+   "label": 1,
+   "category": "book",
+   "q": "Tell me about the novel The Saltmarsh Compass.",
+   "group": "open"
+  },
+  {
+   "entity": "Glass over Brackwald",
+   "label": 1,
+   "category": "book",
+   "q": "Who wrote the novel Glass over Brackwald?",
+   "group": "short"
+  },
+  {
+   "entity": "Hollow of the Vornovian Kings",
+   "label": 1,
+   "category": "book",
+   "q": "Who wrote the novel Hollow of the Vornovian Kings?",
+   "group": "short"
+  },
+  {
+   "entity": "Reckoning at Tarrowmere",
+   "label": 1,
+   "category": "book",
+   "q": "Who wrote the novel Reckoning at Tarrowmere?",
+   "group": "short"
+  },
+  {
+   "entity": "The Almandine Gate",
+   "label": 1,
+   "category": "book",
+   "q": "Who wrote the novel The Almandine Gate?",
+   "group": "short"
+  },
+  {
+   "entity": "The Cindermoor Testament",
+   "label": 1,
+   "category": "book",
+   "q": "Who wrote the novel The Cindermoor Testament?",
+   "group": "short"
+  },
+  {
+   "entity": "The Estrennia Letters",
+   "label": 1,
+   "category": "book",
+   "q": "Who wrote the novel The Estrennia Letters?",
+   "group": "short"
+  },
+  {
+   "entity": "The Saltmarsh Compass",
+   "label": 1,
+   "category": "book",
+   "q": "Who wrote the novel The Saltmarsh Compass?",
+   "group": "short"
+  },
+  {
+   "entity": "ammonia",
+   "label": 0,
+   "category": "compound",
+   "q": "Tell me about the compound ammonia.",
+   "group": "open"
+  },
+  {
+   "entity": "aspirin",
+   "label": 0,
+   "category": "compound",
+   "q": "Tell me about the compound aspirin.",
+   "group": "open"
+  },
+  {
+   "entity": "caffeine",
+   "label": 0,
+   "category": "compound",
+   "q": "Tell me about the compound caffeine.",
+   "group": "open"
+  },
+  {
+   "entity": "ethanol",
+   "label": 0,
+   "category": "compound",
+   "q": "Tell me about the compound ethanol.",
+   "group": "open"
+  },
+  {
+   "entity": "glucose",
+   "label": 0,
+   "category": "compound",
+   "q": "Tell me about the compound glucose.",
+   "group": "open"
+  },
+  {
+   "entity": "methane",
+   "label": 0,
+   "category": "compound",
+   "q": "Tell me about the compound methane.",
+   "group": "open"
+  },
+  {
+   "entity": "water",
+   "label": 0,
+   "category": "compound",
+   "q": "Tell me about the compound water.",
+   "group": "open"
+  },
+  {
+   "entity": "ammonia",
+   "label": 0,
+   "category": "compound",
+   "q": "What is the chemical formula of ammonia?",
+   "group": "short"
+  },
+  {
+   "entity": "aspirin",
+   "label": 0,
+   "category": "compound",
+   "q": "What is the chemical formula of aspirin?",
+   "group": "short"
+  },
+  {
+   "entity": "caffeine",
+   "label": 0,
+   "category": "compound",
+   "q": "What is the chemical formula of caffeine?",
+   "group": "short"
+  },
+  {
+   "entity": "ethanol",
+   "label": 0,
+   "category": "compound",
+   "q": "What is the chemical formula of ethanol?",
+   "group": "short"
+  },
+  {
+   "entity": "glucose",
+   "label": 0,
+   "category": "compound",
+   "q": "What is the chemical formula of glucose?",
+   "group": "short"
+  },
+  {
+   "entity": "methane",
+   "label": 0,
+   "category": "compound",
+   "q": "What is the chemical formula of methane?",
+   "group": "short"
+  },
+  {
+   "entity": "water",
+   "label": 0,
+   "category": "compound",
+   "q": "What is the chemical formula of water?",
+   "group": "short"
+  },
+  {
+   "entity": "brennadine",
+   "label": 1,
+   "category": "compound",
+   "q": "Tell me about the compound brennadine.",
+   "group": "open"
+  },
+  {
+   "entity": "calthium oxide",
+   "label": 1,
+   "category": "compound",
+   "q": "Tell me about the compound calthium oxide.",
+   "group": "open"
+  },
+  {
+   "entity": "ferromine chloride",
+   "label": 1,
+   "category": "compound",
+   "q": "Tell me about the compound ferromine chloride.",
+   "group": "open"
+  },
+  {
+   "entity": "marrowite",
+   "label": 1,
+   "category": "compound",
+   "q": "Tell me about the compound marrowite.",
+   "group": "open"
+  },
+  {
+   "entity": "quillonic acid",
+   "label": 1,
+   "category": "compound",
+   "q": "Tell me about the compound quillonic acid.",
+   "group": "open"
+  },
+  {
+   "entity": "thrennium sulfate",
+   "label": 1,
+   "category": "compound",
+   "q": "Tell me about the compound thrennium sulfate.",
+   "group": "open"
+  },
+  {
+   "entity": "velandrite",
+   "label": 1,
+   "category": "compound",
+   "q": "Tell me about the compound velandrite.",
+   "group": "open"
+  },
+  {
+   "entity": "brennadine",
+   "label": 1,
+   "category": "compound",
+   "q": "What is the chemical formula of brennadine?",
+   "group": "short"
+  },
+  {
+   "entity": "calthium oxide",
+   "label": 1,
+   "category": "compound",
+   "q": "What is the chemical formula of calthium oxide?",
+   "group": "short"
+  },
+  {
+   "entity": "ferromine chloride",
+   "label": 1,
+   "category": "compound",
+   "q": "What is the chemical formula of ferromine chloride?",
+   "group": "short"
+  },
+  {
+   "entity": "marrowite",
+   "label": 1,
+   "category": "compound",
+   "q": "What is the chemical formula of marrowite?",
+   "group": "short"
+  },
+  {
+   "entity": "quillonic acid",
+   "label": 1,
+   "category": "compound",
+   "q": "What is the chemical formula of quillonic acid?",
+   "group": "short"
+  },
+  {
+   "entity": "thrennium sulfate",
+   "label": 1,
+   "category": "compound",
+   "q": "What is the chemical formula of thrennium sulfate?",
+   "group": "short"
+  },
+  {
+   "entity": "velandrite",
+   "label": 1,
+   "category": "compound",
+   "q": "What is the chemical formula of velandrite?",
+   "group": "short"
+  },
+  {
+   "entity": "Airbus",
+   "label": 0,
+   "category": "firm",
+   "q": "Tell me about the company Airbus.",
+   "group": "open"
+  },
+  {
+   "entity": "Coca-Cola",
+   "label": 0,
+   "category": "firm",
+   "q": "Tell me about the company Coca-Cola.",
+   "group": "open"
+  },
+  {
+   "entity": "Microsoft",
+   "label": 0,
+   "category": "firm",
+   "q": "Tell me about the company Microsoft.",
+   "group": "open"
+  },
+  {
+   "entity": "Nestl\u00e9",
+   "label": 0,
+   "category": "firm",
+   "q": "Tell me about the company Nestl\u00e9.",
+   "group": "open"
+  },
+  {
+   "entity": "Pfizer",
+   "label": 0,
+   "category": "firm",
+   "q": "Tell me about the company Pfizer.",
+   "group": "open"
+  },
+  {
+   "entity": "Siemens",
+   "label": 0,
+   "category": "firm",
+   "q": "Tell me about the company Siemens.",
+   "group": "open"
+  },
+  {
+   "entity": "Toyota",
+   "label": 0,
+   "category": "firm",
+   "q": "Tell me about the company Toyota.",
+   "group": "open"
+  },
+  {
+   "entity": "Airbus",
+   "label": 0,
+   "category": "firm",
+   "q": "Who founded Airbus?",
+   "group": "short"
+  },
+  {
+   "entity": "Coca-Cola",
+   "label": 0,
+   "category": "firm",
+   "q": "Who founded Coca-Cola?",
+   "group": "short"
+  },
+  {
+   "entity": "Microsoft",
+   "label": 0,
+   "category": "firm",
+   "q": "Who founded Microsoft?",
+   "group": "short"
+  },
+  {
+   "entity": "Nestl\u00e9",
+   "label": 0,
+   "category": "firm",
+   "q": "Who founded Nestl\u00e9?",
+   "group": "short"
+  },
+  {
+   "entity": "Pfizer",
+   "label": 0,
+   "category": "firm",
+   "q": "Who founded Pfizer?",
+   "group": "short"
+  },
+  {
+   "entity": "Siemens",
+   "label": 0,
+   "category": "firm",
+   "q": "Who founded Siemens?",
+   "group": "short"
+  },
+  {
+   "entity": "Toyota",
+   "label": 0,
+   "category": "firm",
+   "q": "Who founded Toyota?",
+   "group": "short"
+  },
+  {
+   "entity": "Castelreagh Optical Instruments",
+   "label": 1,
+   "category": "firm",
+   "q": "Tell me about the company Castelreagh Optical Instruments.",
+   "group": "open"
+  },
+  {
+   "entity": "Harrowgate Pneumatics Company",
+   "label": 1,
+   "category": "firm",
+   "q": "Tell me about the company Harrowgate Pneumatics Company.",
+   "group": "open"
+  },
+  {
+   "entity": "Pellucid Foundry Ltd",
+   "label": 1,
+   "category": "firm",
+   "q": "Tell me about the company Pellucid Foundry Ltd.",
+   "group": "open"
+  },
+  {
+   "entity": "Thessaly Loom Works",
+   "label": 1,
+   "category": "firm",
+   "q": "Tell me about the company Thessaly Loom Works.",
+   "group": "open"
+  },
+  {
+   "entity": "the Oakhampton Ironmongers Guild",
+   "label": 1,
+   "category": "firm",
+   "q": "Tell me about the company the Oakhampton Ironmongers Guild.",
+   "group": "open"
+  },
+  {
+   "entity": "the Vandermere Cordage Company",
+   "label": 1,
+   "category": "firm",
+   "q": "Tell me about the company the Vandermere Cordage Company.",
+   "group": "open"
+  },
+  {
+   "entity": "the Wexmoor Brewing Company",
+   "label": 1,
+   "category": "firm",
+   "q": "Tell me about the company the Wexmoor Brewing Company.",
+   "group": "open"
+  },
+  {
+   "entity": "Castelreagh Optical Instruments",
+   "label": 1,
+   "category": "firm",
+   "q": "Who founded Castelreagh Optical Instruments?",
+   "group": "short"
+  },
+  {
+   "entity": "Harrowgate Pneumatics Company",
+   "label": 1,
+   "category": "firm",
+   "q": "Who founded Harrowgate Pneumatics Company?",
+   "group": "short"
+  },
+  {
+   "entity": "Pellucid Foundry Ltd",
+   "label": 1,
+   "category": "firm",
+   "q": "Who founded Pellucid Foundry Ltd?",
+   "group": "short"
+  },
+  {
+   "entity": "Thessaly Loom Works",
+   "label": 1,
+   "category": "firm",
+   "q": "Who founded Thessaly Loom Works?",
+   "group": "short"
+  },
+  {
+   "entity": "the Oakhampton Ironmongers Guild",
+   "label": 1,
+   "category": "firm",
+   "q": "Who founded the Oakhampton Ironmongers Guild?",
+   "group": "short"
+  },
+  {
+   "entity": "the Vandermere Cordage Company",
+   "label": 1,
+   "category": "firm",
+   "q": "Who founded the Vandermere Cordage Company?",
+   "group": "short"
+  },
+  {
+   "entity": "the Wexmoor Brewing Company",
+   "label": 1,
+   "category": "firm",
+   "q": "Who founded the Wexmoor Brewing Company?",
+   "group": "short"
+  },
+  {
+   "entity": "American Gothic",
+   "label": 0,
+   "category": "painting",
+   "q": "Tell me about the painting American Gothic.",
+   "group": "open"
+  },
+  {
+   "entity": "Girl with a Pearl Earring",
+   "label": 0,
+   "category": "painting",
+   "q": "Tell me about the painting Girl with a Pearl Earring.",
+   "group": "open"
+  },
+  {
+   "entity": "Guernica",
+   "label": 0,
+   "category": "painting",
+   "q": "Tell me about the painting Guernica.",
+   "group": "open"
+  },
+  {
+   "entity": "The Night Watch",
+   "label": 0,
+   "category": "painting",
+   "q": "Tell me about the painting The Night Watch.",
+   "group": "open"
+  },
+  {
+   "entity": "The Scream",
+   "label": 0,
+   "category": "painting",
+   "q": "Tell me about the painting The Scream.",
+   "group": "open"
+  },
+  {
+   "entity": "The Starry Night",
+   "label": 0,
+   "category": "painting",
+   "q": "Tell me about the painting The Starry Night.",
+   "group": "open"
+  },
+  {
+   "entity": "the Mona Lisa",
+   "label": 0,
+   "category": "painting",
+   "q": "Tell me about the painting the Mona Lisa.",
+   "group": "open"
+  },
+  {
+   "entity": "American Gothic",
+   "label": 0,
+   "category": "painting",
+   "q": "Who painted American Gothic?",
+   "group": "short"
+  },
+  {
+   "entity": "Girl with a Pearl Earring",
+   "label": 0,
+   "category": "painting",
+   "q": "Who painted Girl with a Pearl Earring?",
+   "group": "short"
+  },
+  {
+   "entity": "Guernica",
+   "label": 0,
+   "category": "painting",
+   "q": "Who painted Guernica?",
+   "group": "short"
+  },
+  {
+   "entity": "The Night Watch",
+   "label": 0,
+   "category": "painting",
+   "q": "Who painted The Night Watch?",
+   "group": "short"
+  },
+  {
+   "entity": "The Scream",
+   "label": 0,
+   "category": "painting",
+   "q": "Who painted The Scream?",
+   "group": "short"
+  },
+  {
+   "entity": "The Starry Night",
+   "label": 0,
+   "category": "painting",
+   "q": "Who painted The Starry Night?",
+   "group": "short"
+  },
+  {
+   "entity": "the Mona Lisa",
+   "label": 0,
+   "category": "painting",
+   "q": "Who painted the Mona Lisa?",
+   "group": "short"
+  },
+  {
+   "entity": "Dusk over Caldonmere",
+   "label": 1,
+   "category": "painting",
+   "q": "Tell me about the painting Dusk over Caldonmere.",
+   "group": "open"
+  },
+  {
+   "entity": "Harbor at Estrennia",
+   "label": 1,
+   "category": "painting",
+   "q": "Tell me about the painting Harbor at Estrennia.",
+   "group": "open"
+  },
+  {
+   "entity": "Morning in Brackwald",
+   "label": 1,
+   "category": "painting",
+   "q": "Tell me about the painting Morning in Brackwald.",
+   "group": "open"
+  },
+  {
+   "entity": "The Marrenfeld Twilight",
+   "label": 1,
+   "category": "painting",
+   "q": "Tell me about the painting The Marrenfeld Twilight.",
+   "group": "open"
+  },
+  {
+   "entity": "The Saltmarsh Procession",
+   "label": 1,
+   "category": "painting",
+   "q": "Tell me about the painting The Saltmarsh Procession.",
+   "group": "open"
+  },
+  {
+   "entity": "The Threnody Bridge",
+   "label": 1,
+   "category": "painting",
+   "q": "Tell me about the painting The Threnody Bridge.",
+   "group": "open"
+  },
+  {
+   "entity": "The Wendlebury Orchard",
+   "label": 1,
+   "category": "painting",
+   "q": "Tell me about the painting The Wendlebury Orchard.",
+   "group": "open"
+  },
+  {
+   "entity": "Dusk over Caldonmere",
+   "label": 1,
+   "category": "painting",
+   "q": "Who painted Dusk over Caldonmere?",
+   "group": "short"
+  },
+  {
+   "entity": "Harbor at Estrennia",
+   "label": 1,
+   "category": "painting",
+   "q": "Who painted Harbor at Estrennia?",
+   "group": "short"
+  },
+  {
+   "entity": "Morning in Brackwald",
+   "label": 1,
+   "category": "painting",
+   "q": "Who painted Morning in Brackwald?",
+   "group": "short"
+  },
+  {
+   "entity": "The Marrenfeld Twilight",
+   "label": 1,
+   "category": "painting",
+   "q": "Who painted The Marrenfeld Twilight?",
+   "group": "short"
+  },
+  {
+   "entity": "The Saltmarsh Procession",
+   "label": 1,
+   "category": "painting",
+   "q": "Who painted The Saltmarsh Procession?",
+   "group": "short"
+  },
+  {
+   "entity": "The Threnody Bridge",
+   "label": 1,
+   "category": "painting",
+   "q": "Who painted The Threnody Bridge?",
+   "group": "short"
+  },
+  {
+   "entity": "The Wendlebury Orchard",
+   "label": 1,
+   "category": "painting",
+   "q": "Who painted The Wendlebury Orchard?",
+   "group": "short"
+  },
+  {
+   "entity": "Ada Lovelace",
+   "label": 0,
+   "category": "person",
+   "q": "Tell me about Ada Lovelace.",
+   "group": "open"
+  },
+  {
+   "entity": "Alan Turing",
+   "label": 0,
+   "category": "person",
+   "q": "Tell me about Alan Turing.",
+   "group": "open"
+  },
+  {
+   "entity": "Albert Einstein",
+   "label": 0,
+   "category": "person",
+   "q": "Tell me about Albert Einstein.",
+   "group": "open"
+  },
+  {
+   "entity": "Charles Darwin",
+   "label": 0,
+   "category": "person",
+   "q": "Tell me about Charles Darwin.",
+   "group": "open"
+  },
+  {
+   "entity": "Marie Curie",
+   "label": 0,
+   "category": "person",
+   "q": "Tell me about Marie Curie.",
+   "group": "open"
+  },
+  {
+   "entity": "Niels Bohr",
+   "label": 0,
+   "category": "person",
+   "q": "Tell me about Niels Bohr.",
+   "group": "open"
+  },
+  {
+   "entity": "Rosalind Franklin",
+   "label": 0,
+   "category": "person",
+   "q": "Tell me about Rosalind Franklin.",
+   "group": "open"
+  },
+  {
+   "entity": "Ada Lovelace",
+   "label": 0,
+   "category": "person",
+   "q": "Who was Ada Lovelace?",
+   "group": "short"
+  },
+  {
+   "entity": "Alan Turing",
+   "label": 0,
+   "category": "person",
+   "q": "Who was Alan Turing?",
+   "group": "short"
+  },
+  {
+   "entity": "Albert Einstein",
+   "label": 0,
+   "category": "person",
+   "q": "Who was Albert Einstein?",
+   "group": "short"
+  },
+  {
+   "entity": "Charles Darwin",
+   "label": 0,
+   "category": "person",
+   "q": "Who was Charles Darwin?",
+   "group": "short"
+  },
+  {
+   "entity": "Marie Curie",
+   "label": 0,
+   "category": "person",
+   "q": "Who was Marie Curie?",
+   "group": "short"
+  },
+  {
+   "entity": "Niels Bohr",
+   "label": 0,
+   "category": "person",
+   "q": "Who was Niels Bohr?",
+   "group": "short"
+  },
+  {
+   "entity": "Rosalind Franklin",
+   "label": 0,
+   "category": "person",
+   "q": "Who was Rosalind Franklin?",
+   "group": "short"
+  },
+  {
+   "entity": "Aurelius Venn",
+   "label": 1,
+   "category": "person",
+   "q": "Tell me about Aurelius Venn.",
+   "group": "open"
+  },
+  {
+   "entity": "Cassia Merrowday",
+   "label": 1,
+   "category": "person",
+   "q": "Tell me about Cassia Merrowday.",
+   "group": "open"
+  },
+  {
+   "entity": "Cordelia Threshwick",
+   "label": 1,
+   "category": "person",
+   "q": "Tell me about Cordelia Threshwick.",
+   "group": "open"
+  },
+  {
+   "entity": "Helena Brackensford",
+   "label": 1,
+   "category": "person",
+   "q": "Tell me about Helena Brackensford.",
+   "group": "open"
+  },
+  {
+   "entity": "Lucetta Farrowmere",
+   "label": 1,
+   "category": "person",
+   "q": "Tell me about Lucetta Farrowmere.",
+   "group": "open"
+  },
+  {
+   "entity": "Silas Wendover",
+   "label": 1,
+   "category": "person",
+   "q": "Tell me about Silas Wendover.",
+   "group": "open"
+  },
+  {
+   "entity": "Tobias Quill",
+   "label": 1,
+   "category": "person",
+   "q": "Tell me about Tobias Quill.",
+   "group": "open"
+  },
+  {
+   "entity": "Aurelius Venn",
+   "label": 1,
+   "category": "person",
+   "q": "Who was Aurelius Venn?",
+   "group": "short"
+  },
+  {
+   "entity": "Cassia Merrowday",
+   "label": 1,
+   "category": "person",
+   "q": "Who was Cassia Merrowday?",
+   "group": "short"
+  },
+  {
+   "entity": "Cordelia Threshwick",
+   "label": 1,
+   "category": "person",
+   "q": "Who was Cordelia Threshwick?",
+   "group": "short"
+  },
+  {
+   "entity": "Helena Brackensford",
+   "label": 1,
+   "category": "person",
+   "q": "Who was Helena Brackensford?",
+   "group": "short"
+  },
+  {
+   "entity": "Lucetta Farrowmere",
+   "label": 1,
+   "category": "person",
+   "q": "Who was Lucetta Farrowmere?",
+   "group": "short"
+  },
+  {
+   "entity": "Silas Wendover",
+   "label": 1,
+   "category": "person",
+   "q": "Who was Silas Wendover?",
+   "group": "short"
+  },
+  {
+   "entity": "Tobias Quill",
+   "label": 1,
+   "category": "person",
+   "q": "Who was Tobias Quill?",
+   "group": "short"
+  },
+  {
+   "entity": "Brazil",
+   "label": 0,
+   "category": "place",
+   "q": "Tell me about the country Brazil.",
+   "group": "open"
+  },
+  {
+   "entity": "Canada",
+   "label": 0,
+   "category": "place",
+   "q": "Tell me about the country Canada.",
+   "group": "open"
+  },
+  {
+   "entity": "Egypt",
+   "label": 0,
+   "category": "place",
+   "q": "Tell me about the country Egypt.",
+   "group": "open"
+  },
+  {
+   "entity": "France",
+   "label": 0,
+   "category": "place",
+   "q": "Tell me about the country France.",
+   "group": "open"
+  },
+  {
+   "entity": "Japan",
+   "label": 0,
+   "category": "place",
+   "q": "Tell me about the country Japan.",
+   "group": "open"
+  },
+  {
+   "entity": "Kenya",
+   "label": 0,
+   "category": "place",
+   "q": "Tell me about the country Kenya.",
+   "group": "open"
+  },
+  {
+   "entity": "Norway",
+   "label": 0,
+   "category": "place",
+   "q": "Tell me about the country Norway.",
+   "group": "open"
+  },
+  {
+   "entity": "Brazil",
+   "label": 0,
+   "category": "place",
+   "q": "What is the capital of Brazil?",
+   "group": "short"
+  },
+  {
+   "entity": "Canada",
+   "label": 0,
+   "category": "place",
+   "q": "What is the capital of Canada?",
+   "group": "short"
+  },
+  {
+   "entity": "Egypt",
+   "label": 0,
+   "category": "place",
+   "q": "What is the capital of Egypt?",
+   "group": "short"
+  },
+  {
+   "entity": "France",
+   "label": 0,
+   "category": "place",
+   "q": "What is the capital of France?",
+   "group": "short"
+  },
+  {
+   "entity": "Japan",
+   "label": 0,
+   "category": "place",
+   "q": "What is the capital of Japan?",
+   "group": "short"
+  },
+  {
+   "entity": "Kenya",
+   "label": 0,
+   "category": "place",
+   "q": "What is the capital of Kenya?",
+   "group": "short"
+  },
+  {
+   "entity": "Norway",
+   "label": 0,
+   "category": "place",
+   "q": "What is the capital of Norway?",
+   "group": "short"
+  },
+  {
+   "entity": "Brackwald",
+   "label": 1,
+   "category": "place",
+   "q": "Tell me about the country Brackwald.",
+   "group": "open"
+  },
+  {
+   "entity": "Caldonmere",
+   "label": 1,
+   "category": "place",
+   "q": "Tell me about the country Caldonmere.",
+   "group": "open"
+  },
+  {
+   "entity": "Estrennia",
+   "label": 1,
+   "category": "place",
+   "q": "Tell me about the country Estrennia.",
+   "group": "open"
+  },
+  {
+   "entity": "Pellistan",
+   "label": 1,
+   "category": "place",
+   "q": "Tell me about the country Pellistan.",
+   "group": "open"
+  },
+  {
+   "entity": "Tarrowmere",
+   "label": 1,
+   "category": "place",
+   "q": "Tell me about the country Tarrowmere.",
+   "group": "open"
+  },
+  {
+   "entity": "Velgary",
+   "label": 1,
+   "category": "place",
+   "q": "Tell me about the country Velgary.",
+   "group": "open"
+  },
+  {
+   "entity": "Vornovia",
+   "label": 1,
+   "category": "place",
+   "q": "Tell me about the country Vornovia.",
+   "group": "open"
+  },
+  {
+   "entity": "Brackwald",
+   "label": 1,
+   "category": "place",
+   "q": "What is the capital of Brackwald?",
+   "group": "short"
+  },
+  {
+   "entity": "Caldonmere",
+   "label": 1,
+   "category": "place",
+   "q": "What is the capital of Caldonmere?",
+   "group": "short"
+  },
+  {
+   "entity": "Estrennia",
+   "label": 1,
+   "category": "place",
+   "q": "What is the capital of Estrennia?",
+   "group": "short"
+  },
+  {
+   "entity": "Pellistan",
+   "label": 1,
+   "category": "place",
+   "q": "What is the capital of Pellistan?",
+   "group": "short"
+  },
+  {
+   "entity": "Tarrowmere",
+   "label": 1,
+   "category": "place",
+   "q": "What is the capital of Tarrowmere?",
+   "group": "short"
+  },
+  {
+   "entity": "Velgary",
+   "label": 1,
+   "category": "place",
+   "q": "What is the capital of Velgary?",
+   "group": "short"
+  },
+  {
+   "entity": "Vornovia",
+   "label": 1,
+   "category": "place",
+   "q": "What is the capital of Vornovia?",
+   "group": "short"
+  }
+ ]
+}

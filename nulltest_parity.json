@@ -1,0 +1,41 @@
+{
+ "pairs": [
+  {
+   "battery": "grounding-coordinate.json",
+   "identical": true,
+   "cells": 21,
+   "verdict": "DISQUALIFIED",
+   "headline": "worst cell A* = 0.855 in length/eponymous_signs (n=28), family-adjusted p = 0.03 over 18 cells"
+  },
+  {
+   "battery": "photon-entities.json",
+   "identical": true,
+   "cells": 15,
+   "verdict": "DISQUALIFIED",
+   "headline": "worst cell A* = 1.0 in length/astronomy (n=19), family-adjusted p = 0.0033 over 12 cells"
+  },
+  {
+   "battery": "planted-separable",
+   "identical": true,
+   "cells": 0,
+   "verdict": "DISQUALIFIED",
+   "headline": "worst cell A* = 1.0 in lexicality/trials (n=120), family-adjusted p = 0.0017 over 3 cells",
+   "items_identical": true,
+   "required_verdict": "DISQUALIFIED",
+   "met": true
+  },
+  {
+   "battery": "planted-clean",
+   "identical": true,
+   "cells": 0,
+   "verdict": "PASS",
+   "headline": "worst cell A* = 0.511 in lexicality/trials (n=120), family-adjusted p = 0.8902 over 1 cells",
+   "items_identical": true,
+   "required_verdict": "PASS",
+   "met": true
+  }
+ ],
+ "cells_compared": 36,
+ "parity": "PASS",
+ "tool_sha256": "89ce656234712731979d322899a599fc46a1b5cc65ff90c59e883f5c08ea9f23"
+}

@@ -1,0 +1,234 @@
+{
+ "about": "Audit targets for nulltest_audit.py. Every target names the exact download URL, the exact field mapping, and what kind of label it carries. A target with no url, or one that fails to fetch, is reported as such \u2014 you cannot audit what nobody published, and that is a finding too. OUR OWN BATTERIES ARE THE FIRST TWO ROWS AND BOTH FAIL.",
+ "disqualified_means": "On this corpus a model-free classifier recovers the labels from surface form above what label-shuffling produces, so a model-based score on it needs a surface control to be interpretable. It is NOT a finding of error or misconduct by the authors, NOT a claim that the paper's conclusion is wrong, and NOT a statement about the method the paper proposes. Several of these corpora predate the practice of publishing a surface control. Ours do too, and ours fail.",
+ "label_kinds": {
+  "real_vs_fabricated_entity": "the item is an entity string. A surface hit means invented entities are spelled differently from real ones. This is the case the instrument was built for.",
+  "true_vs_false_statement": "the item is a whole sentence. A surface hit may reflect TEMPLATING \u2014 how the false statements were generated \u2014 rather than anything about the entities. Still a real confound for a probe trained on those sentences, but a different claim, and this table says which kind each row is.",
+  "known_vs_unknown_real_entity": "both classes are REAL entities from one registry, split by date. A surface hit means the registry's language drifted between the two periods, not that the fabricated half was generated differently \u2014 there is no fabricated half. A row of this kind is only meaningful if the model actually knows the known half; see prominence-people-v1, whose label validity was measured on the live model rather than assumed."
+ },
+ "targets": [
+  {
+   "name": "aperture/verifydomain-claims-147",
+   "paper": "Aperture / Project Forty Two \u2014 the battery behind our own front-page headline, withdrawn",
+   "url": "https://www.honesty.tools/verifier/batteries/verifydomain-claims-147.json",
+   "cache_as": "aperture_verifydomain_147.json",
+   "format": "json",
+   "root": "battery",
+   "text_field": "entity",
+   "label_field": "label",
+   "stratum_field": "category",
+   "label_positive": [
+    1,
+    "1"
+   ],
+   "label_kind": "true_vs_false_statement",
+   "note": "ours, and it was our headline. 147 claims, 36 coined fakes. DISQUALIFIED: all three scorable cells separate, lexicality A* 0.967. It led the home page for months while living on one machine outside version control, never served and never floored. Recovered, floored, published and withdrawn on 2026-07-25. Being a true_vs_false_statement corpus, the surface hit may reflect how the false claims were GENERATED rather than anything about the entities."
+  },
+  {
+   "name": "aperture/grounding-coordinate",
+   "paper": "Aperture / Project Forty Two \u2014 published null-floor certificate (ours)",
+   "url": "https://www.honesty.tools/verifier/batteries/grounding-coordinate.json",
+   "cache_as": "aperture_grounding.json",
+   "format": "json",
+   "root": "battery",
+   "text_field": "entity",
+   "label_field": "label",
+   "stratum_field": "category",
+   "label_positive": [
+    1,
+    "1"
+   ],
+   "label_kind": "real_vs_fabricated_entity",
+   "note": "ours. in the table because a referee who is not in the table is not a referee."
+  },
+  {
+   "name": "aperture/photon-entities",
+   "paper": "Aperture / Project Forty Two \u2014 the battery we used for months (ours)",
+   "url": "https://www.honesty.tools/verifier/batteries/photon-entities.json",
+   "cache_as": "aperture_photon.json",
+   "format": "json",
+   "text_field": "entity",
+   "label_field": "label",
+   "stratum_field": "category",
+   "label_positive": [
+    1,
+    "1"
+   ],
+   "label_kind": "real_vs_fabricated_entity",
+   "note": "ours."
+  },
+  {
+   "name": "aperture/prominence-people-v2",
+   "paper": "Aperture / Project Forty Two \u2014 the first battery of ours that clears its own surface floor",
+   "url": "https://www.honesty.tools/verifier/batteries/prominence-people-v2.json",
+   "cache_as": "aperture_prominence_v2.json",
+   "format": "json",
+   "root": "battery",
+   "text_field": "entity",
+   "label_field": "label",
+   "stratum_field": "category",
+   "label_positive": [
+    1,
+    "1"
+   ],
+   "label_kind": "known_vs_unknown_real_entity",
+   "note": "ours. Both classes real people; label 0 = high en.wikipedia pageviews, label 1 = low, drawn from that same person's own categories and matched on surname initial (78/78) and name length. PASSES: worst A* 0.554, family-adjusted p 0.8186. Power demonstrated (+1 char per item -> DISQUALIFIED at A* 0.750, p 0.0017). Label validity measured on the live model, not assumed: familiarity AUROC 0.999671 famous-over-obscure - NOT 1.000, and not threshold-separable (2 of 6084 pairs invert)."
+  },
+  {
+   "name": "aperture/prominence-people-v1",
+   "paper": "Aperture / Project Forty Two \u2014 a battery that PASSED this floor and was still broken",
+   "url": "https://www.honesty.tools/verifier/batteries/prominence-people-v1.json",
+   "cache_as": "aperture_prominence_v1.json",
+   "format": "json",
+   "root": "battery",
+   "text_field": "entity",
+   "label_field": "label",
+   "stratum_field": "category",
+   "label_positive": [
+    1,
+    "1"
+   ],
+   "label_kind": "known_vs_unknown_real_entity",
+   "note": "ours, retained as evidence. PASSES at worst A* 0.602, adjusted p 0.2246 - and is defective anyway: a fifth probe outside the shipped four, the surname's initial letter, recovers the labels at A* 0.661, because the builder measured the alphabetically-first 200 members of each Wikipedia category and biography categories sort by surname. Superseded by v2. In this table because a floor that cannot be shown to miss things will be mistaken for a proof of correctness."
+  },
+  {
+   "name": "aperture/postcutoff-trials-v1",
+   "paper": "Aperture / Project Forty Two \u2014 surface-blind by construction: BOTH classes real, split by registry date",
+   "url": "https://www.honesty.tools/verifier/batteries/postcutoff-trials-v1.json",
+   "cache_as": "aperture_postcutoff.json",
+   "format": "json",
+   "text_field": "entity",
+   "label_field": "label",
+   "stratum_field": "category",
+   "label_positive": [
+    1,
+    "1"
+   ],
+   "label_kind": "known_vs_unknown_real_entity",
+   "note": "ClinicalTrials.gov v2 brief titles. label 0 = first posted 2023-01..2024-06 (the model may have seen it), label 1 = 2026-04..2026-06 (it cannot have). Both halves are REAL titles from one registry, so surface statistics match by construction and neither half is a near-copy of the other. Length-matched; titles containing an explicit year removed."
+  },
+  {
+   "name": "bielik-entity-familiarity-v2",
+   "paper": "Graded Entity-Familiarity Readouts (arXiv:2607.13568, 2026)",
+   "url": "https://raw.githubusercontent.com/agentGreg/bielik-entity-familiarity/main/data/entities.csv",
+   "cache_as": "bielik_entities.csv",
+   "format": "csv",
+   "text_field": "entity",
+   "label_field": "kind",
+   "stratum_field": "domain",
+   "label_positive": [
+    "fabricated"
+   ],
+   "label_kind": "real_vs_fabricated_entity",
+   "note": "1440 Polish entities, 1200 real / 240 fabricated, four domains of 360."
+  },
+  {
+   "name": "hallucinated-references/gpt-4",
+   "paper": "Do Language Models Know When They're Hallucinating References? (arXiv:2305.18248, EACL Findings 2024)",
+   "url": "https://raw.githubusercontent.com/microsoft/hallucinated-references/main/data/gpt-4_results.csv",
+   "cache_as": "ms_halluref_gpt4.csv",
+   "format": "csv",
+   "text_field": "gen_title",
+   "label_field": "bing_return",
+   "label_positive": [
+    "False"
+   ],
+   "label_kind": "real_vs_fabricated_entity",
+   "note": "1000 model-generated paper titles; bing_return=False means the reference was not found, i.e. fabricated. No stratum field shipped."
+  },
+  {
+   "name": "geometry-of-truth/cities",
+   "paper": "The Geometry of Truth (arXiv:2310.06824, COLM 2024)",
+   "url": "https://raw.githubusercontent.com/saprmarks/geometry-of-truth/main/datasets/cities.csv",
+   "cache_as": "got_cities.csv",
+   "format": "csv",
+   "text_field": "statement",
+   "label_field": "label",
+   "label_positive": [
+    "0"
+   ],
+   "label_kind": "true_vs_false_statement",
+   "note": "1496 statements, label 1 = true, so the fabricated-or-false class is label 0. Templated: 'The city of X is in Y.'"
+  },
+  {
+   "name": "geometry-of-truth/sp_en_trans",
+   "paper": "The Geometry of Truth (arXiv:2310.06824, COLM 2024)",
+   "url": "https://raw.githubusercontent.com/saprmarks/geometry-of-truth/main/datasets/sp_en_trans.csv",
+   "cache_as": "got_spen.csv",
+   "format": "csv",
+   "text_field": "statement",
+   "label_field": "label",
+   "label_positive": [
+    "0"
+   ],
+   "label_kind": "true_vs_false_statement",
+   "note": "Spanish-English translation statements, same polarity."
+  },
+  {
+   "name": "truth-is-universal/facts",
+   "paper": "Truth is Universal (arXiv:2407.12831, NeurIPS 2024)",
+   "url": "https://raw.githubusercontent.com/sciai-lab/Truth_is_Universal/main/datasets/facts.csv",
+   "cache_as": "tiu_facts.csv",
+   "format": "csv",
+   "text_field": "statement",
+   "label_field": "label",
+   "label_positive": [
+    "0",
+    "0.0"
+   ],
+   "label_kind": "true_vs_false_statement",
+   "note": "label 1 = true, so the false class is 0."
+  },
+  {
+   "name": "aperture/knowledge-prominence-v1",
+   "paper": "Aperture / Project Forty Two",
+   "url": "https://www.honesty.tools/verifier/batteries/knowledge-prominence-v1.json",
+   "cache_as": "aperture_knowledge_prominence_v1.json",
+   "format": "json",
+   "root": "battery",
+   "text_field": "entity",
+   "label_field": "label",
+   "stratum_field": "category",
+   "label_positive": [
+    1,
+    "1"
+   ],
+   "label_kind": "known_vs_unknown_real_entity",
+   "note": "ours. SERVED and cited on /calibrate, yet it had never been in this manifest \u2014 so the table's claim to cover 'every one of our own' was false for as long as that page has been live. Audited here for the first time."
+  },
+  {
+   "name": "aperture/knowledge-prominence-v2",
+   "paper": "Aperture / Project Forty Two",
+   "url": "https://www.honesty.tools/verifier/batteries/knowledge-prominence-v2.json",
+   "cache_as": "aperture_knowledge_prominence_v2.json",
+   "format": "json",
+   "root": "battery",
+   "text_field": "entity",
+   "label_field": "label",
+   "stratum_field": "category",
+   "label_positive": [
+    1,
+    "1"
+   ],
+   "label_kind": "known_vs_unknown_real_entity",
+   "note": "ours. Served but cited on no live page \u2014 a dangling artifact. In the table so that being unpublished is not a way to stay unaudited."
+  },
+  {
+   "name": "aperture/calibration-battery-v1",
+   "paper": "Aperture / Project Forty Two \u2014 the battery we invited other labs to calibrate against",
+   "url": "https://www.honesty.tools/verifier/batteries/calibration-battery-v1.json",
+   "cache_as": "aperture_calibration_v1.json",
+   "format": "json",
+   "root": "battery",
+   "text_field": "entity",
+   "label_field": "label",
+   "stratum_field": "category",
+   "label_positive": [
+    1,
+    "1"
+   ],
+   "label_kind": "real_vs_fabricated_entity",
+   "note": "ours, and the worst artifact we have produced. It was absent from this table while the page promised 'every one of our own' \u2014 the single most load-bearing omission on it, since this is the battery we asked other labs to calibrate against."
+  }
+ ]
+}

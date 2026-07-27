@@ -1,0 +1,2108 @@
+{
+ "name": "knowledge-prominence-v2",
+ "built": "2026-07-26",
+ "n": 296,
+ "supersedes": {
+  "name": "knowledge-prominence-v1",
+  "why": "v1's book stratum was 64% malformed \u2014 subcategory traversal pulled 'Fictional characters in ...' categories under the novel seeds, so 51 of 80 entries were characters, not books, producing questions like 'Who wrote the book Hannibal Lecter?'. v2 filters subcategories by name before traversing: 2 of 52 remain, and both (Jane Eyre, Tess of the d'Urbervilles) are genuine novel titles that are also character names."
+ },
+ "design": "Both classes REAL. label 0 = high en.wikipedia pageviews (the model plausibly learned it), label 1 = low pageviews from the SAME Wikipedia category (it plausibly did not). Matched inside the pair on category, last-word initial and name length. Domains: book 26, firm 32, painting 10, person 40, place 40 pairs.",
+ "label_source": "en.wikipedia pageviews \u2014 external to our model and our retriever",
+ "surface_floor": {
+  "tool": "nulltest",
+  "permutations": 600,
+  "as_this_file_scores": {
+   "verdict": "PASS",
+   "worst_cell": "lexicality/place",
+   "worst_a_star": 0.689,
+   "family_adjusted_p": 0.0982,
+   "cells": 15,
+   "what_it_scores": "the bare entity names in this file \u2014 this is what you get running nulltest on it directly"
+  },
+  "as_the_model_sees_it": {
+   "verdict": "PASS",
+   "worst_cell": "length/place",
+   "worst_a_star": 0.655,
+   "family_adjusted_p": 0.3028,
+   "cells": 14,
+   "what_it_scores": "the full question text the console sends ('Who wrote the book X?'), which is the string a model actually receives"
+  },
+  "why_both_are_published": "They differ \u2014 0.689 against 0.655 \u2014 and quoting only the friendlier one would be the exact defect this instrument exists to catch. A stranger running nulltest on this artifact gets 0.689; the console's battery is scored at 0.655. Both PASS.",
+  "power": "n=296; an artifact must cover ~60% of the label-1 half before this test catches it"
+ },
+ "note_on_dropping_strata": "Removing the 10-pair painting stratum makes the verdict WORSE, not better (worst A* 0.731, adj p 0.0899 over 11 cells): a smaller family makes Westfall-Young min-p less forgiving. Kept all five.",
+ "battery": [
+  {
+   "entity": "For Whom the Bell Tolls",
+   "label": 0,
+   "category": "book",
+   "views": 1036.0,
+   "matched_on": "20th-century American novels"
+  },
+  {
+   "entity": "Death Turns the Tables",
+   "label": 1,
+   "category": "book",
+   "views": 3.3,
+   "matched_on": "20th-century American novels"
+  },
+  {
+   "entity": "Wuthering Heights",
+   "label": 0,
+   "category": "book",
+   "views": 6231.2,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Under the Hill",
+   "label": 1,
+   "category": "book",
+   "views": 4.8,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Alice's Adventures in Wonderland",
+   "label": 0,
+   "category": "book",
+   "views": 2294.9,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Aleriel, or A Voyage to Other Worlds",
+   "label": 1,
+   "category": "book",
+   "views": 3.8,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "The Picture of Dorian Gray",
+   "label": 0,
+   "category": "book",
+   "views": 2261.4,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "The History of David Grieve",
+   "label": 1,
+   "category": "book",
+   "views": 2.1,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Dracula",
+   "label": 0,
+   "category": "book",
+   "views": 2247.3,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Old Sir Douglas",
+   "label": 1,
+   "category": "book",
+   "views": 2.9,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Jane Eyre",
+   "label": 0,
+   "category": "book",
+   "views": 1809.9,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Born in Exile",
+   "label": 1,
+   "category": "book",
+   "views": 5.8,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Heart of Darkness",
+   "label": 0,
+   "category": "book",
+   "views": 1719.0,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Wisdom's Daughter",
+   "label": 1,
+   "category": "book",
+   "views": 11.3,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Middlemarch",
+   "label": 0,
+   "category": "book",
+   "views": 1547.5,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "A Life's Morning",
+   "label": 1,
+   "category": "book",
+   "views": 2.5,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Strange Case of Dr Jekyll and Mr Hyde",
+   "label": 0,
+   "category": "book",
+   "views": 1500.3,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "The Cloister and the Hearth",
+   "label": 1,
+   "category": "book",
+   "views": 25.4,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Treasure Island",
+   "label": 0,
+   "category": "book",
+   "views": 1412.1,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Hilary St. Ives",
+   "label": 1,
+   "category": "book",
+   "views": 1.3,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "The War of the Worlds",
+   "label": 0,
+   "category": "book",
+   "views": 1385.6,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "A Romance of Two Worlds",
+   "label": 1,
+   "category": "book",
+   "views": 14.1,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "The Time Machine",
+   "label": 0,
+   "category": "book",
+   "views": 1036.3,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Miss Marjoribanks",
+   "label": 1,
+   "category": "book",
+   "views": 6.8,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Through the Looking-Glass",
+   "label": 0,
+   "category": "book",
+   "views": 741.5,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Eric, or, Little by Little",
+   "label": 1,
+   "category": "book",
+   "views": 18.1,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Tess of the d'Urbervilles",
+   "label": 0,
+   "category": "book",
+   "views": 691.0,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "The Battle of Dorking",
+   "label": 1,
+   "category": "book",
+   "views": 46.4,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "The Island of Doctor Moreau",
+   "label": 0,
+   "category": "book",
+   "views": 573.2,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "The Way of a Man with a Maid",
+   "label": 1,
+   "category": "book",
+   "views": 29.5,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "A Study in Scarlet",
+   "label": 0,
+   "category": "book",
+   "views": 550.7,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "The Book of Snobs",
+   "label": 1,
+   "category": "book",
+   "views": 13.7,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Far from the Madding Crowd",
+   "label": 0,
+   "category": "book",
+   "views": 550.7,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Annals of the Twenty-Ninth Century",
+   "label": 1,
+   "category": "book",
+   "views": 2.7,
+   "matched_on": "19th-century British novels"
+  },
+  {
+   "entity": "Brave New World",
+   "label": 0,
+   "category": "book",
+   "views": 2263.8,
+   "matched_on": "Novels set in London"
+  },
+  {
+   "entity": "As for the Woman",
+   "label": 1,
+   "category": "book",
+   "views": 2.2,
+   "matched_on": "Novels set in London"
+  },
+  {
+   "entity": "Around the World in Eighty Days",
+   "label": 0,
+   "category": "book",
+   "views": 710.5,
+   "matched_on": "Novels set in London"
+  },
+  {
+   "entity": "The Detective Wore Silk Drawers",
+   "label": 1,
+   "category": "book",
+   "views": 2.4,
+   "matched_on": "Novels set in London"
+  },
+  {
+   "entity": "The Day of the Jackal",
+   "label": 0,
+   "category": "book",
+   "views": 671.4,
+   "matched_on": "Novels set in London"
+  },
+  {
+   "entity": "Flowers for the Judge",
+   "label": 1,
+   "category": "book",
+   "views": 5.1,
+   "matched_on": "Novels set in London"
+  },
+  {
+   "entity": "Good Omens",
+   "label": 0,
+   "category": "book",
+   "views": 527.1,
+   "matched_on": "Novels set in London"
+  },
+  {
+   "entity": "French Strikes Oil",
+   "label": 1,
+   "category": "book",
+   "views": 1.9,
+   "matched_on": "Novels set in London"
+  },
+  {
+   "entity": "The Ballad of Songbirds and Snakes",
+   "label": 0,
+   "category": "book",
+   "views": 1349.3,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "Across the Universe (novel series)",
+   "label": 1,
+   "category": "book",
+   "views": 15.3,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "11/22/63",
+   "label": 0,
+   "category": "book",
+   "views": 915.2,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "Barrayar",
+   "label": 1,
+   "category": "book",
+   "views": 21.4,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "Cat's Cradle",
+   "label": 0,
+   "category": "book",
+   "views": 681.0,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "Chronic City",
+   "label": 1,
+   "category": "book",
+   "views": 9.4,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "The Captive's War",
+   "label": 0,
+   "category": "book",
+   "views": 611.2,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "And Having Writ...",
+   "label": 1,
+   "category": "book",
+   "views": 4.4,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "The Fifth Season (novel)",
+   "label": 0,
+   "category": "book",
+   "views": 559.9,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "The Devil's Game (novel)",
+   "label": 1,
+   "category": "book",
+   "views": 3.3,
+   "matched_on": "American science fiction novels"
+  },
+  {
+   "entity": "Dynatrace",
+   "label": 0,
+   "category": "firm",
+   "views": 16757.2,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Despegar",
+   "label": 1,
+   "category": "firm",
+   "views": 24.8,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "BlackRock",
+   "label": 0,
+   "category": "firm",
+   "views": 3225.7,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Chiba Bank",
+   "label": 1,
+   "category": "firm",
+   "views": 6.8,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Blackstone Inc.",
+   "label": 0,
+   "category": "firm",
+   "views": 1774.9,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "CSS Industries",
+   "label": 1,
+   "category": "firm",
+   "views": 8.7,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Accenture",
+   "label": 0,
+   "category": "firm",
+   "views": 1633.5,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "AptarGroup",
+   "label": 1,
+   "category": "firm",
+   "views": 42.3,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "The Coca-Cola Company",
+   "label": 0,
+   "category": "firm",
+   "views": 1633.3,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "AvalonBay Communities",
+   "label": 1,
+   "category": "firm",
+   "views": 46.8,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "AT&T",
+   "label": 0,
+   "category": "firm",
+   "views": 1529.7,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Adient",
+   "label": 1,
+   "category": "firm",
+   "views": 44.3,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Eli Lilly and Company",
+   "label": 0,
+   "category": "firm",
+   "views": 1484.7,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Banco Santander Chile",
+   "label": 1,
+   "category": "firm",
+   "views": 10.0,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Apollo Global Management",
+   "label": 0,
+   "category": "firm",
+   "views": 1448.4,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Antero Midstream",
+   "label": 1,
+   "category": "firm",
+   "views": 1.4,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "BP",
+   "label": 0,
+   "category": "firm",
+   "views": 1418.9,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "B2Gold",
+   "label": 1,
+   "category": "firm",
+   "views": 16.9,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Alibaba Group",
+   "label": 0,
+   "category": "firm",
+   "views": 1261.3,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Centerra Gold",
+   "label": 1,
+   "category": "firm",
+   "views": 16.4,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "ExxonMobil",
+   "label": 0,
+   "category": "firm",
+   "views": 1194.5,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "CMS Energy",
+   "label": 1,
+   "category": "firm",
+   "views": 32.5,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "DuPont",
+   "label": 0,
+   "category": "firm",
+   "views": 995.8,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Drdgold",
+   "label": 1,
+   "category": "firm",
+   "views": 6.3,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Barclays",
+   "label": 0,
+   "category": "firm",
+   "views": 935.8,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Braskem",
+   "label": 1,
+   "category": "firm",
+   "views": 42.7,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Chevron Corporation",
+   "label": 0,
+   "category": "firm",
+   "views": 855.1,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Accuride Corporation",
+   "label": 1,
+   "category": "firm",
+   "views": 9.4,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Elasticsearch",
+   "label": 0,
+   "category": "firm",
+   "views": 845.8,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Centrus Energy",
+   "label": 1,
+   "category": "firm",
+   "views": 45.1,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "AB InBev",
+   "label": 0,
+   "category": "firm",
+   "views": 808.8,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "BXP, Inc.",
+   "label": 1,
+   "category": "firm",
+   "views": 29.6,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Best Buy",
+   "label": 0,
+   "category": "firm",
+   "views": 775.9,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "BrandSafway",
+   "label": 1,
+   "category": "firm",
+   "views": 27.7,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Etsy",
+   "label": 0,
+   "category": "firm",
+   "views": 647.2,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "E2open",
+   "label": 1,
+   "category": "firm",
+   "views": 24.7,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Charles Schwab Corporation",
+   "label": 0,
+   "category": "firm",
+   "views": 600.9,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Entravision Communications",
+   "label": 1,
+   "category": "firm",
+   "views": 34.7,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Booz Allen Hamilton",
+   "label": 0,
+   "category": "firm",
+   "views": 510.0,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Bright Horizons",
+   "label": 1,
+   "category": "firm",
+   "views": 44.4,
+   "matched_on": "Companies listed on the New York Stock Exchange"
+  },
+  {
+   "entity": "Microsoft",
+   "label": 0,
+   "category": "firm",
+   "views": 5673.3,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "MarkLogic",
+   "label": 1,
+   "category": "firm",
+   "views": 19.9,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "Cursor (company)",
+   "label": 0,
+   "category": "firm",
+   "views": 3555.7,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "Amwell (company)",
+   "label": 1,
+   "category": "firm",
+   "views": 24.2,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "IBM",
+   "label": 0,
+   "category": "firm",
+   "views": 2535.9,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "Impinj",
+   "label": 1,
+   "category": "firm",
+   "views": 20.6,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "ElevenLabs",
+   "label": 0,
+   "category": "firm",
+   "views": 1023.5,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "Enthought",
+   "label": 1,
+   "category": "firm",
+   "views": 5.5,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "Adobe Inc.",
+   "label": 0,
+   "category": "firm",
+   "views": 937.4,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "Intelligen",
+   "label": 1,
+   "category": "firm",
+   "views": 2.8,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "HP Inc.",
+   "label": 0,
+   "category": "firm",
+   "views": 742.4,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "4D Inc.",
+   "label": 1,
+   "category": "firm",
+   "views": 8.8,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "Intuit",
+   "label": 0,
+   "category": "firm",
+   "views": 548.4,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "Intego",
+   "label": 1,
+   "category": "firm",
+   "views": 17.0,
+   "matched_on": "Software companies of the United States"
+  },
+  {
+   "entity": "BP",
+   "label": 0,
+   "category": "firm",
+   "views": 1418.9,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "Belorusneft",
+   "label": 1,
+   "category": "firm",
+   "views": 4.7,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "Shell plc",
+   "label": 0,
+   "category": "firm",
+   "views": 1266.3,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "Petrofina",
+   "label": 1,
+   "category": "firm",
+   "views": 36.4,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "ExxonMobil",
+   "label": 0,
+   "category": "firm",
+   "views": 1194.5,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "Ecopetrol",
+   "label": 1,
+   "category": "firm",
+   "views": 41.5,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "Chevron Corporation",
+   "label": 0,
+   "category": "firm",
+   "views": 855.1,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "Wesco (oil company)",
+   "label": 1,
+   "category": "firm",
+   "views": 7.7,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "TotalEnergies",
+   "label": 0,
+   "category": "firm",
+   "views": 601.4,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "Arctic Trucks",
+   "label": 1,
+   "category": "firm",
+   "views": 31.2,
+   "matched_on": "Automotive companies"
+  },
+  {
+   "entity": "The Starry Night",
+   "label": 0,
+   "category": "painting",
+   "views": 2625.8,
+   "matched_on": "Paintings by Vincent van Gogh"
+  },
+  {
+   "entity": "White House at Night",
+   "label": 1,
+   "category": "painting",
+   "views": 7.2,
+   "matched_on": "Paintings by Vincent van Gogh"
+  },
+  {
+   "entity": "Sunflowers (Van Gogh series)",
+   "label": 0,
+   "category": "painting",
+   "views": 660.6,
+   "matched_on": "Paintings by Vincent van Gogh"
+  },
+  {
+   "entity": "Avenue of Poplars at Sunset",
+   "label": 1,
+   "category": "painting",
+   "views": 3.2,
+   "matched_on": "Paintings by Vincent van Gogh"
+  },
+  {
+   "entity": "Water Lilies (Monet series)",
+   "label": 0,
+   "category": "painting",
+   "views": 785.9,
+   "matched_on": "Paintings by Claude Monet"
+  },
+  {
+   "entity": "The Beach at Sainte-Adresse",
+   "label": 1,
+   "category": "painting",
+   "views": 12.6,
+   "matched_on": "Paintings by Claude Monet"
+  },
+  {
+   "entity": "The Night Watch",
+   "label": 0,
+   "category": "painting",
+   "views": 695.2,
+   "matched_on": "Paintings by Rembrandt"
+  },
+  {
+   "entity": "A Woman Weeping",
+   "label": 1,
+   "category": "painting",
+   "views": 3.3,
+   "matched_on": "Paintings by Rembrandt"
+  },
+  {
+   "entity": "The Storm on the Sea of Galilee",
+   "label": 0,
+   "category": "painting",
+   "views": 534.8,
+   "matched_on": "Paintings by Rembrandt"
+  },
+  {
+   "entity": "Portrait of a Man Holding Gloves",
+   "label": 1,
+   "category": "painting",
+   "views": 2.0,
+   "matched_on": "Paintings by Rembrandt"
+  },
+  {
+   "entity": "Guernica (Picasso)",
+   "label": 0,
+   "category": "painting",
+   "views": 2064.2,
+   "matched_on": "Paintings by Pablo Picasso"
+  },
+  {
+   "entity": "Le Repos (Picasso)",
+   "label": 1,
+   "category": "painting",
+   "views": 9.6,
+   "matched_on": "Paintings by Pablo Picasso"
+  },
+  {
+   "entity": "Les Demoiselles d'Avignon",
+   "label": 0,
+   "category": "painting",
+   "views": 503.7,
+   "matched_on": "Paintings by Pablo Picasso"
+  },
+  {
+   "entity": "Child with a Dove",
+   "label": 1,
+   "category": "painting",
+   "views": 28.1,
+   "matched_on": "Paintings by Pablo Picasso"
+  },
+  {
+   "entity": "Saturn Devouring His Son",
+   "label": 0,
+   "category": "painting",
+   "views": 3071.9,
+   "matched_on": "19th-century paintings"
+  },
+  {
+   "entity": "The Burial of the Sardine",
+   "label": 1,
+   "category": "painting",
+   "views": 15.4,
+   "matched_on": "19th-century paintings"
+  },
+  {
+   "entity": "Black Paintings",
+   "label": 0,
+   "category": "painting",
+   "views": 1050.9,
+   "matched_on": "19th-century paintings"
+  },
+  {
+   "entity": "Sundari painting",
+   "label": 1,
+   "category": "painting",
+   "views": 6.6,
+   "matched_on": "19th-century paintings"
+  },
+  {
+   "entity": "The Course of Empire (paintings)",
+   "label": 0,
+   "category": "painting",
+   "views": 514.6,
+   "matched_on": "19th-century paintings"
+  },
+  {
+   "entity": "Lamentation of Christ (Kantounis)",
+   "label": 1,
+   "category": "painting",
+   "views": 1.6,
+   "matched_on": "19th-century paintings"
+  },
+  {
+   "entity": "Berlin",
+   "label": 0,
+   "category": "place",
+   "views": 4261.2,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Bottrop",
+   "label": 1,
+   "category": "place",
+   "views": 45.7,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Munich",
+   "label": 0,
+   "category": "place",
+   "views": 2448.1,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Moers",
+   "label": 1,
+   "category": "place",
+   "views": 38.8,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Cologne",
+   "label": 0,
+   "category": "place",
+   "views": 2175.8,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Hamburg Messe und Congress",
+   "label": 1,
+   "category": "place",
+   "views": 6.5,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Hamburg",
+   "label": 0,
+   "category": "place",
+   "views": 2125.7,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Hausach",
+   "label": 1,
+   "category": "place",
+   "views": 7.2,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Nuremberg",
+   "label": 0,
+   "category": "place",
+   "views": 1693.2,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Ettenheim",
+   "label": 1,
+   "category": "place",
+   "views": 11.5,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Frankfurt",
+   "label": 0,
+   "category": "place",
+   "views": 1616.7,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Fleetenkieker",
+   "label": 1,
+   "category": "place",
+   "views": 1.1,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Stuttgart",
+   "label": 0,
+   "category": "place",
+   "views": 1242.6,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Sassnitz",
+   "label": 1,
+   "category": "place",
+   "views": 32.6,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Dresden",
+   "label": 0,
+   "category": "place",
+   "views": 1193.8,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Wolgast",
+   "label": 1,
+   "category": "place",
+   "views": 31.4,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "D\u00fcsseldorf",
+   "label": 0,
+   "category": "place",
+   "views": 1154.3,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Gengenbach",
+   "label": 1,
+   "category": "place",
+   "views": 38.6,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Aachen",
+   "label": 0,
+   "category": "place",
+   "views": 1078.3,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Achern",
+   "label": 1,
+   "category": "place",
+   "views": 18.1,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Bonn",
+   "label": 0,
+   "category": "place",
+   "views": 1010.7,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Flag of Bremen",
+   "label": 1,
+   "category": "place",
+   "views": 11.2,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Hanover",
+   "label": 0,
+   "category": "place",
+   "views": 853.7,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Hornberg",
+   "label": 1,
+   "category": "place",
+   "views": 12.6,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Dortmund",
+   "label": 0,
+   "category": "place",
+   "views": 792.6,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Mahlberg",
+   "label": 1,
+   "category": "place",
+   "views": 4.6,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Heidelberg",
+   "label": 0,
+   "category": "place",
+   "views": 781.4,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Heiligenhafen",
+   "label": 1,
+   "category": "place",
+   "views": 12.0,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Bremen",
+   "label": 0,
+   "category": "place",
+   "views": 702.8,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Trinational Eurodistrict of Basel",
+   "label": 1,
+   "category": "place",
+   "views": 17.3,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Gelsenkirchen",
+   "label": 0,
+   "category": "place",
+   "views": 647.3,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Hamburg Messe",
+   "label": 1,
+   "category": "place",
+   "views": 5.0,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Mannheim",
+   "label": 0,
+   "category": "place",
+   "views": 612.2,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "History of Mainz",
+   "label": 1,
+   "category": "place",
+   "views": 6.3,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Freiburg im Breisgau",
+   "label": 0,
+   "category": "place",
+   "views": 604.9,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Hamburg-Eimsb\u00fctteler Ballspiel-Club",
+   "label": 1,
+   "category": "place",
+   "views": 23.4,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Ruhr",
+   "label": 0,
+   "category": "place",
+   "views": 598.8,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Renchen",
+   "label": 1,
+   "category": "place",
+   "views": 5.0,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Regensburg",
+   "label": 0,
+   "category": "place",
+   "views": 563.6,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Remscheid",
+   "label": 1,
+   "category": "place",
+   "views": 42.2,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Mainz",
+   "label": 0,
+   "category": "place",
+   "views": 555.3,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Lahr",
+   "label": 1,
+   "category": "place",
+   "views": 38.8,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Potsdam",
+   "label": 0,
+   "category": "place",
+   "views": 530.3,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Aby Warburg Prize",
+   "label": 1,
+   "category": "place",
+   "views": 2.6,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Karlsruhe",
+   "label": 0,
+   "category": "place",
+   "views": 523.8,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Haslach im Kinzigtal",
+   "label": 1,
+   "category": "place",
+   "views": 8.0,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Augsburg",
+   "label": 0,
+   "category": "place",
+   "views": 522.0,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Oppenau",
+   "label": 1,
+   "category": "place",
+   "views": 4.9,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "W\u00fcrzburg",
+   "label": 0,
+   "category": "place",
+   "views": 500.7,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "L\u00f6wenstein",
+   "label": 1,
+   "category": "place",
+   "views": 8.0,
+   "matched_on": "Cities in Germany"
+  },
+  {
+   "entity": "Osaka",
+   "label": 0,
+   "category": "place",
+   "views": 1795.9,
+   "matched_on": "Cities in Japan"
+  },
+  {
+   "entity": "Oirase",
+   "label": 1,
+   "category": "place",
+   "views": 3.4,
+   "matched_on": "Cities in Japan"
+  },
+  {
+   "entity": "Nagoya",
+   "label": 0,
+   "category": "place",
+   "views": 897.8,
+   "matched_on": "Cities in Japan"
+  },
+  {
+   "entity": "Noheji",
+   "label": 1,
+   "category": "place",
+   "views": 2.9,
+   "matched_on": "Cities in Japan"
+  },
+  {
+   "entity": "Kobe",
+   "label": 0,
+   "category": "place",
+   "views": 576.5,
+   "matched_on": "Cities in Japan"
+  },
+  {
+   "entity": "Kanie",
+   "label": 1,
+   "category": "place",
+   "views": 4.2,
+   "matched_on": "Cities in Japan"
+  },
+  {
+   "entity": "Paris",
+   "label": 0,
+   "category": "place",
+   "views": 5751.9,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Privas",
+   "label": 1,
+   "category": "place",
+   "views": 19.5,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Marseille",
+   "label": 0,
+   "category": "place",
+   "views": 1989.7,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Mourenx",
+   "label": 1,
+   "category": "place",
+   "views": 3.7,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Strasbourg",
+   "label": 0,
+   "category": "place",
+   "views": 1626.2,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Vieux-Lille",
+   "label": 1,
+   "category": "place",
+   "views": 7.5,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Lyon",
+   "label": 0,
+   "category": "place",
+   "views": 1507.7,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Mende, Loz\u00e8re",
+   "label": 1,
+   "category": "place",
+   "views": 34.6,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Nice",
+   "label": 0,
+   "category": "place",
+   "views": 1483.6,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Cergy",
+   "label": 1,
+   "category": "place",
+   "views": 39.4,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Bordeaux",
+   "label": 0,
+   "category": "place",
+   "views": 1304.8,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Bobigny",
+   "label": 1,
+   "category": "place",
+   "views": 46.1,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Toulouse",
+   "label": 0,
+   "category": "place",
+   "views": 1237.1,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Gu\u00e9ret",
+   "label": 1,
+   "category": "place",
+   "views": 22.5,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Carcassonne",
+   "label": 0,
+   "category": "place",
+   "views": 872.4,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Grand Gen\u00e8ve",
+   "label": 1,
+   "category": "place",
+   "views": 16.3,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Lille",
+   "label": 0,
+   "category": "place",
+   "views": 801.1,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "L'Isle-d'Abeau",
+   "label": 1,
+   "category": "place",
+   "views": 5.3,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Rouen",
+   "label": 0,
+   "category": "place",
+   "views": 795.0,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Saint-Paul, R\u00e9union",
+   "label": 1,
+   "category": "place",
+   "views": 22.6,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Aix-en-Provence",
+   "label": 0,
+   "category": "place",
+   "views": 739.5,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Functional area",
+   "label": 1,
+   "category": "place",
+   "views": 14.6,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Nantes",
+   "label": 0,
+   "category": "place",
+   "views": 730.6,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Vesoul",
+   "label": 1,
+   "category": "place",
+   "views": 31.3,
+   "matched_on": "Cities in France"
+  },
+  {
+   "entity": "Jessica Alba",
+   "label": 0,
+   "category": "person",
+   "views": 8415.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Joanna Adler",
+   "label": 1,
+   "category": "person",
+   "views": 31.7,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Ana de Armas",
+   "label": 0,
+   "category": "person",
+   "views": 6712.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Mary Ainslee",
+   "label": 1,
+   "category": "person",
+   "views": 19.1,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Elizabeth Banks",
+   "label": 0,
+   "category": "person",
+   "views": 5427.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Melissa Bacelar",
+   "label": 1,
+   "category": "person",
+   "views": 4.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Aaliyah",
+   "label": 0,
+   "category": "person",
+   "views": 5159.3,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Pat Ast",
+   "label": 1,
+   "category": "person",
+   "views": 37.5,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Patricia Arquette",
+   "label": 0,
+   "category": "person",
+   "views": 4939.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Coretti Arle-Titz",
+   "label": 1,
+   "category": "person",
+   "views": 19.1,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Gillian Anderson",
+   "label": 0,
+   "category": "person",
+   "views": 4747.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Dora Mills Adams",
+   "label": 1,
+   "category": "person",
+   "views": 2.5,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Maude Apatow",
+   "label": 0,
+   "category": "person",
+   "views": 4050.6,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Stella Adams",
+   "label": 1,
+   "category": "person",
+   "views": 4.7,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Anne Bancroft",
+   "label": 0,
+   "category": "person",
+   "views": 4046.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Carla Balenda",
+   "label": 1,
+   "category": "person",
+   "views": 28.6,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Bea Arthur",
+   "label": 0,
+   "category": "person",
+   "views": 3602.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Zuri Adele",
+   "label": 1,
+   "category": "person",
+   "views": 19.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Kelsey Asbille",
+   "label": 0,
+   "category": "person",
+   "views": 3550.1,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Loretta Abbott",
+   "label": 1,
+   "category": "person",
+   "views": 4.1,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Lauren Bacall",
+   "label": 0,
+   "category": "person",
+   "views": 3422.3,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Madelon Baker",
+   "label": 1,
+   "category": "person",
+   "views": 2.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Awkwafina",
+   "label": 0,
+   "category": "person",
+   "views": 3159.6,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Lisa Arch",
+   "label": 1,
+   "category": "person",
+   "views": 44.6,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Sasha Alexander",
+   "label": 0,
+   "category": "person",
+   "views": 2836.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Leslie Ackerman",
+   "label": 1,
+   "category": "person",
+   "views": 35.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Malin Akerman",
+   "label": 0,
+   "category": "person",
+   "views": 2797.0,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Emelina Adams",
+   "label": 1,
+   "category": "person",
+   "views": 11.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Pamela Adlon",
+   "label": 0,
+   "category": "person",
+   "views": 2582.5,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Billie Allen",
+   "label": 1,
+   "category": "person",
+   "views": 11.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Sosie Bacon",
+   "label": 0,
+   "category": "person",
+   "views": 2467.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Regina Baff",
+   "label": 1,
+   "category": "person",
+   "views": 22.2,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Sara Bareilles",
+   "label": 0,
+   "category": "person",
+   "views": 2366.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Georgia Backus",
+   "label": 1,
+   "category": "person",
+   "views": 11.7,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Adrienne Barbeau",
+   "label": 0,
+   "category": "person",
+   "views": 2324.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Gertrude Bambrick",
+   "label": 1,
+   "category": "person",
+   "views": 6.5,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Halle Bailey",
+   "label": 0,
+   "category": "person",
+   "views": 2152.3,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Alice Backes",
+   "label": 1,
+   "category": "person",
+   "views": 26.3,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Talia Balsam",
+   "label": 0,
+   "category": "person",
+   "views": 2096.2,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Jeanne Baird",
+   "label": 1,
+   "category": "person",
+   "views": 12.7,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Fairuza Balk",
+   "label": 0,
+   "category": "person",
+   "views": 2003.7,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Janet Banzet",
+   "label": 1,
+   "category": "person",
+   "views": 34.7,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Amy Acker",
+   "label": 0,
+   "category": "person",
+   "views": 1891.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Mari Aldon",
+   "label": 1,
+   "category": "person",
+   "views": 37.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Dianna Agron",
+   "label": 0,
+   "category": "person",
+   "views": 1641.5,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Judith Allen",
+   "label": 1,
+   "category": "person",
+   "views": 23.0,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Emily Bader",
+   "label": 0,
+   "category": "person",
+   "views": 1604.2,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Belle Baker",
+   "label": 1,
+   "category": "person",
+   "views": 14.6,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Loni Anderson",
+   "label": 0,
+   "category": "person",
+   "views": 1558.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Lillian Adams",
+   "label": 1,
+   "category": "person",
+   "views": 22.0,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Ella Anderson",
+   "label": 0,
+   "category": "person",
+   "views": 1354.2,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Viola Alberti",
+   "label": 1,
+   "category": "person",
+   "views": 4.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Ireland Baldwin",
+   "label": 0,
+   "category": "person",
+   "views": 1285.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Lucille Barkley",
+   "label": 1,
+   "category": "person",
+   "views": 10.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Odette Annable",
+   "label": 0,
+   "category": "person",
+   "views": 1265.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Kimberly Amato",
+   "label": 1,
+   "category": "person",
+   "views": 4.3,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Eva Amurri",
+   "label": 0,
+   "category": "person",
+   "views": 1238.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Mary Alden",
+   "label": 1,
+   "category": "person",
+   "views": 23.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Joan Allen",
+   "label": 0,
+   "category": "person",
+   "views": 1081.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Laur Allen",
+   "label": 1,
+   "category": "person",
+   "views": 11.0,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Joey Lauren Adams",
+   "label": 0,
+   "category": "person",
+   "views": 1070.1,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Rebekka Armstrong",
+   "label": 1,
+   "category": "person",
+   "views": 37.1,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Tallulah Bankhead",
+   "label": 0,
+   "category": "person",
+   "views": 1065.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Barbara Barondess",
+   "label": 1,
+   "category": "person",
+   "views": 8.7,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Uzo Aduba",
+   "label": 0,
+   "category": "person",
+   "views": 1061.6,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Lisa Aliff",
+   "label": 1,
+   "category": "person",
+   "views": 16.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Suzy Amis Cameron",
+   "label": 0,
+   "category": "person",
+   "views": 1011.6,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Lassie Lou Ahern",
+   "label": 1,
+   "category": "person",
+   "views": 18.2,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Carroll Baker",
+   "label": 0,
+   "category": "person",
+   "views": 902.0,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Mabel Bardine",
+   "label": 1,
+   "category": "person",
+   "views": 1.5,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Diahnne Abbott",
+   "label": 0,
+   "category": "person",
+   "views": 901.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Monica Allison",
+   "label": 1,
+   "category": "person",
+   "views": 24.1,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Catherine Bach",
+   "label": 0,
+   "category": "person",
+   "views": 853.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Leslie Banning",
+   "label": 1,
+   "category": "person",
+   "views": 2.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Essence Atkins",
+   "label": 0,
+   "category": "person",
+   "views": 820.9,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Heather Ankeny",
+   "label": 1,
+   "category": "person",
+   "views": 4.8,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Neile Adams",
+   "label": 0,
+   "category": "person",
+   "views": 771.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Eadie Adams",
+   "label": 1,
+   "category": "person",
+   "views": 4.7,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Lori Alan",
+   "label": 0,
+   "category": "person",
+   "views": 734.4,
+   "matched_on": "American film actresses"
+  },
+  {
+   "entity": "Elsie Ames",
+   "label": 1,
+   "category": "person",
+   "views": 30.2,
+   "matched_on": "American film actresses"
+  }
+ ]
+}

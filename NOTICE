@@ -1,0 +1,39 @@
+nulltest — a model-free surface floor for honesty benchmarks
+Copyright 2026 Kevin Russell (Aperture / Project Forty Two)
+
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+WHAT THIS LICENSE COVERS
+  Everything in this directory: the null test (nulltest.py, nulltest.js and their supporting
+  scripts), the audit harness (nulltest_audit.py, render_audit.py), the claim gate
+  (claim_gate.py), and the battery JSON files under batteries/.
+
+  It does NOT extend to the rest of the repository this directory lives in.
+
+WHY APACHE-2.0 AND NOT MIT
+  The express patent grant in section 3. The intended users are labs whose counsel reads the
+  licence before anyone runs the tool, and a bare permissive licence without a patent grant is
+  where that review stalls. jacobian-lens set the same precedent in this field.
+
+WHAT THE BATTERIES ARE, AND WHAT THEY ARE NOT
+  The batteries under batteries/ are our own constructions. Their LABELS derive from third-party
+  facts — en.wikipedia pageview counts, ClinicalTrials.gov posting dates — which are the property
+  of their respective sources and are used here as timestamps and counts, not as content. The
+  entity strings are public names. Nothing in this licence grants rights over the upstream
+  sources.
+
+  The corpora scored in the audit table (geometry-of-truth, truth-is-universal,
+  hallucinated-references, bielik-entity-familiarity) are NOT distributed here and are NOT covered
+  by this licence. They are fetched from their own repositories under their own terms; the audit
+  records a URL and a sha256, not a copy.
+
+ON THE VERDICTS
+  A DISQUALIFIED verdict from this tool is a measurement about a corpus, not a finding of error or
+  misconduct by its authors. The tool is offered so that anyone can run it against anything —
+  including everything we have published. Four of our own nine batteries fail it, and those rows
+  are at the top of our own audit table.
+
+  The tool's own false-positive rate is measured, not asserted: at 500 seeds per grid row, every
+  construction sits below the 10% ceiling with the upper bound of an exact 95% interval. Run
+  `python3 nulltest.py --calibrate` and check it yourself. That measurement is ours and has no
+  external co-signer, which is a limitation we state rather than one you should discover.

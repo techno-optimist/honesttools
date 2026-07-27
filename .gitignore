@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+# third-party corpora fetched by nulltest_audit.py. NEVER committed: the audit records a URL
+# and a sha256, not a copy of someone else's data. See NOTICE.
+audit_cache/

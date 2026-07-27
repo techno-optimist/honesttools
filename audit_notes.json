@@ -1,0 +1,15 @@
+{
+ "_about": "Editorial notes for /audit, keyed by benchmark name and merged into the generated table by render_audit.py. Numbers NEVER live here — they come from nulltest_audit_results.json. This file exists so that regenerating the page cannot silently delete a published correction, and so that editing prose cannot silently change a measurement. render_audit.py reports any note whose benchmark has left the table rather than dropping it.",
+
+ "bielik-entity-familiarity-v2": "CORRECTED 2026-07-26: worst-cell A* was published as 0.742 and is actually 0.953. Every cell in this row is tied at the permutation floor, and a tie-break bug in our own tool resolved ties by iteration order instead of effect size, so the LAST null in order won and the reported figure was the mildest of the tied cells, not the worst. The verdict was never affected. We UNDERSTATED how strongly this corpus separates.",
+
+ "hallucinated-references/gpt-4": "CORRECTED 2026-07-26: worst-cell A* was published as 0.684 and is actually 0.836. Every cell in this row is tied at the permutation floor, and a tie-break bug in our own tool resolved ties by iteration order instead of effect size, so the LAST null in order won and the reported figure was the mildest of the tied cells, not the worst. The verdict was never affected. We UNDERSTATED how strongly this corpus separates.",
+
+ "geometry-of-truth/sp_en_trans": "n=354 is INSIDE the region where a known-contaminated corpus also passes (&lt;600 on the measured curve) — read this verdict with that in mind.",
+
+ "aperture/verifydomain-claims-147": "RESTORED 2026-07-27: this row was absent from the served table for weeks. It is the battery behind the retracted front-page headline, and it is the worst artifact we have produced. It was missing not because it was hidden but because the results file was never regenerated after the manifest grew — which is the same thing from the reader's side.",
+
+ "aperture/knowledge-prominence-v1": "ADDED 2026-07-27: served and cited on /calibrate, but never in this manifest — so the claim above to cover \"every one of our own\" was false for as long as that page has been live.",
+
+ "aperture/knowledge-prominence-v2": "ADDED 2026-07-27: served but cited on no page. In the table so that being unpublished is not a way to stay unaudited."
+}
