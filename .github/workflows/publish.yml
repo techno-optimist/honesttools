@@ -1,23 +1,22 @@
 # Publish honesttools to PyPI — on a GitHub Release, via Trusted Publishing (OIDC, no token).
 #
-# ONE-TIME SETUP (the repo owner, on PyPI):
+# ONE-TIME SETUP (the repo owner, on PyPI) — a single step:
 #   pypi.org → Account → Publishing → "Add a pending publisher":
 #     PyPI project name : honesttools
 #     Owner             : techno-optimist
 #     Repository name   : honesttools
 #     Workflow filename : publish.yml
-#     Environment name  : pypi
-#   Then create a GitHub Environment named "pypi" (Settings → Environments) — optionally with a
-#   required reviewer, so a human approves each publish.
+#     Environment name  : (leave blank)
 #
 # TO PUBLISH: create a GitHub Release (tag e.g. v0.1.0). This builds, runs the selftest gate, and
 # publishes. No API token is stored anywhere — PyPI trusts this specific repo+workflow via OIDC.
+# (For a team, add `environment: pypi` back and require a reviewer for a human approval gate.)
 name: publish
 
 on:
   release:
     types: [published]
-  workflow_dispatch:      # manual trigger, for a dry run against TestPyPI or a re-publish
+  workflow_dispatch:      # manual trigger, for a re-publish
 
 permissions:
   contents: read
@@ -25,7 +24,6 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: pypi
     permissions:
       id-token: write     # required for Trusted Publishing
     steps:
