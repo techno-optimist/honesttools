@@ -3,3 +3,8 @@ __pycache__/
 # third-party corpora fetched by nulltest_audit.py. NEVER committed: the audit records a URL
 # and a sha256, not a copy of someone else's data. See NOTICE.
 audit_cache/
+
+# python build artifacts
+*.egg-info/
+build/
+dist/
