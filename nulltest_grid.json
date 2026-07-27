@@ -1,0 +1,85 @@
+{
+ "tool": "nulltest",
+ "version": "1.2",
+ "measures": "share of NO-SIGNAL batteries falsely returned DISQUALIFIED",
+ "ceiling": 0.1,
+ "state": "PASS",
+ "seeds": 500,
+ "n_perm": 200,
+ "seed_base": 9000,
+ "worst_observed_rate": 0.056,
+ "grid": [
+  {
+   "construction": "planted-clean as shipped (alternating, 1 stratum)",
+   "mode": "alt",
+   "strata": 1,
+   "false_disqualified": 26,
+   "seeds": 500,
+   "rate": 0.052,
+   "ci95": [
+    0.03424569808276701,
+    0.07526637103062231
+   ],
+   "reading": "below ceiling"
+  },
+  {
+   "construction": "coin-flip labels, 1 stratum",
+   "mode": "coin",
+   "strata": 1,
+   "false_disqualified": 19,
+   "seeds": 500,
+   "rate": 0.038,
+   "ci95": [
+    0.023030770806232365,
+    0.058707290463229006
+   ],
+   "reading": "below ceiling"
+  },
+  {
+   "construction": "coin-flip, 2 strata",
+   "mode": "coin",
+   "strata": 2,
+   "false_disqualified": 23,
+   "seeds": 500,
+   "rate": 0.046,
+   "ci95": [
+    0.029380175392394056,
+    0.06822542788123823
+   ],
+   "reading": "below ceiling"
+  },
+  {
+   "construction": "coin-flip, 4 strata",
+   "mode": "coin",
+   "strata": 4,
+   "false_disqualified": 28,
+   "seeds": 500,
+   "rate": 0.056,
+   "ci95": [
+    0.0375304444750251,
+    0.07992130060435981
+   ],
+   "reading": "below ceiling"
+  },
+  {
+   "construction": "coin-flip, 6 strata",
+   "mode": "coin",
+   "strata": 6,
+   "false_disqualified": 20,
+   "seeds": 500,
+   "rate": 0.04,
+   "ci95": [
+    0.024601312085531228,
+    0.06110260938824501
+   ],
+   "reading": "below ceiling"
+  }
+ ],
+ "provenance": {
+  "tool_sha256": "89ce656234712731979d322899a599fc46a1b5cc65ff90c59e883f5c08ea9f23",
+  "git_commit": "3eeedcd208c3adf7e41e4f4940c82dd0b2861bab",
+  "git_dirty": true,
+  "pythonhashseed": null,
+  "note": "This artifact is evidence about the code whose sha256 is recorded here. If tool_sha256 does not match the served nulltest.py, the certificate does not describe the served tool and must not be trusted."
+ }
+}

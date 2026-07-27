@@ -42,7 +42,7 @@ PAGE = os.path.abspath(os.path.join(HERE, "..", "audit.html"))
 ALPHA = 0.05
 MARGIN_FACTOR = 3.0
 
-SAT = ('<span class="ad-sat" title="at the permutation floor — a bound, not a measurement">'
+SAT = ('<span class="nf-sat" title="at the permutation floor — a bound, not a measurement">'
        '≤</span>')
 
 
@@ -74,27 +74,27 @@ def render_rows(rows, notes):
         verdict = r.get("verdict") or r.get("status", "—")
         ours = name.startswith("aperture/")
         sat = SAT if r.get("saturated") or (adj is not None and adj <= 0.0017) else ""
-        vcls = ("ad-dq" if verdict == "DISQUALIFIED" else
-                "ad-pass" if verdict == "PASS" else "ad-na")
+        vcls = ("nf-dq" if verdict == "DISQUALIFIED" else
+                "nf-pass" if verdict == "PASS" else "nf-na")
 
         note = "n=%s; detected at this size, but not comparable to rows of different n" % r.get("n")
         if verdict == "PASS":
             note = ("n=%s; a PASS is the absence of a detected surface artifact at this size, "
                     "not proof there is none" % r.get("n"))
         if marginal(verdict, adj):
-            note += ('<br><span class="ad-marg"><b>MARGINAL</b> — adjusted p %.4g sits within 3&times; '
+            note += ('<br><span class="nf-marg"><b>MARGINAL</b> — adjusted p %.4g sits within 3&times; '
                      'of alpha (%.2f). This verdict is close to its threshold and should not be read '
                      'as firmly as rows far from it.</span>' % (adj, ALPHA))
         extra = notes.get(name)
         if extra:
-            note += '<br><span class="ad-corr">%s</span>' % extra
+            note += '<br><span class="nf-corr">%s</span>' % extra
 
         out.append(
             '<tr class="%s"><td><b>%s</b>%s</td><td class="num">%s</td><td class="num">%s</td>'
-            '<td class="num">%s%s</td><td class="%s">%s</td><td class="ad-note">%s</td></tr>'
-            % ("ad-ours" if ours else "",
+            '<td class="num">%s%s</td><td class="%s">%s</td><td class="nf-note">%s</td></tr>'
+            % ("nf-ours" if ours else "",
                html.escape(name),
-               ' <span class="ad-tag">ours</span>' if ours else "",
+               ' <span class="nf-tag">ours</span>' if ours else "",
                r.get("n", "—"),
                w.get("astar", "—"),
                ("%.4g" % adj) if adj is not None else "—", (" " + sat) if sat else "",
@@ -119,10 +119,16 @@ def main(argv):
     body = "<tbody>" + "\n      ".join(render_rows(rows, notes)) + "</tbody>"
     page = open(PAGE, encoding="utf-8").read()
     new = re.sub(r"<tbody>.*?</tbody>", lambda _: body, page, count=1, flags=re.S)
-    # the eyebrow must name the run it actually came from
-    new = re.sub(r"the null-floor audit &middot; nulltest [^&]*&middot; regenerated from [^<]*",
-                 "the null-floor audit &middot; nulltest 1.2 &middot; %d rows generated from "
-                 "nulltest_audit_results.json by render_audit.py" % len(rows), new, count=1)
+    # The eyebrow must name the run it actually came from. Match the WHOLE eyebrow up to the
+    # closing tag, not a literal "regenerated from" — the first render rewrote that phrase to
+    # "generated from", after which the old anchored regex silently stopped matching and the row
+    # count went stale (said 13 while the table had 14). Anchor on the stable prefix instead.
+    eyebrow = ("the null-floor audit &middot; nulltest 1.2 &middot; %d rows generated from "
+               "nulltest_audit_results.json by render_audit.py" % len(rows))
+    new, n_sub = re.subn(r"the null-floor audit &middot; nulltest [^<]*", eyebrow, new, count=1)
+    if n_sub != 1:
+        raise SystemExit("render_audit: could not find the eyebrow to update its row count — "
+                         "refusing to write a page whose header may disagree with its table")
 
     # THE HEADLINE IS A CHECKABLE CLAIM, so check it. The page says the table includes "every one
     # of our own". That was false for weeks because a battery could be written, served and cited

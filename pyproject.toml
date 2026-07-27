@@ -1,0 +1,43 @@
+# honesttools — the honesty toolbox. See CHARTER.md.
+#
+# PHASE 0 SKELETON. This establishes the package name, the `honest` entry point, the licence, and
+# the contract as the public surface — reversibly, on the strongest tool first. It is NOT yet the
+# Phase 1 PyPI release: bundling nulltest.py, the batteries, and the calibrated grid as package
+# data, and splitting the toolbox into a proper `honesttools/` package directory, is Phase 1 work.
+# Named as a skeleton on purpose, per the charter's rule against overselling in either direction.
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "honesttools"
+version = "0.1.0.dev0"
+description = "Honesty tools that never take their own word for it — model-free checks for AI of every size, replayable offline."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+authors = [{ name = "Kevin Russell" }]
+keywords = ["ai-safety", "honesty", "evaluation", "hallucination", "benchmark", "calibration"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]  # licence is declared via `license = "Apache-2.0"` above (PEP 639); no license classifier
+# Deliberately empty. Every stable tool scores bytes with the standard library only — no numpy, no
+# requests, no model SDK. A dependency here would be a dependency a stranger must trust, and the
+# whole point is that they need trust nothing but the math. (Optional extras live in [project.optional-dependencies].)
+dependencies = []
+
+[project.urls]
+Homepage = "https://www.honesty.tools"
+Repository = "https://github.com/techno-optimist/honesttools"
+
+[project.scripts]
+honest = "honest:main"
+
+[tool.setuptools]
+# Flat modules for the skeleton. Phase 1 moves these into a honesttools/ package with the batteries
+# and the calibrated grid shipped as package data.
+py-modules = ["honest", "contract", "nulltest", "nulltest_audit", "render_audit", "claim_gate"]
