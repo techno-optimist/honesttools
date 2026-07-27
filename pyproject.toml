@@ -12,7 +12,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "honesttools"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Honesty tools that never take their own word for it — model-free checks for AI of every size, replayable offline."
 readme = "README.md"
 requires-python = ">=3.10"
