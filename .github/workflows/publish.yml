@@ -1,0 +1,51 @@
+# Publish honesttools to PyPI — on a GitHub Release, via Trusted Publishing (OIDC, no token).
+#
+# ONE-TIME SETUP (the repo owner, on PyPI):
+#   pypi.org → Account → Publishing → "Add a pending publisher":
+#     PyPI project name : honesttools
+#     Owner             : techno-optimist
+#     Repository name   : honesttools
+#     Workflow filename : publish.yml
+#     Environment name  : pypi
+#   Then create a GitHub Environment named "pypi" (Settings → Environments) — optionally with a
+#   required reviewer, so a human approves each publish.
+#
+# TO PUBLISH: create a GitHub Release (tag e.g. v0.1.0). This builds, runs the selftest gate, and
+# publishes. No API token is stored anywhere — PyPI trusts this specific repo+workflow via OIDC.
+name: publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:      # manual trigger, for a dry run against TestPyPI or a re-publish
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write     # required for Trusted Publishing
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+
+      # NEVER publish a build whose own break-test does not pass. Exit 2 (INDISTINGUISHABLE at low
+      # seeds) is fine; exit 1 (over-fires, or the planted-separable control did not fire) blocks.
+      - name: selftest gate — the tool must catch its own broken input
+        run: |
+          set +e
+          python3 nulltest.py --selftest --seeds 25 --n-perm 200
+          code=$?
+          set -e
+          if [ "$code" = "1" ]; then echo "::error::selftest FAILED — refusing to publish"; exit 1; fi
+          echo "selftest gate ok (exit $code)"
+
+      - name: build sdist + wheel
+        run: python3 -m pip install --upgrade build && python3 -m build
+
+      - name: publish to PyPI (trusted publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
