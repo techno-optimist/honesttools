@@ -52,6 +52,7 @@ import os
 import re
 import subprocess
 import sys
+from html.parser import HTMLParser
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 STATIC = os.path.dirname(HERE)
@@ -139,26 +140,101 @@ def _floor(name):
         return None
 
 
+TRACKED = {"span", "div", "li", "p", "td", "b", "h1", "h2", "h3", "h4", "h5", "h6"}
+VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param",
+        "source", "track", "wbr"}
+
+
+class _Owners(HTMLParser):
+    """Give every piece of visible text to exactly ONE owner: its nearest enclosing tracked element.
+
+    This replaced a regex that matched elements without overlap and then kept only the "innermost"
+    ones. A <div> matched first swallowed the <b> inside it, so the <b> was never emitted on its
+    own, and the <div> was then dropped for having a figure-bearing child: the figure was checked by
+    nobody. On /evidence that hid "17 of 18", "0.967" and "0.742", and the gate printed "0 failures".
+    The same filter also dropped a parent's own figure whenever a child carried one.
+
+    Ownership keeps what INNERMOST ONLY was for — a wrapper's data-claim never covers numbers that
+    live in its child elements, so one id cannot be attached to several unrelated numbers — without
+    the blind spot: an element owns only the text that is not inside another tracked element.
+    Untracked inline tags (<s>, <a>, <code>, <i>…) belong to the nearest tracked element around them.
+    """
+
+    def __init__(self, html):
+        super().__init__(convert_charrefs=True)
+        self.src = html
+        self.line_starts = [0] + [m.end() for m in re.finditer("\n", html)]
+        self.stack, self.out = [], []
+
+    def _offset(self):
+        line, col = self.getpos()
+        return self.line_starts[line - 1] + col
+
+    def handle_starttag(self, tag, attrs):
+        if tag in VOID:
+            return
+        raw = self.get_starttag_text() or ""
+        m = re.match(r"<[^\s/>]+(.*?)/?>$", raw, re.S)
+        start = self._offset()
+        self.stack.append({"tag": tag, "line": self.getpos()[0], "start": start,
+                           "attrs": m.group(1) if m else "", "inner": start + len(raw), "text": []})
+
+    def handle_endtag(self, tag):
+        # Close back to the nearest open element of this name; children left open end here too.
+        # A stray end tag with nothing to close is ignored, as a browser would.
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i]["tag"] == tag:
+                end = self._offset()
+                for el in self.stack[i:]:
+                    self._emit(el, end)
+                del self.stack[i:]
+                return
+
+    def handle_data(self, data):
+        if any(el["tag"] in ("script", "style") for el in self.stack):
+            return
+        for el in reversed(self.stack):
+            if el["tag"] in TRACKED:
+                el["text"].append(data)
+                return
+
+    def _emit(self, el, end):
+        if el["tag"] in TRACKED:
+            # The inner HTML is the markup WITHOUT the opening tag's attributes. Disclosure must be
+            # judged on that, never on the whole element: the registry id
+            # "verifydomain-147-headline-retracted" contains the word "retracted", so searching the
+            # whole element matched the gate's OWN annotation and passed every retracted claim
+            # silently. Disclosure may sit in a child (<s>, "withdrawn"), so it is the full inner
+            # HTML; the figures are only the element's own text.
+            self.out.append((el["start"], el["line"], self.src[el["inner"]:end], el["attrs"],
+                             " ".join(el["text"])))
+
+    def close(self):
+        super().close()
+        for el in self.stack:
+            self._emit(el, len(self.src))
+        self.stack = []
+
+
+def _snippet(text, width=90):
+    """The text around the first figure. The first 90 characters often missed it, so a warning
+    could print "POST /api/drift/check" for a number further down the element."""
+    text = re.sub(r"\s+", " ", text).strip()
+    m = FIGURE.search(text)
+    start = max(0, m.start() - 30) if m else 0
+    return ("…" if start else "") + text[start:start + width]
+
+
 def _elements(html):
-    """(line, inner_html, attrs, inner_text) for leaf-ish elements carrying visible text."""
-    out = []
-    for m in re.finditer(r"<(span|div|li|p|td|b|h[1-6])\b([^>]*)>(.*?)</\1>", html, re.S):
-        inner = re.sub(r"<[^>]+>", " ", m.group(3))
-        # group(3) is the inner HTML — markup WITHOUT the opening tag's attributes. Disclosure must
-        # be judged on that, never on the whole element: the registry id
-        # "verifydomain-147-headline-retracted" contains the word "retracted", so searching the
-        # whole element matched the gate's OWN annotation and passed every retracted claim silently.
-        out.append((html[:m.start()].count("\n") + 1, m.group(3), m.group(2), inner))
-    # INNERMOST ONLY. The regex matches every ancestor too, so a wrapper div was being reported for
-    # figures that live in its children — and annotating the wrapper would attach one claim id to
-    # several unrelated numbers. Keep an element only if no nested element also carries a figure.
-    keep = []
-    for line, inner_html, attrs, inner in out:
-        nested = re.finditer(r"<(span|div|li|p|td|b|h[1-6])\b[^>]*>(.*?)</\1>", inner_html, re.S)
-        if any(FIGURE.search(re.sub(r"<[^>]+>", " ", n.group(2))) for n in nested):
-            continue
-        keep.append((line, inner_html, attrs, inner))
-    return keep
+    """(line, inner_html, attrs, own_text) for every tracked element, in document order.
+
+    own_text is the element's text minus the text of tracked elements nested in it. Comments are
+    not published and are not read. Lines are 1-based lines of `html` as passed in.
+    """
+    p = _Owners(html)
+    p.feed(html)
+    p.close()
+    return [(line, inner, attrs, text) for _, line, inner, attrs, text in sorted(p.out)]
 
 
 def check(strict_unannotated=False):
@@ -181,7 +257,11 @@ def check(strict_unannotated=False):
         if 'name="claim-gate" content="superseded"' in html:
             skipped.append(fn)
             continue
-        body = html[html.find("<body"):] or html
+        # Blank the head instead of slicing it off, so reported lines are lines of the file. Slicing
+        # numbered from <body> ("evidence.html:16" meant line 249), and a page without "<body"
+        # sliced to its LAST CHARACTER, so the whole page went unchecked.
+        b = html.find("<body")
+        body = ("\n" * html[:b].count("\n") + html[b:]) if b >= 0 else html
         # Strip style/script before matching. rgba(0,0,0,0.24) is not a claim about measurement,
         # and a gate that flags CSS teaches people to skim its output. Replaced with newlines so
         # line numbers still point at the real source.
@@ -197,7 +277,7 @@ def check(strict_unannotated=False):
             bat = re.search(r'data-battery="([^"]+)"', attrs)
             if not cid:
                 (fails if strict_unannotated else warns).append(
-                    ("UNANNOTATED", fn, line, inner.strip()[:90]))
+                    ("UNANNOTATED", fn, line, _snippet(inner)))
                 continue
             key = cid.group(1)
             if key in SPECIAL:
