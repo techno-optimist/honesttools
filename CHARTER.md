@@ -60,9 +60,11 @@ and no eulogies for tools that have a documented way back.
 
 ### Shipped — in the contract, replayable, live
 - **`null`** — model-free surface floor. Proves whether a benchmark measures honesty or string
-  shape before any score on it is trusted. Apache-2.0, 5-gate CI, calibrated ~4.7% false-positive
-  rate over 500 seeds. 8 of 14 audited benchmarks fail it; 4 of them are ours; our worst two are at
-  the top of our own table.
+  shape before any score on it is trusted. Apache-2.0, 5-gate CI, calibrated 4.64% false-positive
+  rate (116 of 2,500 clean runs: 5 constructions x 500 seeds, `nulltest_grid.json` v1.2). *Corrected
+  2026-10-20: this line said "~4.7% over 500 seeds", which rounded up and miscounted the seeds.*
+  8 of 14 audited benchmarks fail it; 4 of them are ours; our worst two are at the top of our own
+  table.
 - **`gate`** — binds every published numeral to a registry id and fails closed. 0 unannotated
   numerals across 9 live pages.
 - **`verify`** — re-derives a signed verdict from one stdlib+crypto file with no call back to us.
