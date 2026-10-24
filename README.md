@@ -9,7 +9,7 @@ order, not the ability the benchmark claims to measure.
 `nulltest` measures how much of a benchmark's label signal is recoverable from surface form alone,
 and says PASS, DISQUALIFIED or NOT_SCORABLE. It scores no model. It needs no GPU, no network and no
 API key, and nothing from whoever built the benchmark. One Python file, standard library only, and
-a JavaScript port that computes the same bits in a browser.
+a JavaScript port measured bit-identical to it on 92 cells across six batteries.
 
 ```bash
 git clone https://github.com/techno-optimist/honestytools && cd honestytools
@@ -31,7 +31,7 @@ python3 -m unittest discover -s tests                        # 42 tests, a few s
 |---|---|
 | test a benchmark file on your laptop | `python3 nulltest.py FILE` (JSON, JSONL, CSV, TSV; `--explode` for QA rows) |
 | know *why* it failed | `--explain`, or read the WHY section every DISQUALIFIED report prints |
-| test it in your own CI, every commit | the [GitHub Action](#run-it-in-your-own-ci) below, two lines of YAML |
+| test it in your own CI, every commit | the [GitHub Action](#run-it-in-your-own-ci) below, five lines of YAML |
 | test it in a browser, nothing uploaded | [honesty.tools/evidence](https://www.honesty.tools/evidence) runs the same engine, proven bit-identical |
 | publish a verdict someone else can check | `--json` writes a receipt with the file's sha256 and the tool's; `--check RECEIPT` replays it |
 | see how published benchmarks fare | the [audit table](https://www.honesty.tools/audit), 17 rows, every one with a URL and a sha256 |
@@ -121,9 +121,36 @@ python3 nulltest.py benchmark.jsonl --check nulltest_receipt.json
 ```
 
 `--check` refuses a receipt that names different bytes, says so when the tool version differs,
-and exits non-zero on DIVERGES. Nothing in this repository asks to be taken on trust.
+and exits non-zero on DIVERGES. It also accepts the JSON that `honest null` writes. Every number
+this page quotes comes from a committed file or says where it came from.
 
-## The seven surface probes
+### What the report says before the verdict
+
+The text report opens with what the loader did, because a silent change of corpus is a silent
+change of result: how many rows it read and dropped (a row without the text or label field is
+dropped and counted), how many texts were empty or coerced from numbers, and which raw label
+value became **label-1**. Every WHY line is phrased in terms of label-1, so that line is the key to
+them. Labels are mapped without a flag only for `0/1`, booleans, and these word pairs (case-folded):
+fake/real, fabricated/genuine, false/true, hallucinated/faithful, incorrect/correct, wrong/right,
+no/yes (where "no" is label-1), unfaithful/grounded. Anything else stops and asks for
+`--positive-label VALUE`, which is matched case-insensitively and recorded in the receipt. When a
+stratum field is sniffed from the file and you do not want one, pass `--stratum-key none`.
+
+### Exit codes
+
+| command | 0 | 1 | 2 |
+|---|---|---|---|
+| `nulltest.py BATTERY` (text or `--json`) | PASS | DISQUALIFIED or NOT_SCORABLE | usage error, unreadable file, undecidable labels |
+| `nulltest.py BATTERY --check RECEIPT` | REPLAYS | DIVERGES | receipt names other bytes or cannot be replayed |
+| `nulltest.py --selftest` | within the ceiling | FAIL | INDISTINGUISHABLE (25 seeds cannot resolve 5% vs 10%; expected) |
+| `honest null BATTERY` | a verdict a pipeline may rely on: PASS with a matching certificate, or DISQUALIFIED | anything else | usage |
+| `nulltest_action.sh` | per `fail-on` | the verdict named by `fail-on` | bad input |
+
+`python3 -m nulltest` is the same program as `python3 nulltest.py` and is the form the wheel
+offers. Large files print a permutation counter to stderr while they run (a 60,000-item file takes
+about a quarter of an hour on four cores; `--jobs` is a no-op on platforms without `fork`).
+
+## The six surface probes
 
 | probe | what it asks |
 |---|---|
@@ -133,16 +160,27 @@ and exits non-zero on DIVERGES. Nothing in this repository asks to be taken on t
 | `shape` | digit / ALL-CAPS / punctuation signature: are reals ID-shaped and fakes word-shaped? |
 | `alpha_first` | alphabet position of the first word's initial: was one class taken from the top of a sorted list? |
 | `alpha_last` | same for the last word's initial: lists sorted by surname |
-| `stratum` | the category label alone: does the stratum leak the answer? |
 
 The fitted probes are scored on held-out folds, so an item never contributes to the statistics
 that score it. Each probe is **two-sided** (`A* = max(AUROC, 1−AUROC)`, because an inverted
 classifier is still a classifier), scored **per stratum with the worst cell reported** rather than
-the mean, **calibrated against label shuffles of the same data with the probes refit inside every
-shuffle**, and **corrected across every cell tested** (Westfall–Young min-p). The PASS/DISQUALIFIED
-line is drawn at a family-adjusted p of 0.05; a PASS whose worst cell lands within a factor of two
-of that line is marked **BORDERLINE** in the report, because the number of cells in the family can
-move such a result on its own.
+the mean, **calibrated against label shuffles of the same data, shuffled within each stratum, with the probes
+refit inside every shuffle**, and **corrected across every cell tested** (Westfall–Young min-p). The
+PASS/DISQUALIFIED line is drawn at a family-adjusted p of 0.05; a verdict whose worst cell lands
+within a factor of two of that line on either side is marked **BORDERLINE** in the report, because
+the number of cells in the family can move such a result on its own.
+
+The null is stratified. Labels are shuffled only within a stratum, so a stratum whose label rate
+differs from its neighbours' (80% label-1 here, 20% there) is conditioned on, not tested: the
+question is whether the text separates the classes *beyond* what the category already tells you.
+The report prints the label rate per stratum as a description. v1.3 shuffled across strata and
+carried a seventh "stratum" probe meant to catch exactly that imbalance; the probe could never
+score (a per-stratum rate is constant inside a per-stratum cell) and the unstratified null
+false-fired on 44% of no-signal batteries with 85/15 label rates. See *Correction* below.
+
+The permutation count is raised automatically when it cannot resolve alpha for the family size
+(to `ceil(2(K+1)/alpha)`, rounded up to the hundred, so 600 for 12 cells and 8,900 for 222); the
+report records both the count requested and the count used.
 
 The `words`, `alpha_first` and `alpha_last` probes are new in v1.3. The alphabet probes exist
 because our own `prominence-people-v1` battery passed the four probes of v1.2 and was broken
@@ -157,27 +195,36 @@ This is the hypothesis-only / partial-input baseline of the NLP artifact literat
 al. 2018, Poliak et al. 2018) and the artifact filtering of AFLite (Le Bras et al. 2020), applied to
 two-class text benchmarks. The idea is not new. What this tool adds is the discipline around it:
 two-sided scoring, worst cell not mean, refit inside every permutation, family-wise correction, a
-measured false-positive rate, a reproducible power table, and a browser engine proven
-bit-identical to the command line. Cite it as a careful packaging of a known test.
+measured false-positive rate, a reproducible power table, and a browser engine measured
+bit-identical to the command line on 92 cells. Cite it as a careful packaging of a known test.
 
 ## What the tool says about itself
 
-**Measured false-positive rate**, v1.3, 500 seeds per grid row at 600 permutations, exact 95%
-intervals. Reproduce with `python3 nulltest.py --calibrate --jobs 4` (about 17 minutes on 4 cores):
+**Measured false-positive rate**, v1.4, 500 seeds per grid row at the shipped permutation count
+(600, raised automatically where the family needs more), exact 95% intervals. Reproduce with
+`python3 nulltest.py --calibrate --jobs 4 --emit-grid /tmp/grid.json` (about 26 minutes on our
+4-core machine; not timed elsewhere):
 
 | construction | rate | 95% CI |
 |---|---|---|
 | planted-clean as shipped (alternating, 1 stratum) | 4.8% | [3.1%, 7.1%] |
-| coin-flip labels, 1 stratum | 3.8% | [2.3%, 5.9%] |
+| coin-flip labels, 1 stratum | 4.4% | [2.8%, 6.6%] |
 | coin-flip, 2 strata | 4.6% | [2.9%, 6.8%] |
-| coin-flip, 4 strata | 5.0% | [3.3%, 7.3%] |
-| coin-flip, 6 strata | 4.0% | [2.5%, 6.1%] |
-| coin-flip, word-shaped text (all 7 probes live), 1 stratum | 4.8% | [3.1%, 7.1%] |
-| coin-flip, word-shaped text (all 7 probes live), 4 strata | 5.0% | [3.3%, 7.3%] |
+| coin-flip, 4 strata | 4.4% | [2.8%, 6.6%] |
+| coin-flip, 6 strata | 2.4% | [1.2%, 4.2%] |
+| coin-flip, word-shaped text (all 6 probes live), 1 stratum | 4.4% | [2.8%, 6.6%] |
+| coin-flip, word-shaped text (all 6 probes live), 4 strata | 3.8% | [2.3%, 5.9%] |
+| coin-flip, word-shaped, 2 strata with 85/15 label rates | 3.0% | [1.7%, 4.9%] |
+| coin-flip, word-shaped, 6 strata (36 cells) | 4.4% | [2.8%, 6.6%] |
+| coin-flip, word-shaped, 3 strata of 20 items | 4.0% | [2.5%, 6.1%] |
 
-Every upper bound is below the 10% ceiling; the pooled rate is 4.6% over 3500 no-signal batteries. The same grid run at 200 permutations put the widest family (24 cells) at 8.4% [6.1%, 11.2%], which is the Westfall–Young small-B leak noted below; the certificate is therefore measured at the 600 permutations the tool actually runs with.
+Every upper bound is below the 10% ceiling; the pooled rate is 4.0% over 5,000 no-signal batteries (201 false fires), worst row 4.8%. The three rows added in v1.4 are the constructions v1.3 was never tested on: unequal
+label rates per stratum (the construction v1.3 false-fired on 44% of the time), a 36-cell family,
+and strata of 20 items. An earlier v1.3 run at 200 permutations, not committed, put a 24-cell
+family at 8.4% [6.1%, 11.2%]; the automatic raise of the permutation count exists so that no
+shipped setting sits at that floor.
 
-**Measured power**, v1.3. A single character appended to a fraction of the label-1 half of a clean
+**Measured power**, v1.4. A single character appended to a fraction of the label-1 half of a clean
 synthetic battery; the smallest fraction caught in at least 3 of 4 seeds. Reproduce with
 `python3 nulltest.py --measure-power --jobs 4`:
 
@@ -187,6 +234,8 @@ synthetic battery; the smallest fraction caught in at least 3 of 4 seeds. Reprod
 | 324 | 60% |
 | 702 | 30% |
 | 1496 | 15% |
+
+Unchanged from v1.3: the same four rows were re-measured under v1.4 and agree.
 
 A PASS at n=156 therefore says only that no artifact covering 60% or more of one class was found.
 The POWER line in every report quotes this table for the battery's n.
@@ -216,7 +265,8 @@ every score on it is that. What to do, by what the WHY section names:
   class. Normalise the formatting or drop the field that carries it.
 - **`alpha_first` / `alpha_last`** (alphabet position of an initial): one class was taken from the
   top of a sorted list. Sample at random, or from the whole list, and re-run.
-- **`stratum`** (the category predicts the label): rebalance labels within each category.
+- **The label rate differs by category** (the `label-1 rate by stratum` lines): the test conditions
+  on this and does not flag it, but a model can exploit it. Rebalance labels within each category.
 
 Then re-run and read the POWER line: a PASS at n=156 says only that no artifact covering 60% of a
 class survived. Fixing the surface does not fix provenance; a benchmark can pass this test and
@@ -224,19 +274,26 @@ still be contaminated, circular or mislabelled.
 
 ## Known limits — read these before quoting a verdict
 
-- **A PASS is not a certificate of quality.** It says these seven probes did not recover the labels
+- **A PASS is not a certificate of quality.** It says these six probes did not recover the labels
   at this n. A weaker or a differently shaped artifact can be present and missed; the power table
   says how weak.
 - **Circularity, contamination and mislabelling are invisible here.** They are provenance
   properties, not surface ones.
-- **A wider family costs power.** Going from four probes to seven moved our own
+- **A wider family costs power.** Going from four probes to seven in v1.3 moved our own
   `grounding-coordinate` battery from DISQUALIFIED (adjusted p 0.030 over 18 cells) to PASS (0.057
   over 35 cells) with the same worst cell at the same A*. That is why BORDERLINE exists. If you
   only care about one probe, the per-cell `raw_p` is in the JSON.
-- **Westfall–Young leaks at large families and few permutations.** With 24 cells the false-fire
-  rate measured 8.4% at 200 permutations and 5.0% at 600 (v1.3, 500 seeds each), a discreteness
-  effect at the permutation floor. Do not lower `--n-perm` below the default 600 on a battery with
-  many strata; raise it for very wide families.
+- **Westfall–Young needs permutations to match the family.** With 24 cells the false-fire rate
+  measured 8.4% at 200 permutations (an uncommitted v1.3 run), a discreteness effect at the
+  permutation floor. Since v1.4 the tool raises the count itself to `ceil(2(K+1)/alpha)` and says
+  so in the report; `--n-perm` is a floor, not a ceiling.
+- **Only two classes, and no pairing.** A multi-class corpus must be filtered to two labels first.
+  Question-answer rows exploded with `--explode` are scored as a pool of answers, not as pairs
+  within a question; a paired, per-question comparison is not offered.
+- **Non-Latin text.** The probes run on any Unicode text, but the alphabet probes drop out as
+  degenerate when initials are not letters, and `words` splits on whitespace, so unspaced scripts
+  give it one token per sentence. The report lists which cells were dropped as degenerate; it
+  does not detect the language.
 - **`A*` is not a stable effect size.** It is a fitted classifier's output and depends on n. Rows of
   different n are not comparable.
 - **No external co-signer, and no outside user yet.** Every number here is our own measurement of
@@ -248,8 +305,8 @@ still be contaminated, circular or mislabelled.
 | file | role |
 |---|---|
 | `nulltest.py` | the instrument. `--selftest`, `--calibrate`, `--measure-power`, `--emit-grid` |
-| `nulltest.js` | the same instrument for a browser; `nulltest_parity.sh` proves the two agree cell by cell. The browser engine scores flat two-class files; `--explode` and `--explain` are command-line only |
-| `tests/` | 42 unit tests: every probe catches the artifact it was written for, the loader refuses to guess, parallel equals serial, receipts replay |
+| `nulltest.js` | the same instrument for a browser; `bash nulltest_parity.sh` (needs node) checks the two agree cell by cell. The browser engine scores flat two-class files and shows the WHY tables; `--explode` is command-line only |
+| `tests/` | 51 unit tests: every probe catches the artifact it was written for, the stratified null holds on unequal label rates, the loader refuses to guess and says what it dropped, parallel equals serial, receipts replay |
 | `action.yml`, `nulltest_action.sh` | the GitHub Action; the script runs without GitHub too |
 | `CONTRIBUTING.md`, `CHANGELOG.md` | how to add a benchmark to the table, how to change the tool, what shipped and what did not |
 | `nulltest_audit.py` | scores a manifest of published benchmarks and writes the table behind [honesty.tools/audit](https://www.honesty.tools/audit) |
@@ -263,33 +320,68 @@ still be contaminated, circular or mislabelled.
 `audit_cache/` is gitignored on purpose: the audit records a URL and a sha256 for each third-party
 corpus, never a copy.
 
+## Correction, 2026-10-24: what v1.4 changed and why
+
+A statistics review of v1.3, done the same day it shipped, found three defects. They are recorded
+here because the numbers above and the table below were published under v1.3 for part of a day.
+
+1. **The null was not stratified.** Labels were shuffled across strata, so a corpus whose categories
+   had different label rates produced a false DISQUALIFIED on 44% of no-signal runs (85/15 rates,
+   120 simulated batteries). The v1.3 grid never contained that construction, so the certificate
+   was true and incomplete. v1.4 shuffles within stratum; the same construction now false-fires at
+   3.0% [1.7%, 4.9%] (15 of 500) and is a row of the committed grid.
+2. **The seventh probe could not fire.** The `stratum` probe scored a per-stratum rate inside
+   per-stratum cells, where it is constant, so it was dropped as degenerate on every battery. The
+   README described a probe that never produced a cell. It is removed; the label rate per stratum
+   is printed as a description instead.
+3. **Westfall–Young at the floor.** The permuted and observed statistics were p-valued differently,
+   which biased the adjusted p at wide families, and 600 permutations cannot resolve 0.05 over 222
+   cells. Both are fixed; the count is now raised automatically and recorded.
+
+Smaller: ties in the worst cell are broken by effect size rather than by order of discovery;
+BORDERLINE is two-sided; receipts record `--positive-label`; the loader reports what it dropped.
+
+**What the correction did to the audit table.** Every row was re-scored under v1.4 against the
+same bytes (the sha256 of each corpus is in `nulltest_audit_results.json`). Sixteen of seventeen
+verdicts are unchanged. One changed: our own `grounding-coordinate` goes from a BORDERLINE PASS
+(adjusted p 0.057 over 35 cells, v1.3) to a BORDERLINE DISQUALIFIED (0.037 over the same 35 cells,
+same worst cell, same A* 0.855). Under v1.2 it was DISQUALIFIED at 0.030 over 18 cells; v1.3's PASS
+was the only verdict it ever got, and v1.3's null was the defective one. Two rows changed shape
+without changing verdict: TruthfulQA's worst cell is now `words`/Law at A* 0.857 over n=586 (63
+of 222 cells separate, was 77) because ties at the permutation floor are now broken by effect
+size rather than by order of discovery, so a large cell wins over a small cell at A* 1.000; and
+`truth-is-universal/facts` is now marked BORDERLINE (adjusted p 0.038). The table therefore reads
+12 of 17 DISQUALIFIED, 5 of the 12 ours; two rows sit at A* 1.000 and both are ours.
+
 ## Run it against us, and against the benchmarks the field uses
 
 The audit table at [honesty.tools/audit](https://www.honesty.tools/audit) has 17 rows: our own nine
-batteries, five third-party honesty corpora, and, new in v1.3, three rows from the two benchmarks
-most often quoted in hallucination papers, scored by answer alone with `--explode`:
+batteries, five third-party honesty corpora, and three rows from two widely used
+hallucination benchmarks, scored by answer alone with `--explode`:
 
 | benchmark | items | worst cell | A* | verdict |
 |---|---|---|---|---|
-| TruthfulQA, reference answers (`Correct Answers` vs `Incorrect Answers`, per category) | 6028 | 77 of 222 cells separate | 1.000 | DISQUALIFIED |
+| TruthfulQA, reference answers (`Correct Answers` vs `Incorrect Answers`, per category) | 6028 | 63 of 222 cells separate | 0.857 | DISQUALIFIED |
 | HaluEval QA (`right_answer` vs `hallucinated_answer`) | 20000 | 5 of 6 cells separate | 0.979 | DISQUALIFIED |
 | HaluEval dialogue (`right_response` vs `hallucinated_response`) | 20000 | 6 of 6 cells separate | 0.849 | DISQUALIFIED |
 
-`--explain` says why. In TruthfulQA the correct column is full of "I have no comment" and "do
-not" hedges and the incorrect column of "believe that" and "that the" assertions; a model that
-learned to hedge scores without knowing anything. In HaluEval the hallucinated answers were
+`--explain` says why. In TruthfulQA the correct column carries hedges the incorrect column almost
+never does: "I have no comment" appears in 86 correct answers and 0 incorrect, "do not" in 83
+against 4; in the largest separating cell the incorrect column leans on "that the", "about" and
+"believe that". A model that learned to hedge scores without knowing anything. In HaluEval the hallucinated answers were
 written by ChatGPT and the right answers are HotpotQA's short reference strings: median 58
 characters against 12, and in the dialogue set 104 against 69. None of this is a claim that the benchmarks are useless. It is a measurement of
 how much of a score on them is available to a reader who never sees the question.
 
-Eleven of the seventeen rows are DISQUALIFIED and four of the eleven are ours. Under v1.2 our four were
-`verifydomain-claims-147`, `calibration-battery-v1`, `photon-entities` and `grounding-coordinate`;
-under v1.3 `grounding-coordinate` is a BORDERLINE PASS and `prominence-people-v1`, which v1.2
-missed, is caught. The two worst rows on the table are still ours. A DISQUALIFIED verdict is a
-measurement about a corpus, not a finding of error or misconduct by its authors. Re-score the
-whole table with `python3 nulltest_audit.py --jobs 4` (about 17 minutes on 4 cores, most of it
-the two 20000-item HaluEval rows; the corpora are fetched from their own repositories and
-recorded as a URL and a sha256).
+Twelve of the seventeen rows are DISQUALIFIED and five of the twelve are ours:
+`verifydomain-claims-147`, `calibration-battery-v1`, `photon-entities`, `grounding-coordinate`
+(BORDERLINE) and `prominence-people-v1`, which v1.2 missed and the alphabet probes catch. Two rows
+sit at A* 1.000 and both are ours. A DISQUALIFIED verdict is a measurement about a corpus, not a
+finding of error or misconduct by its authors. Re-score the whole table with
+`python3 nulltest_audit.py --jobs 4` (about 29 minutes on our 4-core machine: 14 of them
+TruthfulQA at the 8,900 permutations its 222 cells need, most of the rest the two 20000-item
+HaluEval rows; the corpora are fetched from their own repositories and recorded as a URL and a
+sha256).
 
 ## Licence
 

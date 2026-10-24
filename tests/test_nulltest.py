@@ -385,5 +385,100 @@ class Receipt(unittest.TestCase):
                 self.assertEqual(N.check_receipt(rp, p), 1)
 
 
+class V14(unittest.TestCase):
+    """The v1.4 corrections: a stratified null, an honest permutation count, and the loader
+    saying what it did instead of doing it quietly."""
+
+    def test_stratified_null_holds_on_unequal_label_rates(self):
+        # two strata at 85% / 15% label-1 and no surface signal: v1.3's unstratified null fired on
+        # 44% of these. The stratified null must treat it as noise (seed fixed; deterministic).
+        items = N._noise_battery(9001, 2, "coinword_imb")
+        rep = N.evaluate(items, "entity", "label", "category", n_perm=PERM)
+        self.assertNotEqual(rep["verdict"], "DISQUALIFIED")
+        self.assertNotIn("stratum", rep["nulls"])
+        rates = rep["label_rate_by_stratum"]
+        self.assertEqual(len(rates), 2)
+        self.assertGreater(max(r["label1_rate"] for r in rates.values()), 0.7)
+        self.assertIn("within stratum", rep["null"])
+
+    def test_permutation_count_is_raised_to_resolve_alpha(self):
+        items = battery(_ids(_rng(3), 30), _ids(_rng(4), 30))
+        rep = N.evaluate(items, "entity", "label", "category", n_perm=50)
+        self.assertEqual(rep["n_perm_requested"], 50)
+        self.assertGreaterEqual(rep["n_perm"], 2 * (rep["family_size"] + 1) / rep["alpha"])
+        self.assertIn("n_perm_note", rep)
+
+    def test_label_sniffing_prefers_truth_fields_over_type(self):
+        items = [{"statement": "a", "type": "claim", "is_true": True}]
+        self.assertEqual(N.sniff_keys(items)[1], "is_true")
+
+    def test_stratum_key_none_switches_the_sniffed_stratum_off(self):
+        items = [{"text": "a", "label": 0, "category": "x"}]
+        self.assertEqual(N.sniff_keys(items)[2], "category")
+        self.assertIsNone(N.sniff_keys(items, stratum_key="none")[2])
+        self.assertIsNone(N.sniff_keys(items, stratum_key="")[2])
+
+    def test_explode_names_the_field_nobody_has(self):
+        items = [{"q": "x", "right": "a", "wrong": "b"}]
+        with self.assertRaises(N.LabelError) as cm:
+            N.explode_items(items, [("nosuch", "0"), ("wrong", "1")])
+        self.assertIn("nosuch", str(cm.exception))
+        self.assertIn("right", str(cm.exception))
+
+    def test_read_errors_are_sentences_not_tracebacks(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(N.LabelError) as cm:
+                N.read_items(os.path.join(d, "nope.json"))
+            self.assertIn("no such file", str(cm.exception))
+            p = os.path.join(d, "bad.json")
+            with open(p, "w") as fh:
+                fh.write('{"a": [1, 2')
+            with self.assertRaises(N.LabelError) as cm:
+                N.read_items(p)
+            self.assertIn("not valid JSON", str(cm.exception))
+            p = os.path.join(d, "empty.json")
+            open(p, "w").close()
+            with self.assertRaises(N.LabelError) as cm:
+                N.read_items(p)
+            self.assertIn("empty", str(cm.exception))
+
+    def test_positive_label_matches_case_insensitively(self):
+        items = [{"t": "a", "label": "True"}, {"t": "b", "label": "FALSE"}]
+        out, pos = N.coerce_labels(items, "label", positive="true")
+        self.assertEqual(pos, "True")
+        self.assertEqual([it["label"] for it in out], [1, 0])
+
+    def test_loader_reports_dropped_rows_and_the_label_mapping(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "b.json")
+            with open(p, "w") as fh:
+                json.dump([{"text": "a", "label": "fake"}, {"text": "b", "label": "real"},
+                           {"text": "c"}, {"text": 7, "label": "real"}], fh)
+            info = {}
+            out = N.load(p, "text", "label", info=info)
+            self.assertEqual(len(out), 3)
+            self.assertEqual(info["rows_dropped_missing_field"], 1)
+            self.assertEqual(info["non_string_texts"], 1)
+            self.assertEqual((info["label1_raw_value"], info["label0_raw_value"]), ("fake", "real"))
+
+    def test_check_accepts_the_toolbox_verdict_shape(self):
+        # `honest null` writes the contract Verdict with the receipt fields under "evidence";
+        # `honest check` must accept its own output.
+        with tempfile.TemporaryDirectory() as d:
+            p = Receipt._battery(Receipt(), d)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                N.main(["nulltest", p, "--json", "--n-perm", str(PERM)])
+            rec = json.loads(out.getvalue())
+            verdict = {"tool": "null", "verdict": rec.pop("verdict"), "evidence": rec}
+            rp = os.path.join(d, "v.json")
+            with open(rp, "w") as fh:
+                json.dump(verdict, fh)
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(N.check_receipt(rp, p), 0)
+                # swapped arguments are named, not a traceback
+                self.assertEqual(N.check_receipt(p, rp), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

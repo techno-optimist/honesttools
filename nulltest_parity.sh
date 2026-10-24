@@ -17,7 +17,8 @@ FAILED=0
 
 command -v node >/dev/null || { echo "node not found — cannot run the browser engine headless"; exit 2; }
 
-BATTERIES="batteries/grounding-coordinate.json batteries/photon-entities.json batteries/prominence-people-v1.json batteries/verifydomain-claims-147.json"
+BATTERIES="batteries/grounding-coordinate.json batteries/photon-entities.json batteries/prominence-people-v1.json batteries/verifydomain-claims-147.json parity/astral.json parity/whitespace.json parity/cjk.json parity/oddcase.json parity/smallcells.json parity/nonstring.json parity/quoted-crlf.csv parity/midquote.csv"
+# parity/*: Unicode, whitespace, rounding-tie, non-string-value and CSV edge cases — see parity/README.md
 
 node nulltest_parity.js $BATTERIES > /tmp/nt_js.json || { echo "JS engine failed"; exit 1; }
 for b in $BATTERIES; do
@@ -32,7 +33,7 @@ js = json.load(open('/tmp/nt_js.json'))
 def canon(o):
     # 1.0 (python float) and 1 (js int) are the same number; compare VALUES, not encodings
     if isinstance(o, bool): return o
-    if isinstance(o, (int, float)): return round(float(o), 3)
+    if isinstance(o, (int, float)): return round(float(o), 4)   # 4 dp: raw_p and adj_p are reported to 4
     if isinstance(o, dict): return {k: canon(v) for k, v in o.items()}
     if isinstance(o, list): return [canon(v) for v in o]
     return o

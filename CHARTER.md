@@ -59,10 +59,11 @@ Honest status. We oversell nothing in either direction — no "six-tool suite wi
 and no eulogies for tools that have a documented way back.
 
 ### Shipped — in the contract, replayable, live
-- **`null`** — model-free surface floor. Proves whether a benchmark measures honesty or string
-  shape before any score on it is trusted. Apache-2.0, 5-gate CI, calibrated ~4.7% false-positive
-  rate over 500 seeds. 8 of 14 audited benchmarks fail it; 4 of them are ours; our worst two are at
-  the top of our own table.
+- **`null`** — model-free surface floor. Measures whether a benchmark measures honesty or string
+  shape before any score on it is trusted. Apache-2.0, 8-job CI, calibrated 4.0% pooled
+  false-positive rate (v1.4: 10 constructions × 500 seeds, stratified null, worst row 4.8%).
+  12 of 17 audited benchmarks fail it; 5 of them are ours; two rows sit at A* 1.000 and both are
+  ours. *(figures updated in place 2026-10-24, twice; the rest of this section is as written.)*
 - **`gate`** — binds every published numeral to a registry id and fails closed. 0 unannotated
   numerals across 9 live pages.
 - **`verify`** — re-derives a signed verdict from one stdlib+crypto file with no call back to us.
@@ -182,7 +183,7 @@ Three compounding reasons a two-person lab can hold this:
 
 ## For advisors
 
-> You would be endorsing the only honesty toolkit whose first public act was to disqualify its
+> You would be endorsing an honesty toolkit whose first public act was to disqualify its
 > authors' own two flagship benchmarks, and whose every verdict you can re-derive yourself, offline,
 > with one standard-library file and no trust in us. Your name goes on a **frozen contract** — a
 > calibrated false-positive rate, a break-test that runs on every commit, and a hard wall that keeps
@@ -211,7 +212,8 @@ falsified is exactly the vacuous green this lab exists to refuse.
 
 ## Amendment, 2026-10-24 — what the evidence supports today
 
-The charter above is kept as written on 2026-07-27. Three months on, some of it describes work
+The charter above is kept as written on 2026-07-27, except the figures in the `null` bullet of
+*Shipped*, which are updated in place and marked. Three months on, some of it describes work
 that has not happened, and this document holds itself to the same rule as the tools: say what is
 measured, not what is hoped.
 
@@ -255,3 +257,12 @@ section says they all share; `honest audit` runs the harness and `honest check` 
 and neither is a contract tool. CI runs eight jobs, not five. A GitHub Action now lets a benchmark
 author run the test on every commit of their own repository, which is the install path the
 adoption clause was waiting for; the clock starts when someone outside this project uses it.
+
+**Correction, the same evening (v1.4).** A statistics review of v1.3 found that its permutation
+null shuffled labels across strata, so a benchmark whose categories had different label rates
+false-fired 44% of the time on noise; that its seventh probe could never score; and that the
+family-wise correction was biased at the permutation floor. v1.4 fixes all three: the null is
+stratified, there are six probes, and the permutation count is raised to match the family. The
+grid now carries the constructions v1.3 was never tested on. Re-scored, 16 of 17 audit verdicts stand; our own `grounding-coordinate` goes from borderline PASS to borderline DISQUALIFIED, so the table reads 12 of 17, 5 of them ours. The figures in *The toolbox today* were updated in place a second time; the certificate is
+`nulltest_grid.json`. This paragraph exists because the charter says claims match evidence, and
+for part of one day they did not.

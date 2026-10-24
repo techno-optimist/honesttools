@@ -1,0 +1,752 @@
+[
+{
+"text": "tomupedu",
+"label": "0",
+"category": 7
+},
+{
+"text": "coge rapomure",
+"label": "1",
+"category": "s"
+},
+{
+"text": null,
+"label": "0",
+"category": "s"
+},
+{
+"text": null,
+"label": "1",
+"category": null
+},
+{
+"text": 1e-05,
+"label": "0",
+"category": "s"
+},
+{
+"text": null,
+"label": "1",
+"category": 7
+},
+{
+"text": "fufimara",
+"label": "0",
+"category": 7
+},
+{
+"text": "nasike",
+"label": "1",
+"category": null
+},
+{
+"text": null,
+"label": "0",
+"category": null
+},
+{
+"text": "labafe",
+"label": "1",
+"category": null
+},
+{
+"text": "locureti",
+"label": "0",
+"category": false
+},
+{
+"text": null,
+"label": "1",
+"category": false
+},
+{
+"text": null,
+"label": "0",
+"category": 7
+},
+{
+"text": "desa todufo",
+"label": "1",
+"category": "s"
+},
+{
+"text": 1e-05,
+"label": "0",
+"category": 7
+},
+{
+"text": "lofa gafeluru",
+"label": "1",
+"category": null
+},
+{
+"text": null,
+"label": "0",
+"category": true
+},
+{
+"text": 1.5e-07,
+"label": "1",
+"category": null
+},
+{
+"text": "gocace",
+"label": "0",
+"category": "s"
+},
+{
+"text": "piku",
+"label": "1",
+"category": "s"
+},
+{
+"text": "dodegepe",
+"label": "0",
+"category": true
+},
+{
+"text": 1e-05,
+"label": "1",
+"category": 7
+},
+{
+"text": "cobacani",
+"label": "0",
+"category": true
+},
+{
+"text": "gopogu cefonupa",
+"label": "1",
+"category": false
+},
+{
+"text": 1e-05,
+"label": "0",
+"category": null
+},
+{
+"text": null,
+"label": "1",
+"category": 7
+},
+{
+"text": "begi",
+"label": "0",
+"category": "s"
+},
+{
+"text": "cido",
+"label": "1",
+"category": "s"
+},
+{
+"text": "pabo",
+"label": "0",
+"category": false
+},
+{
+"text": "bura",
+"label": "1",
+"category": false
+},
+{
+"text": "coni",
+"label": "0",
+"category": null
+},
+{
+"text": "setikaro",
+"label": "1",
+"category": 7
+},
+{
+"text": "mubu",
+"label": "0",
+"category": 7
+},
+{
+"text": "paca",
+"label": "1",
+"category": false
+},
+{
+"text": "kosumomu",
+"label": "0",
+"category": null
+},
+{
+"text": "bipamafa",
+"label": "1",
+"category": "s"
+},
+{
+"text": "gakidu",
+"label": "0",
+"category": true
+},
+{
+"text": "romeko",
+"label": "1",
+"category": true
+},
+{
+"text": "fofu",
+"label": "0",
+"category": false
+},
+{
+"text": 1e-05,
+"label": "1",
+"category": 7
+},
+{
+"text": "sage",
+"label": "0",
+"category": null
+},
+{
+"text": "folumi",
+"label": "1",
+"category": "s"
+},
+{
+"text": "bipa",
+"label": "0",
+"category": false
+},
+{
+"text": "rubelo fetara",
+"label": "1",
+"category": 7
+},
+{
+"text": null,
+"label": "0",
+"category": "s"
+},
+{
+"text": "cefoge",
+"label": "1",
+"category": 7
+},
+{
+"text": "degi",
+"label": "0",
+"category": "s"
+},
+{
+"text": "nuteleco",
+"label": "1",
+"category": 7
+},
+{
+"text": null,
+"label": "0",
+"category": 7
+},
+{
+"text": 0.5,
+"label": "1",
+"category": 7
+},
+{
+"text": "nimireca",
+"label": "0",
+"category": true
+},
+{
+"text": 0.25,
+"label": "1",
+"category": null
+},
+{
+"text": "tigakuca",
+"label": "0",
+"category": 7
+},
+{
+"text": "timafa",
+"label": "1",
+"category": null
+},
+{
+"text": 1.5e-07,
+"label": "0",
+"category": true
+},
+{
+"text": "suromusa",
+"label": "1",
+"category": 7
+},
+{
+"text": "surenu",
+"label": "0",
+"category": "s"
+},
+{
+"text": 0.25,
+"label": "1",
+"category": "s"
+},
+{
+"text": 1e-05,
+"label": "0",
+"category": "s"
+},
+{
+"text": "melucubu bulutuco",
+"label": "1",
+"category": null
+},
+{
+"text": "nolo",
+"label": "0",
+"category": false
+},
+{
+"text": 0.25,
+"label": "1",
+"category": true
+},
+{
+"text": "nicelu",
+"label": "0",
+"category": null
+},
+{
+"text": "sabe riki",
+"label": "1",
+"category": true
+},
+{
+"text": "mucu",
+"label": "0",
+"category": "s"
+},
+{
+"text": 1e-05,
+"label": "1",
+"category": "s"
+},
+{
+"text": "lonu",
+"label": "0",
+"category": true
+},
+{
+"text": "nenenupe ridipife",
+"label": "1",
+"category": true
+},
+{
+"text": "fesa",
+"label": "0",
+"category": false
+},
+{
+"text": "lutefo",
+"label": "1",
+"category": null
+},
+{
+"text": null,
+"label": "0",
+"category": "s"
+},
+{
+"text": "curine",
+"label": "1",
+"category": 7
+},
+{
+"text": null,
+"label": "0",
+"category": null
+},
+{
+"text": "numefece gapa",
+"label": "1",
+"category": true
+},
+{
+"text": "cakomo",
+"label": "0",
+"category": "s"
+},
+{
+"text": "piba",
+"label": "1",
+"category": true
+},
+{
+"text": "silepe",
+"label": "0",
+"category": null
+},
+{
+"text": "kato",
+"label": "1",
+"category": true
+},
+{
+"text": "tigase",
+"label": "0",
+"category": 7
+},
+{
+"text": null,
+"label": "1",
+"category": false
+},
+{
+"text": "kotelese",
+"label": "0",
+"category": null
+},
+{
+"text": "mabiru rikero",
+"label": "1",
+"category": "s"
+},
+{
+"text": 0.5,
+"label": "0",
+"category": 7
+},
+{
+"text": "resato",
+"label": "1",
+"category": null
+},
+{
+"text": null,
+"label": "0",
+"category": null
+},
+{
+"text": "monate",
+"label": "1",
+"category": null
+},
+{
+"text": null,
+"label": "0",
+"category": false
+},
+{
+"text": 1.5e-07,
+"label": "1",
+"category": "s"
+},
+{
+"text": "nucota",
+"label": "0",
+"category": "s"
+},
+{
+"text": "lelo",
+"label": "1",
+"category": 7
+},
+{
+"text": "bomogulu",
+"label": "0",
+"category": false
+},
+{
+"text": "miniri pare",
+"label": "1",
+"category": 7
+},
+{
+"text": "bisobu",
+"label": "0",
+"category": false
+},
+{
+"text": null,
+"label": "1",
+"category": true
+},
+{
+"text": "gebuco",
+"label": "0",
+"category": true
+},
+{
+"text": "pabu",
+"label": "1",
+"category": null
+},
+{
+"text": 0.5,
+"label": "0",
+"category": false
+},
+{
+"text": "kodo",
+"label": "1",
+"category": false
+},
+{
+"text": "litudise",
+"label": "0",
+"category": true
+},
+{
+"text": "gupigipu",
+"label": "1",
+"category": true
+},
+{
+"text": "fene",
+"label": "0",
+"category": null
+},
+{
+"text": "gila",
+"label": "1",
+"category": null
+},
+{
+"text": 1.5e-07,
+"label": "0",
+"category": null
+},
+{
+"text": "dufimoke secamu",
+"label": "1",
+"category": true
+},
+{
+"text": "gotekeru",
+"label": "0",
+"category": false
+},
+{
+"text": 1e-05,
+"label": "1",
+"category": 7
+},
+{
+"text": "cokanalu",
+"label": "0",
+"category": "s"
+},
+{
+"text": "mitacifu migefi",
+"label": "1",
+"category": false
+},
+{
+"text": "kopu",
+"label": "0",
+"category": false
+},
+{
+"text": "mifosu kakopo",
+"label": "1",
+"category": true
+},
+{
+"text": "tonepu",
+"label": "0",
+"category": true
+},
+{
+"text": 0.25,
+"label": "1",
+"category": false
+},
+{
+"text": "nane",
+"label": "0",
+"category": "s"
+},
+{
+"text": 0.5,
+"label": "1",
+"category": 7
+},
+{
+"text": null,
+"label": "0",
+"category": "s"
+},
+{
+"text": "cicisaka dasofemu",
+"label": "1",
+"category": false
+},
+{
+"text": "kitire",
+"label": "0",
+"category": 7
+},
+{
+"text": "cubotibo",
+"label": "1",
+"category": 7
+},
+{
+"text": "bukatalo",
+"label": "0",
+"category": true
+},
+{
+"text": 1e-05,
+"label": "1",
+"category": 7
+},
+{
+"text": "folugi",
+"label": "0",
+"category": null
+},
+{
+"text": "ciretebo takafe",
+"label": "1",
+"category": false
+},
+{
+"text": 1e-05,
+"label": "0",
+"category": "s"
+},
+{
+"text": "nemegodi",
+"label": "1",
+"category": "s"
+},
+{
+"text": "mokuta",
+"label": "0",
+"category": 7
+},
+{
+"text": "bedonu",
+"label": "1",
+"category": null
+},
+{
+"text": "boko",
+"label": "0",
+"category": true
+},
+{
+"text": "dodiditu pinubepe",
+"label": "1",
+"category": null
+},
+{
+"text": 1e-05,
+"label": "0",
+"category": true
+},
+{
+"text": null,
+"label": "1",
+"category": false
+},
+{
+"text": "cosocunu",
+"label": "0",
+"category": false
+},
+{
+"text": null,
+"label": "1",
+"category": true
+},
+{
+"text": "cofanono",
+"label": "0",
+"category": true
+},
+{
+"text": "kilani",
+"label": "1",
+"category": null
+},
+{
+"text": "darorosa",
+"label": "0",
+"category": 7
+},
+{
+"text": null,
+"label": "1",
+"category": 7
+},
+{
+"text": "fipama",
+"label": "0",
+"category": true
+},
+{
+"text": "goni",
+"label": "1",
+"category": 7
+},
+{
+"text": "gefo",
+"label": "0",
+"category": null
+},
+{
+"text": "posimo pade",
+"label": "1",
+"category": true
+},
+{
+"text": 0.5,
+"label": "0",
+"category": 7
+},
+{
+"text": "cebe",
+"label": "1",
+"category": 7
+},
+{
+"text": "kone",
+"label": "0",
+"category": true
+},
+{
+"text": "lokopaso",
+"label": "1",
+"category": false
+},
+{
+"text": "runa",
+"label": "0",
+"category": false
+},
+{
+"text": "gocule",
+"label": "1",
+"category": false
+},
+{
+"text": "segugufi",
+"label": "0",
+"category": "s"
+},
+{
+"text": "pene",
+"label": "1",
+"category": null
+},
+{
+"text": "tade",
+"label": "0",
+"category": 7
+},
+{
+"text": "kicigoco",
+"label": "1",
+"category": true
+}
+]

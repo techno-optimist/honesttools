@@ -21,11 +21,11 @@ inputs:
     description: "The benchmark file: JSON, JSONL, CSV or TSV"
     required: true
   args:
-    description: "Extra nulltest.py flags, split on spaces (e.g. --text-key answer --label-key label --jobs 4)"
+    description: "Extra nulltest.py flags, split like a shell command line so quoted values work (e.g. --text-key answer --label-key label --positive-label \"not real\" --jobs 4)"
     required: false
     default: ""
   fail-on:
-    description: "Fail the step on: DISQUALIFIED (default), BORDERLINE (also fails a borderline PASS), or NEVER"
+    description: "Fail the step on: DISQUALIFIED (default), BORDERLINE (also fails a borderline PASS), or NEVER. Anything else is an error."
     required: false
     default: "DISQUALIFIED"
   report:

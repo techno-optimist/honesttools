@@ -12,7 +12,7 @@
     honest selftest [tool]          run a tool's break-test (all tools if omitted)
     honest fpr <tool>               print a tool's calibrated false-positive rate
 
-Phase 0 of the charter: the contract is proven on the STRONGEST tool first (`null`), reversibly,
+Phase 0 of the charter: the contract is exercised on the STRONGEST tool first (`null`), reversibly,
 before the weaker three are wrapped. `observertest` is registered `experimental` on purpose — to
 demonstrate that the stable/experimental wall actually refuses to let it emit a stable verdict, not
 to run it here. See CHARTER.md.
@@ -72,7 +72,9 @@ class NullTool(Tool):
                     "borderline": bool(rep.get("borderline")),
                     "battery": os.path.basename(battery_path), "battery_sha256": battery_sha,
                     "tool_sha256": nt._tool_sha256(), "nulltest_version": nt.VERSION,
-                    "keys": {"text": tk, "label": lk, "stratum": sk}, "n_perm": n_perm}
+                    "keys": {"text": tk, "label": lk, "stratum": sk}, "n_perm": rep.get("n_perm", n_perm),
+                    "alpha": rep.get("alpha", 0.05), "positive_label": positive_label,
+                    "explode": ({"fields": dict(mapping), "split": split} if mapping else None)}
         if explain or rep["verdict"] == "DISQUALIFIED":
             evidence["explain"] = nt.explain(items, tkeys, lk, sk, rep)
         return Verdict(
@@ -193,7 +195,7 @@ def _cmd_fpr(name):
         print("  cannot verify. The calibrated false-positive rate for the published version is at")
         print("  https://www.honesty.tools/audit ; reproduce it yourself with:")
         print("      python3 -m nulltest --calibrate --jobs 4 --emit-grid ./grid.json")
-        print("  (500 seeds per grid row at 600 permutations; about 17 minutes on 4 cores)")
+        print("  (10 grid rows x 500 seeds at the shipped permutation count; about 26 minutes on 4 cores)")
         return 1
     import json
     print(json.dumps(fpr, indent=1))

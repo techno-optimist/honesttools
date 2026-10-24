@@ -1,16 +1,15 @@
 {
  "tool": "nulltest",
- "version": "1.3",
+ "version": "1.4",
  "probes": [
   "lexicality",
   "words",
   "length",
   "shape",
   "alpha_first",
-  "alpha_last",
-  "stratum"
+  "alpha_last"
  ],
- "tool_sha256": "391c8b8a3279df8e6a67705fc02133a0ef8ede7599e6e3447d0a83a750a46cee",
+ "tool_sha256": "0e103dc41a3c208d2652646f2b8acc8b701ed7799402ca1ea0cb856de5ddf46c",
  "n_perm": 600,
  "generated_from": "nulltest_audit_manifest.json",
  "rows": [
@@ -32,7 +31,7 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.967,
-    "adj_p": 0.0017,
+    "adj_p": 0.0067,
     "raw_p": 0.0017,
     "null": "lexicality",
     "stratum": "claim",
@@ -40,7 +39,7 @@
     "threshold": 0.654,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.967 in lexicality/claim (n=147), family-adjusted p = 0.0017 over 6 cells",
+   "headline": "worst cell A* = 0.967 in lexicality/claim (n=147), family-adjusted p = 0.0067 over 6 cells",
    "separating_cells": 4,
    "astar": 0.967,
    "borderline": false,
@@ -50,8 +49,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "severe"
   },
@@ -70,19 +68,19 @@
    "explode": null,
    "split": null,
    "cells": 35,
-   "verdict": "PASS",
+   "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.855,
-    "adj_p": 0.0566,
-    "raw_p": 0.0033,
+    "adj_p": 0.0366,
+    "raw_p": 0.0013,
     "null": "length",
     "stratum": "eponymous_signs",
     "n": 28,
-    "threshold": 0.708,
+    "threshold": 0.719,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.855 in length/eponymous_signs (n=28), family-adjusted p = 0.0566 over 35 cells",
-   "separating_cells": 0,
+   "headline": "worst cell A* = 0.855 in length/eponymous_signs (n=28), family-adjusted p = 0.0366 over 35 cells",
+   "separating_cells": 1,
    "astar": 0.855,
    "borderline": true,
    "probes": [
@@ -91,10 +89,9 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
-   "strength": "\u2014"
+   "strength": "substantial"
   },
   {
    "name": "aperture/photon-entities",
@@ -114,16 +111,16 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 1.0,
-    "adj_p": 0.0067,
-    "raw_p": 0.0033,
-    "null": "length",
-    "stratum": "astronomy",
+    "adj_p": 0.0133,
+    "raw_p": 0.0011,
+    "null": "words",
+    "stratum": "genes",
     "n": 19,
-    "threshold": 0.792,
+    "threshold": 0.851,
     "underpowered": false
    },
-   "headline": "worst cell A* = 1.0 in length/astronomy (n=19), family-adjusted p = 0.0067 over 21 cells",
-   "separating_cells": 1,
+   "headline": "worst cell A* = 1.0 in words/genes (n=19), family-adjusted p = 0.0133 over 21 cells",
+   "separating_cells": 2,
    "astar": 1.0,
    "borderline": false,
    "probes": [
@@ -132,8 +129,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "severe"
   },
@@ -155,15 +151,15 @@
    "verdict": "PASS",
    "worst_cell": {
     "astar": 0.538,
-    "adj_p": 0.5574,
-    "raw_p": 0.1265,
+    "adj_p": 0.4992,
+    "raw_p": 0.1115,
     "null": "words",
     "stratum": "person",
     "n": 156,
     "threshold": 0.55,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.538 in words/person (n=156), family-adjusted p = 0.5574 over 6 cells",
+   "headline": "worst cell A* = 0.538 in words/person (n=156), family-adjusted p = 0.4992 over 6 cells",
    "separating_cells": 0,
    "astar": 0.538,
    "borderline": false,
@@ -173,8 +169,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "\u2014"
   },
@@ -196,15 +191,15 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.661,
-    "adj_p": 0.0017,
+    "adj_p": 0.01,
     "raw_p": 0.0017,
     "null": "alpha_last",
     "stratum": "person",
     "n": 168,
-    "threshold": 0.593,
+    "threshold": 0.59,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.661 in alpha_last/person (n=168), family-adjusted p = 0.0017 over 6 cells",
+   "headline": "worst cell A* = 0.661 in alpha_last/person (n=168), family-adjusted p = 0.01 over 6 cells",
    "separating_cells": 1,
    "astar": 0.661,
    "borderline": false,
@@ -214,8 +209,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "moderate"
   },
@@ -237,15 +231,15 @@
    "verdict": "PASS",
    "worst_cell": {
     "astar": 0.529,
-    "adj_p": 0.7404,
-    "raw_p": 0.2146,
+    "adj_p": 0.7171,
+    "raw_p": 0.1947,
     "null": "alpha_last",
     "stratum": "trial_title",
     "n": 702,
-    "threshold": 0.544,
+    "threshold": 0.543,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.529 in alpha_last/trial_title (n=702), family-adjusted p = 0.7404 over 6 cells",
+   "headline": "worst cell A* = 0.529 in alpha_last/trial_title (n=702), family-adjusted p = 0.7171 over 6 cells",
    "separating_cells": 0,
    "astar": 0.529,
    "borderline": false,
@@ -255,8 +249,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "\u2014"
   },
@@ -278,16 +271,16 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.953,
-    "adj_p": 0.0017,
-    "raw_p": 0.0017,
+    "adj_p": 0.016,
+    "raw_p": 0.001,
     "null": "lexicality",
     "stratum": "cities",
     "n": 360,
-    "threshold": 0.611,
+    "threshold": 0.602,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.953 in lexicality/cities (n=360), family-adjusted p = 0.0017 over 24 cells",
-   "separating_cells": 10,
+   "headline": "worst cell A* = 0.953 in lexicality/cities (n=360), family-adjusted p = 0.016 over 24 cells",
+   "separating_cells": 9,
    "astar": 0.953,
    "borderline": false,
    "probes": [
@@ -296,8 +289,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "severe"
   },
@@ -319,7 +311,7 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.836,
-    "adj_p": 0.0017,
+    "adj_p": 0.005,
     "raw_p": 0.0017,
     "null": "lexicality",
     "stratum": "_all",
@@ -327,7 +319,7 @@
     "threshold": 0.553,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.836 in lexicality/_all (n=1000), family-adjusted p = 0.0017 over 6 cells",
+   "headline": "worst cell A* = 0.836 in lexicality/_all (n=1000), family-adjusted p = 0.005 over 6 cells",
    "separating_cells": 4,
    "astar": 0.836,
    "borderline": false,
@@ -337,8 +329,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "substantial"
   },
@@ -360,7 +351,7 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.765,
-    "adj_p": 0.0017,
+    "adj_p": 0.0083,
     "raw_p": 0.0017,
     "null": "lexicality",
     "stratum": "_all",
@@ -368,7 +359,7 @@
     "threshold": 0.54,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.765 in lexicality/_all (n=1496), family-adjusted p = 0.0017 over 5 cells",
+   "headline": "worst cell A* = 0.765 in lexicality/_all (n=1496), family-adjusted p = 0.0083 over 5 cells",
    "separating_cells": 2,
    "astar": 0.765,
    "borderline": false,
@@ -378,8 +369,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "substantial"
   },
@@ -401,15 +391,15 @@
    "verdict": "PASS",
    "worst_cell": {
     "astar": 0.542,
-    "adj_p": 0.6173,
-    "raw_p": 0.1714,
+    "adj_p": 0.599,
+    "raw_p": 0.1664,
     "null": "alpha_last",
     "stratum": "_all",
     "n": 354,
-    "threshold": 0.559,
+    "threshold": 0.561,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.542 in alpha_last/_all (n=354), family-adjusted p = 0.6173 over 5 cells",
+   "headline": "worst cell A* = 0.542 in alpha_last/_all (n=354), family-adjusted p = 0.599 over 5 cells",
    "separating_cells": 0,
    "astar": 0.542,
    "borderline": false,
@@ -419,8 +409,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "\u2014"
   },
@@ -442,26 +431,25 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.565,
-    "adj_p": 0.0399,
-    "raw_p": 0.0083,
+    "adj_p": 0.0383,
+    "raw_p": 0.0067,
     "null": "length",
     "stratum": "_all",
     "n": 561,
-    "threshold": 0.548,
+    "threshold": 0.544,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.565 in length/_all (n=561), family-adjusted p = 0.0399 over 6 cells",
+   "headline": "worst cell A* = 0.565 in length/_all (n=561), family-adjusted p = 0.0383 over 6 cells",
    "separating_cells": 1,
    "astar": 0.565,
-   "borderline": false,
+   "borderline": true,
    "probes": [
     "lexicality",
     "words",
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "slight"
   },
@@ -485,18 +473,18 @@
    "cells": 222,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
-    "astar": 1.0,
-    "adj_p": 0.0017,
-    "raw_p": 0.0017,
-    "null": "alpha_first",
-    "stratum": "Misconceptions: Topical",
-    "n": 21,
-    "threshold": 0.722,
+    "astar": 0.857,
+    "adj_p": 0.0171,
+    "raw_p": 0.0001,
+    "null": "words",
+    "stratum": "Law",
+    "n": 586,
+    "threshold": 0.563,
     "underpowered": false
    },
-   "headline": "worst cell A* = 1.0 in alpha_first/Misconceptions: Topical (n=21), family-adjusted p = 0.0017 over 222 cells",
-   "separating_cells": 77,
-   "astar": 1.0,
+   "headline": "worst cell A* = 0.857 in words/Law (n=586), family-adjusted p = 0.0171 over 222 cells",
+   "separating_cells": 63,
+   "astar": 0.857,
    "borderline": false,
    "probes": [
     "lexicality",
@@ -504,10 +492,9 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
-   "strength": "severe"
+   "strength": "substantial"
   },
   {
    "name": "halueval/qa",
@@ -530,15 +517,15 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.979,
-    "adj_p": 0.0017,
+    "adj_p": 0.0033,
     "raw_p": 0.0017,
     "null": "lexicality",
     "stratum": "_all",
     "n": 20000,
-    "threshold": 0.51,
+    "threshold": 0.511,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.979 in lexicality/_all (n=20000), family-adjusted p = 0.0017 over 6 cells",
+   "headline": "worst cell A* = 0.979 in lexicality/_all (n=20000), family-adjusted p = 0.0033 over 6 cells",
    "separating_cells": 5,
    "astar": 0.979,
    "borderline": false,
@@ -548,8 +535,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "severe"
   },
@@ -574,7 +560,7 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.849,
-    "adj_p": 0.0017,
+    "adj_p": 0.0033,
     "raw_p": 0.0017,
     "null": "words",
     "stratum": "_all",
@@ -582,7 +568,7 @@
     "threshold": 0.511,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.849 in words/_all (n=20000), family-adjusted p = 0.0017 over 6 cells",
+   "headline": "worst cell A* = 0.849 in words/_all (n=20000), family-adjusted p = 0.0033 over 6 cells",
    "separating_cells": 6,
    "astar": 0.849,
    "borderline": false,
@@ -592,8 +578,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "substantial"
   },
@@ -615,15 +600,15 @@
    "verdict": "PASS",
    "worst_cell": {
     "astar": 0.655,
-    "adj_p": 0.406,
-    "raw_p": 0.02,
+    "adj_p": 0.4012,
+    "raw_p": 0.0177,
     "null": "length",
     "stratum": "place",
     "n": 80,
-    "threshold": 0.625,
+    "threshold": 0.627,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.655 in length/place (n=80), family-adjusted p = 0.406 over 30 cells",
+   "headline": "worst cell A* = 0.655 in length/place (n=80), family-adjusted p = 0.4012 over 30 cells",
    "separating_cells": 0,
    "astar": 0.655,
    "borderline": false,
@@ -633,8 +618,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "\u2014"
   },
@@ -656,15 +640,15 @@
    "verdict": "PASS",
    "worst_cell": {
     "astar": 0.689,
-    "adj_p": 0.1814,
-    "raw_p": 0.0083,
+    "adj_p": 0.3582,
+    "raw_p": 0.0154,
     "null": "lexicality",
     "stratum": "place",
     "n": 80,
-    "threshold": 0.647,
+    "threshold": 0.656,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.689 in lexicality/place (n=80), family-adjusted p = 0.1814 over 30 cells",
+   "headline": "worst cell A* = 0.689 in lexicality/place (n=80), family-adjusted p = 0.3582 over 30 cells",
    "separating_cells": 0,
    "astar": 0.689,
    "borderline": false,
@@ -674,8 +658,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "\u2014"
   },
@@ -697,16 +680,16 @@
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 1.0,
-    "adj_p": 0.0017,
-    "raw_p": 0.0017,
+    "adj_p": 0.0107,
+    "raw_p": 0.0007,
     "null": "lexicality",
     "stratum": "book",
     "n": 28,
-    "threshold": 0.762,
+    "threshold": 0.776,
     "underpowered": false
    },
-   "headline": "worst cell A* = 1.0 in lexicality/book (n=28), family-adjusted p = 0.0017 over 34 cells",
-   "separating_cells": 17,
+   "headline": "worst cell A* = 1.0 in lexicality/book (n=28), family-adjusted p = 0.0107 over 34 cells",
+   "separating_cells": 15,
    "astar": 1.0,
    "borderline": false,
    "probes": [
@@ -715,8 +698,7 @@
     "length",
     "shape",
     "alpha_first",
-    "alpha_last",
-    "stratum"
+    "alpha_last"
    ],
    "strength": "severe"
   }

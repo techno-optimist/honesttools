@@ -50,7 +50,7 @@ also worth a conversation.
 ## 3. Change the tool
 
 ```bash
-python3 -m unittest discover -s tests -v          # 40+ stdlib tests, a few seconds
+python3 -m unittest discover -s tests -v          # 51 stdlib tests, a few seconds
 bash nulltest_parity.sh                           # browser engine == CLI, cell by cell
 python3 nulltest.py --selftest --seeds 25 --n-perm 200
 ```
@@ -64,7 +64,7 @@ Rules the CI enforces and reviewers will hold you to:
   reimplemented in the JS on purpose; do not "simplify" them.
 - **Any edit to `nulltest.py` changes its sha256 and invalidates the three certificates**
   (`nulltest_grid.json`, `nulltest_parity.json`, `nulltest_audit_results.json`). Regenerate them
-  (about 35 minutes on 4 cores) and commit them in the same PR:
+  (about an hour on a 4-core machine: 26 minutes for the grid, 29 for the audit) and commit them in the same PR:
   ```bash
   python3 nulltest.py --calibrate --jobs 4 --emit-grid /tmp/nulltest_grid.json && cp /tmp/nulltest_grid.json .
   python3 nulltest_audit.py --jobs 4
