@@ -111,6 +111,19 @@ jobs:
               sys.exit("\n".join(fail))
           PY
 
+  tests:
+    name: unit tests — every probe catches the artifact it was written for
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ matrix.python }}" }
+      - name: stdlib unittest, no dependencies
+        run: python3 -W error::ResourceWarning -m unittest discover -s tests -v
+
   parity:
     name: browser and CLI are one instrument
     runs-on: ubuntu-latest
@@ -164,6 +177,8 @@ jobs:
           python3 nulltest.py --selftest --seeds 3 --n-perm 50 >/dev/null 2>&1 || true
           bash nulltest_parity.sh >/dev/null 2>&1 || true
           python3 nulltest.py batteries/photon-entities.json --json >/dev/null 2>&1 || true
+          python3 -m unittest discover -s tests >/dev/null 2>&1 || true
+          rm -rf tests/__pycache__ __pycache__
           if [ -n "$(git status --porcelain)" ]; then
             echo "::error::a gate modified the working tree while running — it is certifying itself"
             git status --porcelain

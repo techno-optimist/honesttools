@@ -123,8 +123,9 @@ def main(argv):
     # closing tag, not a literal "regenerated from" — the first render rewrote that phrase to
     # "generated from", after which the old anchored regex silently stopped matching and the row
     # count went stale (said 13 while the table had 14). Anchor on the stable prefix instead.
-    eyebrow = ("the null-floor audit &middot; nulltest 1.2 &middot; %d rows generated from "
-               "nulltest_audit_results.json by render_audit.py" % len(rows))
+    version = json.load(open(RESULTS)).get("version", "?")
+    eyebrow = ("the null-floor audit &middot; nulltest %s &middot; %d rows generated from "
+               "nulltest_audit_results.json by render_audit.py" % (version, len(rows)))
     new, n_sub = re.subn(r"the null-floor audit &middot; nulltest [^<]*", eyebrow, new, count=1)
     if n_sub != 1:
         raise SystemExit("render_audit: could not find the eyebrow to update its row count — "

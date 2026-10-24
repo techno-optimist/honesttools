@@ -1,6 +1,16 @@
 {
  "tool": "nulltest",
- "version": "1.1",
+ "version": "1.3",
+ "probes": [
+  "lexicality",
+  "words",
+  "length",
+  "shape",
+  "alpha_first",
+  "alpha_last",
+  "stratum"
+ ],
+ "tool_sha256": "9fb630a208a685b22fa0774c712aec47d778b390b3101d2a8fadeda236bc130e",
  "n_perm": 600,
  "generated_from": "nulltest_audit_manifest.json",
  "rows": [
@@ -15,7 +25,7 @@
    "n": 147,
    "n_fake": 36,
    "n_real": 111,
-   "cells": 3,
+   "cells": 6,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.967,
@@ -27,9 +37,19 @@
     "threshold": 0.654,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.967 in lexicality/claim (n=147), family-adjusted p = 0.0017 over 3 cells",
-   "separating_cells": 3,
+   "headline": "worst cell A* = 0.967 in lexicality/claim (n=147), family-adjusted p = 0.0017 over 6 cells",
+   "separating_cells": 4,
    "astar": 0.967,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "severe"
   },
   {
@@ -43,11 +63,11 @@
    "n": 162,
    "n_fake": 81,
    "n_real": 81,
-   "cells": 18,
-   "verdict": "DISQUALIFIED",
+   "cells": 35,
+   "verdict": "PASS",
    "worst_cell": {
     "astar": 0.855,
-    "adj_p": 0.03,
+    "adj_p": 0.0566,
     "raw_p": 0.0033,
     "null": "length",
     "stratum": "eponymous_signs",
@@ -55,10 +75,20 @@
     "threshold": 0.708,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.855 in length/eponymous_signs (n=28), family-adjusted p = 0.03 over 18 cells",
-   "separating_cells": 1,
+   "headline": "worst cell A* = 0.855 in length/eponymous_signs (n=28), family-adjusted p = 0.0566 over 35 cells",
+   "separating_cells": 0,
    "astar": 0.855,
-   "strength": "substantial"
+   "borderline": true,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
+   "strength": "\u2014"
   },
   {
    "name": "aperture/photon-entities",
@@ -71,11 +101,11 @@
    "n": 103,
    "n_fake": 27,
    "n_real": 76,
-   "cells": 12,
+   "cells": 21,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 1.0,
-    "adj_p": 0.0033,
+    "adj_p": 0.0067,
     "raw_p": 0.0033,
     "null": "length",
     "stratum": "astronomy",
@@ -83,9 +113,19 @@
     "threshold": 0.792,
     "underpowered": false
    },
-   "headline": "worst cell A* = 1.0 in length/astronomy (n=19), family-adjusted p = 0.0033 over 12 cells",
+   "headline": "worst cell A* = 1.0 in length/astronomy (n=19), family-adjusted p = 0.0067 over 21 cells",
    "separating_cells": 1,
    "astar": 1.0,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "severe"
   },
   {
@@ -99,26 +139,36 @@
    "n": 156,
    "n_fake": 78,
    "n_real": 78,
-   "cells": 3,
+   "cells": 6,
    "verdict": "PASS",
    "worst_cell": {
-    "astar": 0.554,
-    "adj_p": 0.8186,
-    "raw_p": 0.4043,
-    "null": "lexicality",
+    "astar": 0.538,
+    "adj_p": 0.5574,
+    "raw_p": 0.1265,
+    "null": "words",
     "stratum": "person",
     "n": 156,
-    "threshold": 0.616,
+    "threshold": 0.55,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.554 in lexicality/person (n=156), family-adjusted p = 0.8186 over 3 cells",
+   "headline": "worst cell A* = 0.538 in words/person (n=156), family-adjusted p = 0.5574 over 6 cells",
    "separating_cells": 0,
-   "astar": 0.554,
+   "astar": 0.538,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "\u2014"
   },
   {
    "name": "aperture/prominence-people-v1",
-   "paper": "Aperture / Project Forty Two \u2014 a battery that PASSED this floor and was still broken",
+   "paper": "Aperture / Project Forty Two \u2014 a battery that PASSED the v1.2 floor and was still broken; caught by v1.3",
    "label_kind": "known_vs_unknown_real_entity",
    "url": "https://www.honesty.tools/verifier/batteries/prominence-people-v1.json",
    "status": "scored",
@@ -127,22 +177,32 @@
    "n": 168,
    "n_fake": 84,
    "n_real": 84,
-   "cells": 3,
-   "verdict": "PASS",
+   "cells": 6,
+   "verdict": "DISQUALIFIED",
    "worst_cell": {
-    "astar": 0.602,
-    "adj_p": 0.2246,
-    "raw_p": 0.0815,
-    "null": "shape",
+    "astar": 0.661,
+    "adj_p": 0.0017,
+    "raw_p": 0.0017,
+    "null": "alpha_last",
     "stratum": "person",
     "n": 168,
-    "threshold": 0.616,
+    "threshold": 0.593,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.602 in shape/person (n=168), family-adjusted p = 0.2246 over 3 cells",
-   "separating_cells": 0,
-   "astar": 0.602,
-   "strength": "\u2014"
+   "headline": "worst cell A* = 0.661 in alpha_last/person (n=168), family-adjusted p = 0.0017 over 6 cells",
+   "separating_cells": 1,
+   "astar": 0.661,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
+   "strength": "moderate"
   },
   {
    "name": "aperture/postcutoff-trials-v1",
@@ -155,21 +215,31 @@
    "n": 702,
    "n_fake": 351,
    "n_real": 351,
-   "cells": 3,
+   "cells": 6,
    "verdict": "PASS",
    "worst_cell": {
-    "astar": 0.526,
-    "adj_p": 0.792,
-    "raw_p": 0.4093,
-    "null": "lexicality",
+    "astar": 0.529,
+    "adj_p": 0.7404,
+    "raw_p": 0.2146,
+    "null": "alpha_last",
     "stratum": "trial_title",
     "n": 702,
-    "threshold": 0.559,
+    "threshold": 0.544,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.526 in lexicality/trial_title (n=702), family-adjusted p = 0.792 over 3 cells",
+   "headline": "worst cell A* = 0.529 in alpha_last/trial_title (n=702), family-adjusted p = 0.7404 over 6 cells",
    "separating_cells": 0,
-   "astar": 0.526,
+   "astar": 0.529,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "\u2014"
   },
   {
@@ -183,7 +253,7 @@
    "n": 1440,
    "n_fake": 240,
    "n_real": 1200,
-   "cells": 12,
+   "cells": 24,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.953,
@@ -195,9 +265,19 @@
     "threshold": 0.611,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.953 in lexicality/cities (n=360), family-adjusted p = 0.0017 over 12 cells",
-   "separating_cells": 5,
+   "headline": "worst cell A* = 0.953 in lexicality/cities (n=360), family-adjusted p = 0.0017 over 24 cells",
+   "separating_cells": 10,
    "astar": 0.953,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "severe"
   },
   {
@@ -211,7 +291,7 @@
    "n": 1000,
    "n_fake": 468,
    "n_real": 532,
-   "cells": 3,
+   "cells": 6,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.836,
@@ -223,9 +303,19 @@
     "threshold": 0.553,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.836 in lexicality/_all (n=1000), family-adjusted p = 0.0017 over 3 cells",
-   "separating_cells": 3,
+   "headline": "worst cell A* = 0.836 in lexicality/_all (n=1000), family-adjusted p = 0.0017 over 6 cells",
+   "separating_cells": 4,
    "astar": 0.836,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "substantial"
   },
   {
@@ -239,7 +329,7 @@
    "n": 1496,
    "n_fake": 748,
    "n_real": 748,
-   "cells": 3,
+   "cells": 5,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.765,
@@ -251,9 +341,19 @@
     "threshold": 0.54,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.765 in lexicality/_all (n=1496), family-adjusted p = 0.0017 over 3 cells",
-   "separating_cells": 1,
+   "headline": "worst cell A* = 0.765 in lexicality/_all (n=1496), family-adjusted p = 0.0017 over 5 cells",
+   "separating_cells": 2,
    "astar": 0.765,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "substantial"
   },
   {
@@ -267,21 +367,31 @@
    "n": 354,
    "n_fake": 177,
    "n_real": 177,
-   "cells": 3,
+   "cells": 5,
    "verdict": "PASS",
    "worst_cell": {
-    "astar": 0.519,
-    "adj_p": 0.9052,
-    "raw_p": 0.5374,
-    "null": "length",
+    "astar": 0.542,
+    "adj_p": 0.6173,
+    "raw_p": 0.1714,
+    "null": "alpha_last",
     "stratum": "_all",
     "n": 354,
     "threshold": 0.559,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.519 in length/_all (n=354), family-adjusted p = 0.9052 over 3 cells",
+   "headline": "worst cell A* = 0.542 in alpha_last/_all (n=354), family-adjusted p = 0.6173 over 5 cells",
    "separating_cells": 0,
-   "astar": 0.519,
+   "astar": 0.542,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "\u2014"
   },
   {
@@ -295,11 +405,11 @@
    "n": 561,
    "n_fake": 282,
    "n_real": 279,
-   "cells": 3,
+   "cells": 6,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 0.565,
-    "adj_p": 0.0216,
+    "adj_p": 0.0399,
     "raw_p": 0.0083,
     "null": "length",
     "stratum": "_all",
@@ -307,9 +417,19 @@
     "threshold": 0.548,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.565 in length/_all (n=561), family-adjusted p = 0.0216 over 3 cells",
+   "headline": "worst cell A* = 0.565 in length/_all (n=561), family-adjusted p = 0.0399 over 6 cells",
    "separating_cells": 1,
    "astar": 0.565,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "slight"
   },
   {
@@ -323,11 +443,11 @@
    "n": 324,
    "n_fake": 162,
    "n_real": 162,
-   "cells": 15,
+   "cells": 30,
    "verdict": "PASS",
    "worst_cell": {
     "astar": 0.655,
-    "adj_p": 0.228,
+    "adj_p": 0.406,
     "raw_p": 0.02,
     "null": "length",
     "stratum": "place",
@@ -335,9 +455,19 @@
     "threshold": 0.625,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.655 in length/place (n=80), family-adjusted p = 0.228 over 15 cells",
+   "headline": "worst cell A* = 0.655 in length/place (n=80), family-adjusted p = 0.406 over 30 cells",
    "separating_cells": 0,
    "astar": 0.655,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "\u2014"
   },
   {
@@ -351,11 +481,11 @@
    "n": 296,
    "n_fake": 148,
    "n_real": 148,
-   "cells": 15,
+   "cells": 30,
    "verdict": "PASS",
    "worst_cell": {
     "astar": 0.689,
-    "adj_p": 0.0982,
+    "adj_p": 0.1814,
     "raw_p": 0.0083,
     "null": "lexicality",
     "stratum": "place",
@@ -363,9 +493,19 @@
     "threshold": 0.647,
     "underpowered": false
    },
-   "headline": "worst cell A* = 0.689 in lexicality/place (n=80), family-adjusted p = 0.0982 over 15 cells",
+   "headline": "worst cell A* = 0.689 in lexicality/place (n=80), family-adjusted p = 0.1814 over 30 cells",
    "separating_cells": 0,
    "astar": 0.689,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "\u2014"
   },
   {
@@ -379,7 +519,7 @@
    "n": 168,
    "n_fake": 84,
    "n_real": 84,
-   "cells": 18,
+   "cells": 34,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
     "astar": 1.0,
@@ -391,9 +531,19 @@
     "threshold": 0.762,
     "underpowered": false
    },
-   "headline": "worst cell A* = 1.0 in lexicality/book (n=28), family-adjusted p = 0.0017 over 18 cells",
-   "separating_cells": 16,
+   "headline": "worst cell A* = 1.0 in lexicality/book (n=28), family-adjusted p = 0.0017 over 34 cells",
+   "separating_cells": 17,
    "astar": 1.0,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
    "strength": "severe"
   }
  ]

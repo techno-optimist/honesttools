@@ -16,8 +16,8 @@ WHAT A "DISQUALIFIED" VERDICT IS NOT. It is not a finding of error, misconduct, 
 the authors, and it is not a claim that the paper's conclusion is wrong. It says one specific
 thing: on this corpus, a model-free classifier recovers the labels above what label-shuffling
 produces, so a model-based score on it needs a surface control to be interpretable. Several of
-these papers predate the practice. ALL NINE OF OUR OWN BATTERIES ARE IN THIS TABLE AND FOUR ARE
-DISQUALIFIED, INCLUDING THE TWO WORST ROWS ON IT.
+these papers predate the practice. ALL NINE OF OUR OWN BATTERIES ARE IN THIS TABLE; see the README for
+which of them fail under the current probes.
 
 (That sentence used to read "our own two batteries, and both are disqualified". It was true when
 written and quietly stopped being true as the manifest grew — while four of ours, including the
@@ -60,6 +60,7 @@ UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
 def _nt():
     spec = importlib.util.spec_from_file_location("nt", os.path.join(HERE, "nulltest.py"))
     m = importlib.util.module_from_spec(spec)
+    sys.modules["nt"] = m         # so multiprocessing can pickle references into it
     spec.loader.exec_module(m)
     return m
 
@@ -167,7 +168,7 @@ def strength(astar):
     return "slight"
 
 
-def run_one(spec, n_perm=600, verbose=True):
+def run_one(spec, n_perm=600, verbose=True, jobs=1):
     name = spec["name"]
     row = {"name": name, "paper": spec.get("paper", ""), "label_kind": spec.get("label_kind", "unknown"),
            "url": spec.get("url", ""), "status": None}
@@ -199,13 +200,16 @@ def run_one(spec, n_perm=600, verbose=True):
 
     nt = _nt()
     has_stratum = any("category" in i for i in items)
-    rep = nt.evaluate(items, "entity", "label", "category" if has_stratum else None, n_perm=n_perm)
+    rep = nt.evaluate(items, "entity", "label", "category" if has_stratum else None, n_perm=n_perm,
+                      jobs=jobs)
     row.update({
         "status": "scored", "n": rep["n"], "n_fake": rep["n_fake"], "n_real": rep["n_real"],
         "cells": rep["family_size"], "verdict": rep["verdict"],
         "worst_cell": rep["worst_cell"], "headline": rep["headline"],
         "separating_cells": rep.get("n_separating_cells", 0),
         "astar": rep["worst_cell"]["astar"],
+        "borderline": bool(rep.get("borderline")),
+        "probes": rep.get("probes"),
         "strength": strength(rep["worst_cell"]["astar"]) if rep["verdict"] == "DISQUALIFIED" else "—",
     })
     if verbose:
@@ -221,6 +225,7 @@ def main(argv):
     ap.add_argument("--only")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--n-perm", type=int, default=600)
+    ap.add_argument("--jobs", type=int, default=1, help="processes per battery (wall clock only)")
     a = ap.parse_args(argv[1:])
 
     if not os.path.exists(MANIFEST):
@@ -243,7 +248,7 @@ def main(argv):
 
     print("nulltest audit — %d targets, %d permutations each" % (len(targets), a.n_perm))
     print()
-    rows = [run_one(t, n_perm=a.n_perm) for t in targets]
+    rows = [run_one(t, n_perm=a.n_perm, jobs=a.jobs) for t in targets]
     dest = os.path.join(HERE, "nulltest_audit_results.json")
 
     # --only USED TO REPLACE THE WHOLE FILE. Re-scoring one target rewrote the results with a
@@ -267,7 +272,10 @@ def main(argv):
             carried += 1
         merged.append(r)
 
-    out = {"tool": "nulltest", "version": "1.1", "n_perm": a.n_perm,
+    nt = _nt()
+    out = {"tool": "nulltest", "version": nt.VERSION, "probes": list(nt.NULLS),
+           "tool_sha256": hashlib.sha256(open(os.path.join(HERE, "nulltest.py"), "rb").read()).hexdigest(),
+           "n_perm": a.n_perm,
            "generated_from": os.path.basename(MANIFEST), "rows": merged}
     if carried:
         out["partial_run"] = ("%d of %d rows were carried over from an earlier run, not scored "

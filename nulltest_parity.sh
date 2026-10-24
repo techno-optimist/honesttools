@@ -17,7 +17,7 @@ FAILED=0
 
 command -v node >/dev/null || { echo "node not found — cannot run the browser engine headless"; exit 2; }
 
-BATTERIES="batteries/grounding-coordinate.json batteries/photon-entities.json"
+BATTERIES="batteries/grounding-coordinate.json batteries/photon-entities.json batteries/prominence-people-v1.json batteries/verifydomain-claims-147.json"
 
 node nulltest_parity.js $BATTERIES > /tmp/nt_js.json || { echo "JS engine failed"; exit 1; }
 for b in $BATTERIES; do

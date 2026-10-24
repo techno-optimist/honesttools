@@ -206,3 +206,42 @@ Two observations, either fatal. We hold ourselves to the rule we hold our tools 
 
 If either lands, we say so in the registry and change course. A mission statement that cannot be
 falsified is exactly the vacuous green this lab exists to refuse.
+
+---
+
+## Amendment, 2026-10-24 — what the evidence supports today
+
+The charter above is kept as written on 2026-07-27. Three months on, some of it describes work
+that has not happened, and this document holds itself to the same rule as the tools: say what is
+measured, not what is hoped.
+
+**Who has actually used it.** No one outside this project has run `null` on their own battery or
+re-derived a receipt. The adoption clause in *What would falsify this charter* starts its clock on
+the day a one-line install exists; that day has not come, because `honesttools` is not on PyPI
+yet. Until it is, the install is `git clone`, and the clock is not running.
+
+**Who it is for, in order of evidence.** The audit table is the only usage data we have, and every
+row in it is a *benchmark*, scored by its authors or by us. So the audience the tool has
+demonstrably served is benchmark and eval authors and the reviewers who check them. The 8B–35B
+model deployer listed first above has not appeared: a team shipping a model rarely builds its own
+real/fake battery, and `null` scores batteries, not models. That tier is a hope, not a user, and
+is listed last now. The advisor pitch above should be read with this paragraph next to it.
+
+**What the tool is.** The core idea is the hypothesis-only / partial-input baseline of the NLP
+artifact literature (Gururangan et al. 2018; Poliak et al. 2018; AFLite). The contribution is the
+discipline around it, not the idea: two-sided scoring, worst-cell reporting, refit-inside-permutation
+calibration, family-wise correction, a measured false-positive rate, bit-identical browser and CLI
+engines. Cite it as a packaging of a known test, done carefully.
+
+**What changed in v1.3.** Seven probes instead of four. The two alphabet-position probes were added
+because `prominence-people-v1` passed the four and was broken anyway; it is now caught. Widening
+the family cost one of our own detections: `grounding-coordinate` moved from DISQUALIFIED
+(adjusted p 0.030, 18 cells) to PASS (0.057, 35 cells) with its worst cell unchanged. The report
+now marks such results BORDERLINE instead of letting a binary verdict hide them. The table's
+"4 of 9 ours disqualified" is still true, but it is a different four.
+
+**The roadmap.** Phase 0 shipped. Phase 1 (PyPI, every selftest in CI) is partly done: CI runs
+the gates on every commit; the PyPI release has not been made. Phases 2–4 have not started. The
+`checkerboard`, `renew`, `observertest` and `abstaintest` tools described above exist as research
+notes and partial code elsewhere, not in this repository, and nothing here should be read as
+claiming they ship.
