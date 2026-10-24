@@ -42,7 +42,10 @@
   };
 
   var FULL_PERM = 600, BIG_BATTERY = 1200, REDUCED_PERM = 200;
-  var chips, pasteWrap, pasteBox, fileIn, runBtn, result, whatEl, current = "grounding", pastedName = null;
+  var chips, pasteWrap, pasteBox, fileIn, runBtn, result, whatEl, current = "grounding";
+  // A chosen file is kept HERE, not copied into the textarea: a 50 MB corpus pasted into a
+  // <textarea> freezes the tab before a single permutation runs. Typing in the box discards it.
+  var pastedName = null, fileText = null, pastePlaceholder = null;
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -59,7 +62,7 @@
     result.innerHTML = "";
     whatEl.innerHTML = PRESETS[name].paste
       ? "read in this tab &middot; never uploaded"
-      : "surface probes &middot; 600 refits &middot; family-wise corrected";
+      : "six surface probes &middot; stratified permutation null &middot; family-wise corrected";
   }
 
   function getItems() {
@@ -69,8 +72,8 @@
                                keys: { text: "entity", label: "label", stratum: "category" } });
     }
     if (p.paste) {
-      var raw = pasteBox.value.trim();
-      if (!raw) return Promise.reject(new Error("paste a JSON array of items first, or choose a file"));
+      var raw = fileText !== null ? fileText : pasteBox.value;
+      if (!raw.trim()) return Promise.reject(new Error("paste a JSON array of items first, or choose a file"));
       return Promise.resolve(window.NullTest.loadItems(raw));
     }
     return fetch(p.url, { cache: "no-store" }).then(function (r) {
@@ -96,8 +99,11 @@
       html += '<p class="ev-note" style="margin:4px 0"><code>' + esc(c.probe) + "/" + esc(c.stratum) + "</code> A* " +
         f3(c.astar) + ", adj p " + f4(c.adj_p) + " &mdash; " + esc(c.reading || "") + "</p>";
       if (c.favours_label1 || c.favours_label0) {
+        // the CLI's _show_feature: padding spaces in a character n-gram are made visible as ␣,
+        // or ' pa' and 'pa ' collapse to the same cell in HTML
+        var show = function (g) { return c.probe === "lexicality" ? String(g).replace(/ /g, "\u2423") : g; };
         var tr = function (r) {
-          return "<tr><td>" + esc(r.feature) + '</td><td class="num">' + r.in_label1 + '</td><td class="num">' + r.in_label0 + "</td></tr>";
+          return "<tr><td>" + esc(show(r.feature)) + '</td><td class="num">' + r.in_label1 + '</td><td class="num">' + r.in_label0 + "</td></tr>";
         };
         html += '<div class="nt-scroll"><table class="nt-table"><thead><tr><th>feature</th><th>in label-1</th><th>in label-0</th></tr></thead><tbody>' +
           (c.favours_label1 || []).slice(0, 5).map(tr).join("") + (c.favours_label0 || []).slice(0, 5).map(tr).join("") +
@@ -135,23 +141,35 @@
     }
 
     var note = PRESETS[current].note;
+    // NOT_SCORABLE is neither a pass nor a fail and must not wear the PASS colour: nt-tag--na is
+    // a neutral style (the site CSS needs that class; until it has one the tag falls back to the
+    // plain .nt-tag look).
+    var tagCls = bad ? "nt-tag--bad" : rep.verdict === "PASS" ? "nt-tag--ok" : "nt-tag--na";
+    // The CLI prints POWER, the saturation NOTE and the BORDERLINE NOTE under every verdict; a
+    // borderline PASS shown as a plain PASS would be the page saying less than the command does.
+    var notes = "";
+    if (rep.borderline && rep.borderline_note) notes += '<p class="ev-note" style="margin-top:0"><b>BORDERLINE</b> &middot; ' + esc(rep.borderline_note) + "</p>";
+    if (rep.saturated && rep.saturation_note) notes += '<p class="ev-note" style="margin-top:0"><b>NOTE</b> &middot; ' + esc(rep.saturation_note) + "</p>";
+    if (rep.power && rep.power.reading) notes += '<p class="ev-note" style="margin-top:0"><b>POWER</b> &middot; ' + esc(rep.power.reading) + "</p>";
+    if (rep.n_perm_note) notes += '<p class="ev-note" style="margin-top:0"><b>PERMUTATIONS</b> &middot; ' + esc(rep.n_perm_note) + "</p>";
     result.innerHTML =
       '<div class="ev-panel" style="margin-top:18px;background:rgba(0,0,0,.24)">' +
         '<div class="nt-verdict">' +
-          '<span class="nt-tag ' + (bad ? "nt-tag--bad" : "nt-tag--ok") + '">' + rep.verdict + "</span>" +
+          '<span class="nt-tag ' + tagCls + '">' + esc(rep.verdict) + "</span>" +
           '<span class="nt-head">' + esc(label) + " &middot; " + rep.n + " items (" +
             rep.n_real + " label-0 / " + rep.n_fake + " label-1)</span>" +
         "</div>" +
-        '<p class="ev-note" style="margin-top:0">' + esc(rep.headline) + "</p>" +
+        '<p class="ev-note" style="margin-top:0">' + esc(rep.headline) + "</p>" + notes +
         '<div class="nt-scroll"><table class="nt-table">' +
           "<thead><tr><th>null</th><th>stratum</th><th>n</th><th>A*</th><th>raw p</th><th>adj p</th><th></th></tr></thead>" +
           "<tbody>" + rows + "</tbody></table></div>" +
         (bad ? renderWhy(rep, keys, items) : "") +
         '<p class="ev-note">Fields read: text=<code>' + esc(keys.text) + "</code>, label=<code>" + esc(keys.label) +
           "</code>, stratum=<code>" + esc(keys.stratum || "none") + "</code>. " +
-          "A* is two-sided, so an inverted classifier still counts. Every permutation <b>refits</b> " +
-          "every scored null on the shuffled labels, so the null sees as much fitting slack as the " +
-          "observation does; <b>adj p</b> is then corrected across all " + rep.family_size +
+          "A* is two-sided, so an inverted classifier still counts. Labels are shuffled <b>within each " +
+          "stratum</b>, so every cell is compared against batteries with its own label rate, and every " +
+          "permutation <b>refits</b> every scored null on the shuffled labels, so the null sees as much " +
+          "fitting slack as the observation does; <b>adj p</b> is then corrected across all " + rep.family_size +
           " cells by Westfall&ndash;Young min-p, because " + rep.family_size +
           " tests against a 95th-percentile bar would otherwise produce a false fire per battery." +
           (note ? " " + esc(note) : "") + "</p>" +
@@ -179,11 +197,13 @@
         var pct = Math.round(p.done / p.total * 100);
         result.innerHTML =
           '<pre class="ev-out">running the nulls in this tab — ' + pct + "%\n" +
-          "  cell " + p.done + " of " + p.total + "   " + esc(p.label) + "\n" +
-          "  " + nPerm + " permutations, each one refitting every scored null</pre>";
+          "  permutation " + p.done + " of " + p.total + "   " + esc(p.label) + "\n" +
+          "  " + p.total + " permutations (labels shuffled within each stratum), each one refitting every scored null</pre>";
       }).then(function (rep) {
-        // compare against the DEFAULT, not a stale literal — this said "reduced" on every run
-        if (nPerm < FULL_PERM) rep.headline += "  (reduced to " + nPerm + " permutations — large battery)";
+        // compare against the DEFAULT, not a stale literal — this said "reduced" on every run.
+        // The engine may RAISE the count for a large family (rep.n_perm_note says so); the
+        // reduction note only applies when it did not.
+        if (nPerm < FULL_PERM && rep.n_perm === nPerm) rep.headline += "  (reduced to " + nPerm + " permutations — large battery)";
         return { rep: rep, keys: L.keys, items: L.items };
       });
     }).then(function (o) {
@@ -209,11 +229,23 @@
     chips.forEach(function (c) {
       c.addEventListener("click", function () { select(c.getAttribute("data-preset")); });
     });
+    pastePlaceholder = pasteBox.getAttribute("placeholder");
     fileIn.addEventListener("change", function () {
       var f = fileIn.files && fileIn.files[0];
       if (!f) return;
-      pastedName = f.name;
-      f.text().then(function (t) { pasteBox.value = t; run(); });
+      select("paste");                       // a chosen file always runs as "your battery", whatever chip was pressed
+      f.text().then(function (t) {
+        fileText = t; pastedName = f.name;
+        pasteBox.value = "";
+        pasteBox.setAttribute("placeholder", f.name + " (" + t.length + " characters) is loaded; paste here to replace it");
+        run();
+      }).catch(function (e) { renderError("could not read " + f.name + ": " + ((e && e.message) || String(e))); });
+    });
+    pasteBox.addEventListener("input", function () {
+      if (fileText === null) return;
+      fileText = null; pastedName = null;    // the reader is typing: the file no longer stands
+      if (pastePlaceholder === null) pasteBox.removeAttribute("placeholder");
+      else pasteBox.setAttribute("placeholder", pastePlaceholder);
     });
     runBtn.addEventListener("click", run);
     select("grounding");

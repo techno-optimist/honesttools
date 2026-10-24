@@ -83,8 +83,9 @@ def render_rows(rows, notes):
                     "not proof there is none" % r.get("n"))
         if marginal(verdict, adj):
             note += ('<br><span class="nf-marg"><b>MARGINAL</b> — adjusted p %.4g sits within 3&times; '
-                     'of alpha (%.2f). This verdict is close to its threshold and should not be read '
-                     'as firmly as rows far from it.</span>' % (adj, ALPHA))
+                     'of alpha (%.2f), a wider band than the tool\'s own BORDERLINE flag (2&times;). '
+                     'This verdict is close to its threshold and should not be read as firmly as rows '
+                     'far from it.</span>' % (adj, ALPHA))
         extra = notes.get(name)
         if extra:
             note += '<br><span class="nf-corr">%s</span>' % extra

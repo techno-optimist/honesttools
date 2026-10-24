@@ -17,6 +17,8 @@ if (!files.length) { console.error("usage: node nulltest_parity.js <battery.json
 
 var out = {};
 files.forEach(function (f) {
+  // loadItems sniffs the format from the bytes (JSON / JSONL / CSV / TSV), as the page does for a
+  // pasted file; the CLI goes by extension, so parity/*.csv must really be CSV.
   var L = window.NullTest.loadItems(fs.readFileSync(f, "utf8"));
   var rep = window.NullTest.evaluate(L.items, L.keys, { nPerm: 600 });
   out[path.basename(f)] = { keys: L.keys, verdict: rep.verdict, headline: rep.headline,

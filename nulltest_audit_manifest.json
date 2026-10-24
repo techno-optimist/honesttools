@@ -40,7 +40,7 @@
     "1"
    ],
    "label_kind": "real_vs_fabricated_entity",
-   "note": "ours. in the table because a referee who is not in the table is not a referee. BORDERLINE: DISQUALIFIED under v1.2 (worst cell length/eponymous_signs, A* 0.855, n=28, adjusted p 0.030 over 18 cells) and PASS under v1.3 (same cell, same A*, adjusted p 0.057 over 35 cells). Nothing about the battery changed; the family of cells it is corrected against nearly doubled. A verdict that a family size can flip was marginal in both versions, and the report now says so."
+   "note": "ours. in the table because a referee who is not in the table is not a referee. BORDERLINE in every version: DISQUALIFIED under v1.2 (worst cell length/eponymous_signs, A* 0.855, n=28, adjusted p 0.030 over 18 cells), PASS under v1.3 for part of a day (adjusted p 0.057 over 35 cells, under a null that was not stratified), DISQUALIFIED under v1.4 (0.037 over 35 cells). Nothing about the battery changed. A verdict that the family size or the null's construction can flip is marginal, and the report says so."
   },
   {
    "name": "aperture/photon-entities",

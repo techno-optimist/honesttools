@@ -23,14 +23,19 @@ Input: JSON (a list, or an object holding a list), JSONL, CSV or TSV. One text f
 joined with --text-key a,b. Labels may be 0/1, true/false, or any two strings; when the tool cannot
 tell which value means "fabricated", it stops and asks for --positive-label rather than guessing.
 
-WHAT IT MEASURES  (seven surface probes, each a classifier or score with no model access)
+WHAT IT MEASURES  (six surface probes, each a classifier or score with no model access)
     lexicality   character 3-5grams of the item text        (does the string LOOK fake?)
     words        word unigrams and bigrams                  (does the wording or template leak the label?)
     length       character and word count                   (are fakes shorter/longer?)
     shape        digit/punct/case/token-pattern signature    (are reals ID-shaped and fakes word-shaped?)
     alpha_first  alphabet position of the first word's initial  (was one class sampled from the top of a sorted list?)
     alpha_last   alphabet position of the last word's initial   (same, for lists sorted by surname)
-    stratum      the stratum label alone, one-hot           (does the category leak the answer?)
+
+    The null is STRATIFIED: labels are shuffled within each stratum, so every cell is compared
+    against batteries with its own label rate. The relation between the category and the label is
+    therefore conditioned on, not tested (v1.3 had a "stratum" probe for it, which could never
+    score: a per-stratum rate is constant within a cell). The report prints the label rate per
+    stratum as a plain description instead.
 
     The two alphabet probes were added in v1.3 because prominence-people-v1 PASSED the four
     probes of v1.2 and was broken anyway: its builder took the alphabetically-first 200 members
@@ -55,7 +60,7 @@ THREE RULES THIS TOOL ENFORCES, each learned by getting it wrong first:
      the null distribution its own size generates.
 
 A PASS IS NOT A CERTIFICATE OF QUALITY. It says surface features did not recover the labels under
-these seven probes. A benchmark can still be circular (labels drawn from the same store the system
+these six probes. A benchmark can still be circular (labels drawn from the same store the system
 retrieves from), contaminated, or mislabeled, and pass cleanly. Circularity in particular is
 invisible here — it is a provenance property, not a surface one.
 
@@ -110,7 +115,7 @@ def astar(y, s):
 
 
 # --------------------------------------------------------------------------------------
-# the seven surface probes — each maps item text to ONE score, using no model
+# the six surface probes — each maps item text to ONE score, using no model
 # --------------------------------------------------------------------------------------
 def _ngrams(t, lo=3, hi=5):
     t = " %s " % t.lower()
@@ -246,29 +251,10 @@ def _nb_scores(texts, y, featfn, k=5, seed=20260724):
     return _NB(texts, featfn, k=k, seed=seed).score(y)
 
 
-def _stratum_scores(y, strata):
-    """Does the stratum label alone predict truth? If yes the benchmark is unbalanced by design.
-    K-fold, not leave-one-out: LOO on a rate leaks the held-out label (see _NB)."""
-    idx = list(range(len(y)))
-    random.Random(20260724).shuffle(idx)
-    folds = [idx[i::5] for i in range(5)]
-    out = [0.5] * len(y)
-    for f_te in folds:
-        te = set(f_te)
-        r, c = {}, {}
-        for i in idx:
-            if i in te:
-                continue
-            r[strata[i]] = r.get(strata[i], 0) + y[i]
-            c[strata[i]] = c.get(strata[i], 0) + 1
-        for i in f_te:
-            st = strata[i]
-            out[i] = (r.get(st, 0) / c[st]) if c.get(st) else 0.5
-    return out
-
-
 # name -> ("nb", feature function) for a fitted probe, ("score", text function) for an unfitted
-# one, or ("stratum", None). Order matters only for the report; the verdict is order-free.
+# one. Order matters only for the report; the verdict is order-free. v1.3 also carried a "stratum"
+# probe (the per-stratum label rate); it was degenerate in every per-stratum cell by construction
+# and never scored, and under the stratified null of v1.4 it is held fixed. It is gone.
 NULLS = {
     "lexicality": ("nb", _ngrams),
     "words": ("nb", _words),
@@ -276,14 +262,13 @@ NULLS = {
     "shape": ("nb", _shape_sig),
     "alpha_first": ("score", _alpha_first),
     "alpha_last": ("score", _alpha_last),
-    "stratum": ("stratum", None),
 }
 
 
 class _Prepared:
     """Everything about a battery that does not depend on the labels, computed once so that the
     observation and all permutations share it. Unfitted probes (length, alphabet) are a fixed
-    score vector; fitted probes carry a prepared _NB; the stratum probe needs only the strata."""
+    score vector; fitted probes carry a prepared _NB."""
 
     def __init__(self, texts, strata):
         self.texts = texts
@@ -301,9 +286,7 @@ class _Prepared:
         kind = NULLS[name][0]
         if kind == "score":
             return self.fixed[name]
-        if kind == "nb":
-            return self.nb[name].score(y)
-        return _stratum_scores(y, self.strata) if self.has_strata else None
+        return self.nb[name].score(y)
 
 
 # Backwards-compatible single-shot probes (used by tests and by anyone who imported v1.2's names).
@@ -329,12 +312,6 @@ def null_alpha_first(texts, y, strata):
 
 def null_alpha_last(texts, y, strata):
     return [float(_alpha_last(t)) for t in texts]
-
-
-def null_stratum(texts, y, strata):
-    if not strata:
-        return None
-    return _stratum_scores(y, strata)
 
 
 # --------------------------------------------------------------------------------------
@@ -371,7 +348,7 @@ def null_stratum(texts, y, strata):
 # --------------------------------------------------------------------------------------
 SCOPE = (
     "SCOPE: this measures how much of the label signal is recoverable from SURFACE FORM alone "
-    "by seven model-free probes, two-sided, refit inside every permutation and family-wise "
+    "by six model-free probes, two-sided, refit inside every permutation (labels shuffled within stratum) and family-wise "
     "corrected across all cells (Westfall-Young min-p). A PASS does NOT certify the benchmark "
     "is good: it cannot see circularity (labels drawn from the same store the system under test "
     "retrieves from), contamination, or mislabelling. It scores no model."
@@ -519,18 +496,34 @@ def _perm_worker(args):
 
 
 def _permutation_draws(prep, y, cells, folds, keys, n_perm, rng, jobs, progress):
-    ys = list(y)
+    """Draw n_perm label vectors under the null, scoring each over every cell.
+
+    THE NULL IS STRATIFIED. Labels are shuffled WITHIN each stratum, never across them, so every
+    permuted battery has exactly the observed label rate in every cell. v1.3 shuffled across the
+    whole battery: a cell with 85% label-1 was then compared against shuffles that gave it about
+    50%, whose A* distribution is narrower, and on no-signal text the tool fired 44% of the time
+    at 85/15 (0.9/0.1: 67%). Found 2026-10-24 by an outside statistical review. The cost of the
+    fix is that the category-to-label relation is no longer something this test can see; the
+    report describes it instead.
+
+    Draws are kept ALIGNED by permutation index, None where a cell could not be scored on that
+    shuffle (single-class after shuffling, or degenerate), so the min-p pass below sees the same
+    permutation across all cells. v1.3 dropped the Nones and silently shifted the columns."""
+    groups = [idx for _, idx in cells]
     perms = []
     for _ in range(n_perm):
-        rng.shuffle(ys)
-        perms.append(list(ys))
+        ys = list(y)
+        for idx in groups:
+            vals = [y[i] for i in idx]
+            rng.shuffle(vals)
+            for i, v in zip(idx, vals):
+                ys[i] = v
+        perms.append(ys)
     draws = {k: [] for k in keys}
 
     def take(sc):
         for k in keys:
-            v = sc.get(k)
-            if v is not None:
-                draws[k].append(v)
+            draws[k].append(sc.get(k))
 
     use_pool = jobs and jobs > 1 and n_perm >= 2 * jobs
     if use_pool:
@@ -601,11 +594,30 @@ def evaluate(items, text_key, label_key, stratum_key, n_perm=600, seed=20260724,
     obs = _score_all_cells(prep, y, cells, folds)
     keys = sorted([k for k, v in obs.items() if v is not None])
 
+    # ENOUGH PERMUTATIONS FOR THE FAMILY. Under min-p the smallest adjusted p a family of K cells
+    # can reach is about (K+1)/(B+1): with K cells there are about K permutation draws whose own
+    # min-p sits at the floor, and the observed cell cannot beat them. With K = 222 and B = 600 the
+    # tool could reject nothing honestly, and v1.3 rejected anyway (see the Westfall-Young pass
+    # below). So B is raised to at least 2(K+1)/alpha, rounded up to a hundred, and the raise is
+    # recorded. --n-perm is a floor, not a ceiling.
+    n_perm_requested = n_perm
+    need = int(math.ceil(2.0 * (len(keys) + 1) / alpha / 100.0)) * 100
+    if keys and n_perm < need:
+        n_perm = need
+
     report = {"tool": "nulltest", "version": VERSION, "probes": list(NULLS),
               "n": len(items), "n_fake": sum(y), "n_real": len(y) - sum(y),
               "strata": sorted(set(strata)), "min_cell": min_cell, "n_perm": n_perm,
+              "n_perm_requested": n_perm_requested,
               "alpha": alpha, "family_size": len(keys), "correction": "westfall_young_min_p",
+              "null": "labels shuffled within stratum (stratified permutation), every probe refit",
+              "label_rate_by_stratum": {st: {"n": len(idx), "label1_rate": round(sum(y[i] for i in idx) / len(idx), 3)}
+                                        for st, idx in cells},
               "nulls": {}, "underpowered_cells": []}
+    if n_perm != n_perm_requested:
+        report["n_perm_note"] = ("%d permutations requested; %d cells need at least %d to resolve "
+                                 "alpha=%.2f under min-p, so %d were run."
+                                 % (n_perm_requested, len(keys), need, alpha, n_perm))
 
     if not keys:
         # NOT_SCORABLE, never PASS. A battery on which nothing could be scored was returning the
@@ -627,19 +639,29 @@ def evaluate(items, text_key, label_key, stratum_key, n_perm=600, seed=20260724,
     # ---- the null: refit everything, every permutation --------------------------------
     draws = _permutation_draws(prep, y, cells, folds, keys, n_perm, rng, jobs, progress)
 
-    cols = {k: sorted(v) for k, v in draws.items()}
+    cols = {k: sorted(v for v in draws[k] if v is not None) for k in keys}
 
     # ---- Westfall-Young min-p ---------------------------------------------------------
+    # The observed statistic and the B permuted ones are B+1 exchangeable values under the null,
+    # and every one of them gets its p-value from the SAME pool: the count of values at or above
+    # it, out of B+1. v1.3 gave the observed value p = (#draws >= obs + 1)/(B+1), floor 1/(B+1),
+    # but each permuted value p = (#draws >= it)/(B+1) with itself counted and the observation
+    # not, floor 2/(B+1). The observed could therefore always undercut every permuted min-p by
+    # beating all B draws in ANY one cell, and the family-wise error was about K/(B+1) instead of
+    # alpha: 8% at K=24, 32% at K=222 (simulated on iid nulls, 2026-10-24). The README called the
+    # 8.4% a small-B discreteness effect; it was this.
     raw = {k: _pval(cols[k], obs[k]) for k in keys}
     q = []
     for b in range(n_perm):
         best = 1.0
         for k in keys:
-            col = draws[k]
-            if b < len(col):
-                p = _pval(cols[k], col[b])
-                if p < best:
-                    best = p
+            t = draws[k][b]
+            if t is None:
+                continue
+            col = cols[k]
+            p = (len(col) - bisect.bisect_left(col, t) + (1.0 if obs[k] >= t else 0.0)) / (len(col) + 1.0)
+            if p < best:
+                best = p
         q.append(best)
     q.sort()
     adj = {k: (bisect.bisect_right(q, raw[k]) + 1.0) / (n_perm + 1.0) for k in keys}
@@ -652,7 +674,10 @@ def evaluate(items, text_key, label_key, stratum_key, n_perm=600, seed=20260724,
     # Measured: the 147-claim battery reported "worst A* 0.778 in shape" while lexicality sat at
     # 0.967. The VERDICT was never affected (it is driven by the minimum adjusted p, and the tied
     # cells share it), but the headline understated how badly a battery failed.
-    worst = {"astar": 0.0, "adj_p": 1.0, "_adj_p_exact": 2.0,
+    # Ties on the adjusted p are broken by EFFECT, (A* - 0.5) * sqrt(n), then by A*: a cell at
+    # A* 1.000 with 21 items is less evidence than one at 0.989 with 130, and v1.3's tie-break on
+    # A* alone put the small one in the headline (TruthfulQA, 2026-10-24).
+    worst = {"astar": 0.0, "adj_p": 1.0, "_adj_p_exact": 2.0, "_effect": -1.0,
              "null": None, "stratum": None, "n": 0, "threshold": None}
     for name in NULLS:
         entry = {"per_stratum": {}}
@@ -673,10 +698,11 @@ def evaluate(items, text_key, label_key, stratum_key, n_perm=600, seed=20260724,
                 if tag not in report["underpowered_cells"]:
                     report["underpowered_cells"].append(tag)
             # the family verdict is driven by the SMALLEST adjusted p, ties broken by effect size
-            if (adj[k] < worst["_adj_p_exact"]) or (adj[k] == worst["_adj_p_exact"]
-                                                    and obs[k] > worst["astar"]):
+            effect = (obs[k] - 0.5) * math.sqrt(len(idx))
+            if (adj[k] < worst["_adj_p_exact"]) or (adj[k] == worst["_adj_p_exact"] and (
+                    effect > worst["_effect"] or (effect == worst["_effect"] and obs[k] > worst["astar"]))):
                 worst = {"astar": round(obs[k], 3), "adj_p": round(adj[k], 4),
-                         "_adj_p_exact": adj[k],
+                         "_adj_p_exact": adj[k], "_effect": effect,
                          "raw_p": round(raw[k], 4), "null": name, "stratum": st,
                          "n": len(idx), "threshold": cell["threshold"],
                          "underpowered": cell["underpowered"]}
@@ -684,6 +710,7 @@ def evaluate(items, text_key, label_key, stratum_key, n_perm=600, seed=20260724,
             report["nulls"][name] = entry
 
     worst.pop("_adj_p_exact", None)      # comparison scratch, never part of the published report
+    worst.pop("_effect", None)
     report["worst_cell"] = worst
     report["n_separating_cells"] = sum(1 for k in keys if adj[k] < alpha)
     report["verdict"] = "DISQUALIFIED" if worst["adj_p"] < alpha else "PASS"
@@ -692,13 +719,15 @@ def evaluate(items, text_key, label_key, stratum_key, n_perm=600, seed=20260724,
     # cells in the family. Our own grounding-coordinate battery sat at adj p 0.030 with 18 cells in
     # v1.2 and 0.057 with 35 cells in v1.3: same worst cell, same A*, opposite verdict. A verdict
     # that a reader can see is near the line is worth more than one that pretends it is not.
-    report["borderline"] = bool(alpha <= worst["adj_p"] < 2 * alpha)
+    # Two-sided since v1.4: a DISQUALIFIED at 0.043 is as close to the line as a PASS at 0.057.
+    report["borderline"] = bool(alpha / 2 <= worst["adj_p"] < 2 * alpha)
     if report["borderline"]:
         report["borderline_note"] = (
-            "PASS, but the worst cell's family-adjusted p (%s) is within a factor of two of alpha "
-            "(%.2f). Treat this as 'not shown to separate at this n and this family size', not as "
-            "clean. More items, or a smaller family (--stratum-key omitted), could flip it either way."
-            % (worst["adj_p"], alpha))
+            "%s, but the worst cell's family-adjusted p (%s) is within a factor of two of alpha "
+            "(%.2f). Treat this as 'close to the line at this n and this family size', not as %s. "
+            "More items, or a different family size, could flip it either way."
+            % (report["verdict"], worst["adj_p"], alpha,
+               "clean" if report["verdict"] == "PASS" else "settled"))
     report["headline"] = (
         "worst cell A* = %s in %s/%s (n=%s), family-adjusted p = %s over %d cells"
         % (worst["astar"], worst["null"], worst["stratum"], worst.get("n"),
@@ -801,7 +830,7 @@ def explain_cell(name, texts, y, top=8, min_count=3):
     return out
 
 
-def explain(items, text_key, label_key, stratum_key, rep, max_cells=4):
+def explain(items, text_key, label_key, stratum_key, rep, max_cells=8):
     texts = [item_text(it, text_key) for it in items]
     y = [int(it[label_key]) for it in items]
     strata = [str(it.get(stratum_key, "_all")) for it in items] if stratum_key else ["_all"] * len(items)
@@ -812,6 +841,13 @@ def explain(items, text_key, label_key, stratum_key, rep, max_cells=4):
         c = rep["nulls"][w["null"]]["per_stratum"][w["stratum"]]
         cells = [(w["null"], w["stratum"], c)]
     cells.sort(key=lambda t: (t[2]["adj_p"], -t[2]["astar"]))
+    # one cell per probe first, so a corpus whose `length` cells all separate still shows what the
+    # words/shape/lexicality readings say; then the remaining cells in order
+    first, rest, seen = [], [], set()
+    for t in cells:
+        (first if t[0] not in seen else rest).append(t)
+        seen.add(t[0])
+    cells = first + rest
     out = {"note": ("In-sample description of the separating cells, for finding the artifact. The "
                     "verdict above is held-out; these tables are not evidence for it."),
            "cells": []}
@@ -833,7 +869,8 @@ def explain(items, text_key, label_key, stratum_key, rep, max_cells=4):
 # is coarse — 15%, 30%, 60%, 100% — so "60%" means "caught at 60%, missed at 30%".
 #
 # v1.2 (four probes), measured 2026-07-25:    n=156 60%   n=324 60%   n=702 60%   n=1496 30%
-# v1.3 (seven probes), measured 2026-10-24:   n=156 60%   n=324 60%   n=702 30%   n=1496 15%
+# v1.3 (seven probes, unstratified null), measured 2026-10-24:   n=156 60%   n=324 60%   n=702 30%   n=1496 15%
+# v1.4 (six probes, stratified null): re-measured by `--power`; see README for the current row.
 #
 # The two rows are not the same base text and should not be read as "v1.3 is more powerful";
 # the v1.2 base is not in this repository. The v1.3 row is reproducible from this file.
@@ -892,6 +929,9 @@ def measure_power(sizes=_POWER_SIZES, fractions=_POWER_FRACTIONS, seeds=4, n_per
 def _power_note(n, verdict):
     mde = next((f for lo, f in _MDE if n >= lo), None)
     out = {"n": n, "measured_mde": mde,
+           "mde_basis": ("one planted spelling/length artifact (a character appended to a fraction of "
+                         "the label-1 items) in a single stratum, 4 seeds; a wider family, a smaller "
+                         "cell or an artifact of another shape lowers power below this"),
            "comparable_across_batteries": False,
            "note_on_comparison": ("A* depends on n. Do not rank this battery against one of a "
                                   "different size: cities.csv is DISQUALIFIED at n=1496 and PASSES "
@@ -920,8 +960,8 @@ def _power_note(n, verdict):
 # --------------------------------------------------------------------------------------
 TEXT_KEYS = ("entity", "text", "claim", "statement", "question", "answer", "response", "name",
              "prompt", "title", "sentence")
-LABEL_KEYS = ("label", "y", "is_fake", "fabricated", "hallucinated", "hallucination", "type",
-              "kind", "truth", "is_true")
+LABEL_KEYS = ("label", "y", "is_fake", "fabricated", "hallucinated", "hallucination", "is_true",
+              "truth", "type", "kind")
 STRATUM_KEYS = ("category", "domain", "stratum", "cell", "topic", "source", "task")
 
 # Label strings that mean "the fabricated / false / hallucinated class" without being told.
@@ -958,8 +998,12 @@ def coerce_labels(items, label_key, positive=None):
     if positive is not None:
         pos = str(positive).strip()
         if pos not in distinct:
-            raise LabelError("--positive-label %r is not one of the two label values %r"
-                             % (pos, distinct))
+            # label values are compared case-folded below, so the flag is too
+            fold = [d for d in distinct if d.lower() == pos.lower()]
+            if len(fold) != 1:
+                raise LabelError("--positive-label %r is not one of the two label values %r"
+                                 % (pos, distinct))
+            pos = fold[0]
     else:
         low = [d.lower() for d in distinct]
         if low[0] in POSITIVE_WORDS and low[1] in NEGATIVE_WORDS:
@@ -981,8 +1025,15 @@ def coerce_labels(items, label_key, positive=None):
 
 def read_items(path):
     """Read a JSON list, a JSON object holding a list, JSONL, CSV or TSV into a list of dicts."""
-    with open(path, "r", encoding="utf-8-sig") as fh:
-        raw = fh.read()
+    try:
+        with open(path, "r", encoding="utf-8-sig") as fh:
+            raw = fh.read()
+    except FileNotFoundError:
+        raise LabelError("no such file: %s" % path)
+    except IsADirectoryError:
+        raise LabelError("%s is a directory, not a battery file" % path)
+    except UnicodeDecodeError as e:
+        raise LabelError("%s is not UTF-8 text (%s); this tool reads JSON, JSONL, CSV and TSV" % (path, e.reason))
     low = path.lower()
     if low.endswith((".csv", ".tsv")):
         import csv
@@ -990,13 +1041,18 @@ def read_items(path):
         dialect = "excel-tab" if low.endswith(".tsv") else "excel"
         return list(csv.DictReader(io.StringIO(raw), dialect=dialect))
     raw = raw.strip()
+    if not raw:
+        raise LabelError("%s is empty" % path)
     if low.endswith(".jsonl") or low.endswith(".ndjson"):
-        return [json.loads(l) for l in raw.splitlines() if l.strip()]
+        return _read_json_lines(raw, path)
     try:
         items = json.loads(raw)
-    except json.JSONDecodeError:
-        # a .json that is really JSON lines
-        items = [json.loads(l) for l in raw.splitlines() if l.strip()]
+    except json.JSONDecodeError as e:
+        # a .json that is really JSON lines; otherwise say where the JSON broke
+        try:
+            items = _read_json_lines(raw, path)
+        except LabelError:
+            raise LabelError("%s is not valid JSON: %s (line %d column %d)" % (path, e.msg, e.lineno, e.colno))
     if isinstance(items, dict):
         for k in ("items", "battery", "data", "rows", "examples", "instances"):
             if isinstance(items.get(k), list):
@@ -1008,8 +1064,31 @@ def read_items(path):
     return items
 
 
+def _read_json_lines(raw, path):
+    out = []
+    for n, l in enumerate(raw.splitlines(), 1):
+        if not l.strip():
+            continue
+        try:
+            out.append(json.loads(l))
+        except json.JSONDecodeError as e:
+            raise LabelError("%s line %d is not valid JSON: %s" % (path, n, e.msg))
+    return out
+
+
 def sniff_keys(items, text_key=None, label_key=None, stratum_key=None):
-    """Pick the text, label and stratum fields from the items' own keys, unless told."""
+    """Pick the text, label and stratum fields from the items' own keys, unless told.
+
+    `--stratum-key none` (or an empty value) switches the automatic stratum off, which is what
+    the BORDERLINE note means by "--stratum-key omitted" when a stratum WAS sniffed."""
+    if stratum_key is not None and str(stratum_key).strip().lower() in ("", "none"):
+        text_key_, label_key_ = text_key, label_key
+        keys = set()
+        for it in items[:200]:
+            if isinstance(it, dict):
+                keys.update(it.keys())
+        return (text_key_ or next((k for k in TEXT_KEYS if k in keys), None),
+                label_key_ or next((k for k in LABEL_KEYS if k in keys), None), None)
     keys = set()
     for it in items[:200]:
         if isinstance(it, dict):
@@ -1065,14 +1144,24 @@ def explode_items(items, mapping, split=None, text_key="text", label_key="label"
                 row["_row"] = i
                 row["_field"] = field
                 out.append(row)
+    seen = {f for it in items if isinstance(it, dict) for f, _ in mapping if f in it}
+    unseen = [f for f, _ in mapping if f not in seen]
+    if unseen:
+        have = sorted({k for it in items[:50] if isinstance(it, dict) for k in it})
+        raise LabelError("--explode names %s, which no row carries. The rows carry: %s"
+                         % (", ".join(repr(f) for f in unseen), ", ".join(have[:20])))
     if not out:
         raise LabelError("--explode produced no items; are the field names right? (%s)"
                          % ", ".join(f for f, _ in mapping))
     return out
 
 
-def load(path, text_key, label_key, positive=None, explode=None, split=None):
+def load(path, text_key, label_key, positive=None, explode=None, split=None, info=None):
     """Items with the text field(s) and the label field, labels coerced to 0/1.
+
+    `info`, if a dict, receives what happened on the way: rows read, rows dropped for lacking
+    the label or text field, empty texts, non-string texts coerced, and the raw value that
+    became label-1. The report prints it, because a silent drop is a silent change of corpus.
 
     text_key may be "a,b" or a list: the fields are kept separate on the item and joined only
     when the probes read them (see item_text). `explode` is a parse_explode() mapping that turns
@@ -1091,9 +1180,21 @@ def load(path, text_key, label_key, positive=None, explode=None, split=None):
     if not out:
         sys.exit("no items had both --text-key %r and --label-key %r" % (text_key, label_key))
     try:
-        out, _ = coerce_labels(out, label_key, positive)
+        out, pos = coerce_labels(out, label_key, positive)
     except LabelError as e:
         sys.exit(str(e))
+    if info is not None:
+        raw_vals = sorted({str(it[label_key]).strip() if not isinstance(it[label_key], bool)
+                           else ("1" if it[label_key] else "0")
+                           for it in items if isinstance(it, dict) and label_key in it})
+        info.update({
+            "rows_read": len(items),
+            "rows_dropped_missing_field": len(items) - len(out),
+            "empty_texts": sum(1 for it in out if not item_text(it, tkeys).strip()),
+            "non_string_texts": sum(1 for it in out if any(not isinstance(it.get(k), str) for k in tkeys)),
+            "label1_raw_value": pos,
+            "label0_raw_value": next((v for v in raw_vals if v != pos), None),
+        })
     return out
 
 
@@ -1109,17 +1210,27 @@ def _noise_battery(seed, strata, mode, n=120):
     # Two pronounceable nonsense words per item, drawn from a 40-word pool so that word unigrams
     # recur and the `words` probe has something to fit. On the NCT-id rows the word, alphabet and
     # shape probes are constant across items and drop out as degenerate, so those rows say nothing
-    # about whether the probes added in v1.3 over-fire. This construction keeps all seven live.
+    # about whether the probes added in v1.3 over-fire. This construction keeps all six live.
     rp = random.Random(seed * 7919 + 1)        # its own stream, so the NCT rows stay v1.2-identical
     pool = ["".join(rp.choice("bcdfgklmnprst") + rp.choice("aeiou") for _ in range(rp.randrange(2, 5)))
             for _ in range(40)]
+    if mode == "coinword_small":
+        n = 60
     for i in range(n):
-        y = (i % 2) if mode == "alt" else r.randrange(2)
-        if mode == "coinword":
+        st = i % strata
+        if mode == "alt":
+            y = i % 2
+        elif mode == "coinword_imb":
+            # unequal label rates per stratum (85% / 15%): the construction the unstratified null
+            # of v1.3 false-fired on 44% of the time
+            y = int(r.random() < (0.85 if st % 2 == 0 else 0.15))
+        else:
+            y = r.randrange(2)
+        if mode.startswith("coinword"):
             text = "%s %s" % (r.choice(pool), r.choice(pool))
         else:
             text = "NCT%08d" % r.randrange(10 ** 7)
-        out.append({"entity": text, "label": y, "category": "s%d" % (i % strata)})
+        out.append({"entity": text, "label": y, "category": "s%d" % st})
     return out
 
 
@@ -1181,10 +1292,13 @@ GRID = (("planted-clean as shipped (alternating, 1 stratum)", "alt", 1),
         ("coin-flip, 2 strata", "coin", 2),
         ("coin-flip, 4 strata", "coin", 4),
         ("coin-flip, 6 strata", "coin", 6),
-        ("coin-flip, word-shaped text (all 7 probes live), 1 stratum", "coinword", 1),
-        ("coin-flip, word-shaped text (all 7 probes live), 4 strata", "coinword", 4))
+        ("coin-flip, word-shaped text (all 6 probes live), 1 stratum", "coinword", 1),
+        ("coin-flip, word-shaped text (all 6 probes live), 4 strata", "coinword", 4),
+        ("coin-flip, word-shaped, 2 strata with 85/15 label rates", "coinword_imb", 2),
+        ("coin-flip, word-shaped, 6 strata (36 cells)", "coinword", 6),
+        ("coin-flip, word-shaped, 3 strata of 20 items", "coinword_small", 3))
 
-VERSION = "1.3"
+VERSION = "1.4"
 FALSE_FIRE_CEILING = 0.10
 
 
@@ -1363,13 +1477,33 @@ def check_receipt(receipt_path, battery_path, jobs=1):
     the permutation count it used. This re-runs under exactly those settings and says whether the
     verdict and the worst cell come out the same. Exit 0 on REPLAYS, 1 on DIVERGES, 2 on a
     receipt that cannot be replayed (different file, missing fields)."""
-    with open(receipt_path, encoding="utf-8") as fh:
-        rec = json.load(fh)
     need = ("verdict", "worst_cell", "keys", "n_perm", "battery_sha256")
-    missing = [k for k in need if k not in rec]
-    if missing:
-        print("  receipt lacks %s; only reports written by nulltest 1.3+ with --json can be replayed"
-              % ", ".join(missing))
+
+    def _as_receipt(path):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                rec = json.load(fh)
+        except (OSError, ValueError, UnicodeDecodeError):
+            return None
+        if not isinstance(rec, dict):
+            return None
+        if isinstance(rec.get("evidence"), dict) and "worst_cell" in rec["evidence"]:
+            # `honest null` writes the contract's Verdict, with the receipt fields under evidence
+            rec = {**rec["evidence"], "verdict": rec.get("verdict")}
+        return rec if all(k in rec for k in need) else rec | {"_missing": [k for k in need if k not in rec]}
+
+    rec = _as_receipt(receipt_path)
+    if rec is None or rec.get("_missing"):
+        other = _as_receipt(battery_path)
+        if other is not None and not other.get("_missing"):
+            print("  the arguments look swapped: %s is the receipt. Usage: nulltest.py BATTERY --check RECEIPT.json"
+                  % os.path.basename(battery_path))
+            return 2
+        if rec is None:
+            print("  %s is not a JSON receipt" % receipt_path)
+            return 2
+        print("  receipt lacks %s; only reports written by nulltest 1.3+ with --json (or `honest null`) can be replayed"
+              % ", ".join(rec["_missing"]))
         return 2
     with open(battery_path, "rb") as fh:
         sha = hashlib.sha256(fh.read()).hexdigest()
@@ -1392,7 +1526,7 @@ def check_receipt(receipt_path, battery_path, jobs=1):
         explode = [(f, v) for f, v in ex["fields"].items()]
         raw = explode_items(raw, explode, split=ex.get("split"))
     tk, lk, sk = keys.get("text"), keys.get("label"), keys.get("stratum")
-    items = load(battery_path, tk, lk, None, explode=explode, split=ex.get("split"))
+    items = load(battery_path, tk, lk, rec.get("positive_label"), explode=explode, split=ex.get("split"))
     tkeys = tk.split(",") if "," in tk else tk
     rep = evaluate(items, tkeys, lk, sk, n_perm=int(rec["n_perm"]), alpha=float(rec.get("alpha", 0.05)),
                    jobs=jobs)
@@ -1473,6 +1607,9 @@ def main(argv):
         return selftest(seeds=seeds, n_perm=n_perm, seed_base=a.seed_base, emit=a.emit_grid,
                         jobs=a.jobs)
     if not a.battery:
+        if a.check:
+            print("--check needs the battery file too: nulltest.py BATTERY --check RECEIPT.json", file=sys.stderr)
+            return 2
         ap.print_help()
         return 2
     if a.check:
@@ -1484,25 +1621,42 @@ def main(argv):
         if a.explode:
             explode = parse_explode(a.explode)
             raw_items = explode_items(raw_items, explode, split=a.split)
+            if a.text_key or a.label_key:
+                print("  note: under --explode the text is each named field and the label is its "
+                      "mapped value; --text-key/--label-key are ignored", file=sys.stderr)
             a.text_key, a.label_key = "text", "label"
     except LabelError as e:
         sys.exit(str(e))
     tk, lk, sk = sniff_keys(raw_items, a.text_key, a.label_key, a.stratum_key)
     if tk is None or lk is None:
         have = sorted({k for it in raw_items[:50] if isinstance(it, dict) for k in it})
-        sys.exit("could not find a %s field. The items carry: %s. Name it with %s."
+        hint = (" If this CSV has no header row, add one: the first line names the fields."
+                if a.battery.lower().endswith((".csv", ".tsv")) else "")
+        sys.exit("could not find a %s field. The items carry: %s. Name it with %s.%s"
                  % ("text" if tk is None else "label", ", ".join(have[:20]),
-                    "--text-key" if tk is None else "--label-key"))
-    items = load(a.battery, tk, lk, a.positive_label, explode=explode, split=a.split)
+                    "--text-key" if tk is None else "--label-key", hint))
+    info = {}
+    items = load(a.battery, tk, lk, a.positive_label, explode=explode, split=a.split, info=info)
+    if sk and not any(sk in it for it in items):
+        print("  note: no item carries the stratum field %r; everything is one stratum" % sk, file=sys.stderr)
     tkeys = tk.split(",") if "," in tk else tk
-    rep = evaluate(items, tkeys, lk, sk, n_perm=a.n_perm, alpha=a.alpha, jobs=a.jobs)
+    progress = None
+    if not a.json and len(items) >= 2000:
+        # a 60k-item run takes a quarter of an hour; say so while it runs (stderr, not the report)
+        def progress(done, total):
+            print("\r  permutation %d of %d" % (done, total), end="", file=sys.stderr, flush=True)
+    rep = evaluate(items, tkeys, lk, sk, n_perm=a.n_perm, alpha=a.alpha, jobs=a.jobs, progress=progress)
+    if progress:
+        print("\r" + " " * 40 + "\r", end="", file=sys.stderr, flush=True)
     rep["battery"] = os.path.basename(a.battery)
+    rep["data"] = info
     # The receipt. A verdict that cannot be tied to bytes is an anecdote: these two hashes let a
     # stranger confirm WHICH file and WHICH tool produced it, and `--check` replays the whole thing.
     with open(a.battery, "rb") as fh:
         rep["battery_sha256"] = hashlib.sha256(fh.read()).hexdigest()
     rep["tool_sha256"] = _tool_sha256()
     rep["keys"] = {"text": tk, "label": lk, "stratum": sk}
+    rep["positive_label"] = a.positive_label
     if explode:
         rep["explode"] = {"fields": dict(explode), "split": a.split, "rows": len(raw_items and {i.get("_row") for i in raw_items})}
     if a.explain or rep["verdict"] == "DISQUALIFIED":
@@ -1518,6 +1672,19 @@ def main(argv):
     # from label 1, so that is all it says.
     print("  %d items (%d label-0 / %d label-1), keys: text=%s label=%s stratum=%s"
           % (rep["n"], rep["n_real"], rep["n_fake"], tk, lk, sk))
+    # What label-1 IS, in the file's own words. Every WHY line below says "label-1"; without this
+    # line the reader has to guess which class that was.
+    print("  label-1 = %r, label-0 = %r (the verdict is two-sided; the mapping only sets the sign)"
+          % (info.get("label1_raw_value"), info.get("label0_raw_value")))
+    dq = []
+    if info.get("rows_dropped_missing_field"):
+        dq.append("%d rows dropped (no %s or %s field)" % (info["rows_dropped_missing_field"], tk, lk))
+    if info.get("empty_texts"):
+        dq.append("%d empty texts kept" % info["empty_texts"])
+    if info.get("non_string_texts"):
+        dq.append("%d non-string texts coerced with str()" % info["non_string_texts"])
+    if dq:
+        print("  data:    %s" % "; ".join(dq))
     print("  %d cells, family-wise corrected (Westfall-Young min-p), %d permutations, each a refit"
           % (rep["family_size"], rep["n_perm"]))
     print()
