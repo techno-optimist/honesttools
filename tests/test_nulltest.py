@@ -236,5 +236,104 @@ class Novelty(unittest.TestCase):
         self.assertEqual(N.novelty(items), 1.0)
 
 
+class Explode(unittest.TestCase):
+    """--explode turns question-answer rows into one item per answer, without a flattening script."""
+    ROWS = [{"q": "Where?", "right": "Paris", "wrong": "Berlin; Rome", "cat": "Places"},
+            {"q": "Who?", "right": "Ada", "wrong": "", "cat": "People"},
+            {"q": "When?", "right": None, "wrong": "1999", "cat": "Dates"}]
+
+    def test_parse_explode_pairs(self):
+        self.assertEqual(N.parse_explode("right=0, wrong=1"), [("right", "0"), ("wrong", "1")])
+        with self.assertRaises(N.LabelError):
+            N.parse_explode("right")
+        with self.assertRaises(N.LabelError):
+            N.parse_explode("")
+
+    def test_explode_one_item_per_answer_with_split(self):
+        out = N.explode_items(self.ROWS, [("right", 0), ("wrong", 1)], split=";")
+        texts = [(o["text"], o["label"]) for o in out]
+        self.assertEqual(texts, [("Paris", 0), ("Berlin", 1), ("Rome", 1), ("Ada", 0), ("1999", 1)])
+        # the row's other fields survive, so the category can be a stratum; the answer fields do not
+        self.assertEqual(out[1]["cat"], "Places")
+        self.assertEqual(out[1]["_row"], 0)
+        self.assertEqual(out[1]["_field"], "wrong")
+        self.assertNotIn("right", out[0])
+        self.assertNotIn("wrong", out[0])
+
+    def test_explode_without_split_keeps_cell_whole(self):
+        out = N.explode_items(self.ROWS[:1], [("wrong", 1)])
+        self.assertEqual([o["text"] for o in out], ["Berlin; Rome"])
+
+    def test_explode_list_valued_field(self):
+        out = N.explode_items([{"a": ["x", "y"], "k": 1}], [("a", 1)])
+        self.assertEqual([o["text"] for o in out], ["x", "y"])
+
+    def test_explode_with_no_matching_field_refuses(self):
+        with self.assertRaises(N.LabelError):
+            N.explode_items(self.ROWS, [("nope", 1)])
+
+    def test_load_explode_end_to_end(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "qa.json")
+            with open(p, "w") as fh:
+                json.dump(self.ROWS, fh)
+            items = N.load(p, "text", "label", explode=[("right", "0"), ("wrong", "1")], split=";")
+        self.assertEqual(sum(i["label"] for i in items), 3)
+        self.assertEqual(len(items), 5)
+
+
+class Explain(unittest.TestCase):
+    """A DISQUALIFIED verdict must say which strings carry the label, or the author cannot fix it."""
+
+    def test_nb_cell_names_the_leaking_feature(self):
+        texts = ["the cat sat %d" % i for i in range(30)] + ["a dog ran %d" % i for i in range(30)]
+        y = [0] * 30 + [1] * 30
+        d = N.explain_cell("words", texts, y)
+        up = [r["feature"] for r in d["favours_label1"]]
+        down = [r["feature"] for r in d["favours_label0"]]
+        self.assertIn("dog", up)
+        self.assertIn("cat", down)
+        self.assertTrue(all(r["in_label0"] == 0 for r in d["favours_label1"]))
+        self.assertIn("dog", d["reading"])
+
+    def test_score_cell_reports_medians(self):
+        texts = ["ab"] * 20 + ["abcdefgh"] * 20
+        y = [0] * 20 + [1] * 20
+        d = N.explain_cell("length", texts, y)
+        self.assertLess(d["median_label0"], d["median_label1"])
+        self.assertIn("longer", d["reading"])
+
+    def test_alpha_cell_reads_letters(self):
+        texts = ["adam x"] * 15 + ["zed x"] * 15
+        d = N.explain_cell("alpha_first", texts, [0] * 15 + [1] * 15)
+        self.assertIn("'z'", d["reading"])
+        self.assertIn("'a'", d["reading"])
+
+    def test_explain_follows_the_separating_cells(self):
+        r = _rng(3)
+        items = ([{"entity": "NCT%08d" % r.randrange(10 ** 7), "label": 0, "category": "t"}
+                  for _ in range(60)]
+                 + [{"entity": "".join(r.choice("bcdfg") + r.choice("aeiou") for _ in range(4)),
+                     "label": 1, "category": "t"} for _ in range(60)])
+        rep = N.evaluate(items, "entity", "label", "category", n_perm=PERM)
+        self.assertEqual(rep["verdict"], "DISQUALIFIED")
+        ex = N.explain(items, "entity", "label", "category", rep)
+        self.assertTrue(ex["cells"])
+        self.assertEqual(ex["cells"][0]["stratum"], "t")
+        self.assertIn("held-out", ex["note"])
+        # every explained cell is one the report marked as separating
+        for c in ex["cells"]:
+            self.assertTrue(rep["nulls"][c["probe"]]["per_stratum"][c["stratum"]]["separates"])
+
+    def test_explain_on_a_pass_describes_the_worst_cell_only(self):
+        items = N._noise_battery(5, 1, "coin")
+        rep = N.evaluate(items, "entity", "label", "category", n_perm=PERM)
+        if rep["verdict"] == "DISQUALIFIED":
+            self.skipTest("this seed happened to false-fire")
+        ex = N.explain(items, "entity", "label", "category", rep)
+        self.assertEqual(len(ex["cells"]), 1)
+        self.assertEqual(ex["cells"][0]["probe"], rep["worst_cell"]["null"])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -186,3 +186,26 @@ jobs:
             exit 1
           fi
           echo "tree clean after replay — no gate wrote its own evidence"
+
+  install:
+    name: pip install . gives a working `honest` and `python -m nulltest`
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ matrix.python }}" }
+      - name: install from the checkout the way a stranger would
+        run: python3 -m pip install --quiet .
+      - name: run the installed tools from outside the repository
+        run: |
+          cd "$RUNNER_TEMP"
+          honest list
+          honest null "$GITHUB_WORKSPACE/batteries/photon-entities.json" > out.json
+          python3 -c "import json; d = json.load(open('out.json')); assert d['verdict'] == 'DISQUALIFIED', d"
+          python3 -m nulltest "$GITHUB_WORKSPACE/batteries/photon-entities.json" --n-perm 100 --json > nt.json
+          python3 -c "import json; d = json.load(open('nt.json')); assert d['version'] == '1.3', d"
+          # no grid ships in the wheel yet, so `honest fpr null` must decline to quote a rate
+          if honest fpr null; then echo '::error::fpr quoted a rate with no certificate installed'; exit 1; fi

@@ -135,8 +135,26 @@ def parse_items(raw_bytes, spec):
 
 
 def normalise(items, spec):
-    """Map a corpus onto nulltest's keys. Explicit and auditable — no sniffing."""
-    tk, lk, sk = spec["text_field"], spec["label_field"], spec.get("stratum_field")
+    """Map a corpus onto nulltest's keys. Explicit and auditable — no sniffing.
+
+    A manifest entry with `explode` is a question-answer corpus whose right and wrong answers
+    share a row: `explode` maps answer fields to labels and `split` separates several answers in
+    one cell, exactly as `nulltest.py --explode/--split` does, so the table and the command line
+    cannot disagree. `max_items` draws a seeded subsample (seed 20260724) when a corpus is too
+    large to re-score in CI; the row records how many of how many were scored."""
+    sk = spec.get("stratum_field")
+    if spec.get("explode"):
+        nt = _nt()
+        mapping = [(f, int(v)) for f, v in spec["explode"].items()]
+        items = nt.explode_items(items, mapping, spec.get("split"), text_key="text", label_key="label")
+        out = []
+        for it in items:
+            row = {"entity": str(it["text"]), "label": int(it["label"])}
+            if sk and it.get(sk) is not None:
+                row["category"] = str(it[sk])
+            out.append(row)
+        return out
+    tk, lk = spec["text_field"], spec["label_field"]
     pos = set(str(v).lower() for v in spec.get("label_positive", [1, "1", True, "true"]))
     invert = bool(spec.get("invert_label"))
     out = []
@@ -152,6 +170,16 @@ def normalise(items, spec):
             row["category"] = str(it[sk])
         out.append(row)
     return out
+
+
+def _subsample(items, spec):
+    """Seeded, so two runs of the audit score the same items; recorded in the row."""
+    m = spec.get("max_items")
+    if not m or len(items) <= m:
+        return items
+    import random
+    idx = sorted(random.Random(20260724).sample(range(len(items)), m))
+    return [items[i] for i in idx]
 
 
 def strength(astar):
@@ -192,6 +220,8 @@ def run_one(spec, n_perm=600, verbose=True, jobs=1):
         row["note"] = str(e)[:140]
         return row
 
+    n_total = len(items)
+    items = _subsample(items, spec)
     ys = set(i["label"] for i in items)
     if len(items) < 30 or len(ys) < 2:
         row["status"] = "unscorable"
@@ -204,6 +234,7 @@ def run_one(spec, n_perm=600, verbose=True, jobs=1):
                       jobs=jobs)
     row.update({
         "status": "scored", "n": rep["n"], "n_fake": rep["n_fake"], "n_real": rep["n_real"],
+        "items_total": n_total, "explode": spec.get("explode"), "split": spec.get("split"),
         "cells": rep["family_size"], "verdict": rep["verdict"],
         "worst_cell": rep["worst_cell"], "headline": rep["headline"],
         "separating_cells": rep.get("n_separating_cells", 0),

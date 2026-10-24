@@ -172,7 +172,8 @@ def _cmd_fpr(name):
         print("  tool can verify against the code you are running — and it will not quote one it")
         print("  cannot verify. The calibrated false-positive rate for the published version is at")
         print("  https://www.honesty.tools/audit ; reproduce it yourself with:")
-        print("      python3 -m nulltest --calibrate --emit-grid ./grid.json   (~a few minutes)")
+        print("      python3 -m nulltest --calibrate --jobs 4 --emit-grid ./grid.json")
+        print("  (500 seeds per grid row at 600 permutations; about 17 minutes on 4 cores)")
         return 1
     import json
     print(json.dumps(fpr, indent=1))

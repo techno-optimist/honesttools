@@ -720,6 +720,109 @@ def evaluate(items, text_key, label_key, stratum_key, n_perm=600, seed=20260724,
 
 
 # --------------------------------------------------------------------------------------
+# EXPLAIN — what, concretely, carries a separating cell.
+#
+# A verdict tells an author that the labels leak; it does not tell them where. The most useful
+# thing this tool can print after DISQUALIFIED is the handful of features an author can go and
+# look at: the n-grams, the words, the length gap, the initial letters. These are IN-SAMPLE
+# descriptions of the cell (fit on all its labels), which is the right thing for a description
+# and the wrong thing for a verdict — so they are printed under the verdict, never used for it.
+# --------------------------------------------------------------------------------------
+def _median(xs):
+    xs = sorted(xs)
+    n = len(xs)
+    if not n:
+        return None
+    return xs[n // 2] if n % 2 else 0.5 * (xs[n // 2 - 1] + xs[n // 2])
+
+
+def _show_feature(name, g):
+    if name == "lexicality":
+        return "'%s'" % g.replace(" ", "␣")        # make padding spaces visible
+    return "'%s'" % g
+
+
+def explain_cell(name, texts, y, top=8, min_count=3):
+    """Describe one (probe, cell): feature table for a fitted probe, class medians for a score."""
+    kind, fn = NULLS[name]
+    n1 = sum(y)
+    n0 = len(y) - n1
+    out = {"probe": name, "n": len(y), "n_label0": n0, "n_label1": n1}
+    if kind == "nb":
+        pos, neg = {}, {}
+        feats = [fn(t) for t in texts]
+        for f, yy in zip(feats, y):
+            d = pos if yy == 1 else neg
+            for g in f:
+                d[g] = d.get(g, 0) + 1
+        rows = []
+        for g in set(pos) | set(neg):
+            p, q = pos.get(g, 0), neg.get(g, 0)
+            if p + q < min_count:
+                continue
+            lo = math.log((p + 0.5) / (n1 + 1.0)) - math.log((q + 0.5) / (n0 + 1.0))
+            rows.append((lo, g, p, q))
+        rows.sort()
+        fav1 = [{"feature": g, "in_label1": p, "in_label0": q, "log_odds": round(lo, 2)}
+                for lo, g, p, q in reversed(rows[-top:]) if lo > 0]
+        fav0 = [{"feature": g, "in_label1": p, "in_label0": q, "log_odds": round(lo, 2)}
+                for lo, g, p, q in rows[:top] if lo < 0]
+        out["favours_label1"] = fav1
+        out["favours_label0"] = fav0
+        # the two items of each class that carry the most of these features
+        score = {}
+        for i, f in enumerate(feats):
+            score[i] = sum(r["log_odds"] for r in fav1 if r["feature"] in f) + \
+                       sum(r["log_odds"] for r in fav0 if r["feature"] in f)
+        ones = sorted((i for i in range(len(y)) if y[i] == 1), key=lambda i: -score[i])[:2]
+        zeros = sorted((i for i in range(len(y)) if y[i] == 0), key=lambda i: score[i])[:2]
+        out["examples"] = {"label1": [texts[i][:120] for i in ones], "label0": [texts[i][:120] for i in zeros]}
+        out["reading"] = ("features over-represented in label-1: %s; in label-0: %s"
+                          % (", ".join(_show_feature(name, r["feature"]) for r in fav1[:5]) or "none",
+                             ", ".join(_show_feature(name, r["feature"]) for r in fav0[:5]) or "none"))
+    elif kind == "score":
+        s = [float(fn(t)) for t in texts]
+        m0 = _median([v for v, yy in zip(s, y) if yy == 0])
+        m1 = _median([v for v, yy in zip(s, y) if yy == 1])
+        out["median_label0"] = m0
+        out["median_label1"] = m1
+        if name == "length":
+            out["reading"] = ("label-1 items are %s: median %.0f vs %.0f characters"
+                              % ("longer" if m1 > m0 else "shorter" if m1 < m0 else "the same length", m1, m0))
+        else:
+            def letter(v):
+                return chr(96 + int(round(v))) if 1 <= v <= 26 else "non-letter"
+            out["reading"] = ("%s-word initials: label-1 median '%s' vs label-0 median '%s' "
+                              "(alphabet position %.1f vs %.1f)"
+                              % ("first" if name == "alpha_first" else "last", letter(m1), letter(m0), m1, m0))
+    else:
+        out["reading"] = "the label-1 rate differs between strata; see the per-stratum counts"
+    return out
+
+
+def explain(items, text_key, label_key, stratum_key, rep, max_cells=4):
+    texts = [item_text(it, text_key) for it in items]
+    y = [int(it[label_key]) for it in items]
+    strata = [str(it.get(stratum_key, "_all")) for it in items] if stratum_key else ["_all"] * len(items)
+    cells = [(e_name, st, c) for e_name, e in rep.get("nulls", {}).items()
+             for st, c in e["per_stratum"].items() if c.get("separates")]
+    w = rep.get("worst_cell") or {}
+    if not cells and w.get("null"):
+        c = rep["nulls"][w["null"]]["per_stratum"][w["stratum"]]
+        cells = [(w["null"], w["stratum"], c)]
+    cells.sort(key=lambda t: (t[2]["adj_p"], -t[2]["astar"]))
+    out = {"note": ("In-sample description of the separating cells, for finding the artifact. The "
+                    "verdict above is held-out; these tables are not evidence for it."),
+           "cells": []}
+    for name, st, c in cells[:max_cells]:
+        idx = [i for i, x in enumerate(strata) if x == st]
+        d = explain_cell(name, [texts[i] for i in idx], [y[i] for i in idx])
+        d.update({"stratum": st, "astar": c["astar"], "adj_p": c["adj_p"]})
+        out["cells"].append(d)
+    return out
+
+
+# --------------------------------------------------------------------------------------
 # MEASURED POWER — what this tool can and cannot see at a given n.
 #
 # Procedure (`--measure-power` runs it; the numbers below are its output, not a promise):
@@ -916,16 +1019,70 @@ def sniff_keys(items, text_key=None, label_key=None, stratum_key=None):
     return tk, lk, sk
 
 
-def load(path, text_key, label_key, positive=None):
+def parse_explode(spec):
+    """"right_answer=0,hallucinated_answer=1" -> [("right_answer", 0), ("hallucinated_answer", 1)]."""
+    out = []
+    for part in str(spec).split(","):
+        part = part.strip()
+        if not part:
+            continue
+        if "=" not in part:
+            raise LabelError("--explode needs FIELD=LABEL pairs, got %r" % part)
+        f, v = part.rsplit("=", 1)
+        out.append((f.strip(), v.strip()))
+    if not out:
+        raise LabelError("--explode was given but names no fields")
+    return out
+
+
+def explode_items(items, mapping, split=None, text_key="text", label_key="label"):
+    """Turn question-answer rows into one item per answer.
+
+    Most QA benchmarks keep a right and a wrong answer on the same row (HaluEval), or several of
+    each in one cell separated by ';' (TruthfulQA). This test needs one text and one label per
+    item, and the question it asks of such data is: can the answer be told right from wrong
+    WITHOUT the question? So each named field becomes an item carrying that field's label, the
+    row's other fields are kept (the question's category makes a good stratum), and the source
+    row index is kept as `_row` so per-question cells are possible.
+    """
+    out = []
+    for i, it in enumerate(items):
+        if not isinstance(it, dict):
+            continue
+        for field, lab in mapping:
+            if field not in it or it[field] is None:
+                continue
+            raw = it[field]
+            vals = raw if isinstance(raw, list) else ([v for v in str(raw).split(split)] if split else [raw])
+            for v in vals:
+                v = str(v).strip()
+                if not v:
+                    continue
+                row = {k: x for k, x in it.items() if k not in dict(mapping)}
+                row[text_key] = v
+                row[label_key] = lab
+                row["_row"] = i
+                row["_field"] = field
+                out.append(row)
+    if not out:
+        raise LabelError("--explode produced no items; are the field names right? (%s)"
+                         % ", ".join(f for f, _ in mapping))
+    return out
+
+
+def load(path, text_key, label_key, positive=None, explode=None, split=None):
     """Items with the text field(s) and the label field, labels coerced to 0/1.
 
     text_key may be "a,b" or a list: the fields are kept separate on the item and joined only
-    when the probes read them (see item_text)."""
+    when the probes read them (see item_text). `explode` is a parse_explode() mapping that turns
+    each row into one item per answer field first."""
     if isinstance(text_key, str) and "," in text_key:
         text_key = [k.strip() for k in text_key.split(",") if k.strip()]
     tkeys = list(text_key) if isinstance(text_key, (list, tuple)) else [text_key]
     try:
         items = read_items(path)
+        if explode:
+            items = explode_items(items, explode, split=split, text_key=tkeys[0], label_key=label_key)
     except LabelError as e:
         sys.exit(str(e))
     out = [it for it in items if isinstance(it, dict) and label_key in it
@@ -1200,6 +1357,13 @@ def main(argv):
     ap.add_argument("--text-key", default=None)
     ap.add_argument("--label-key", default=None)
     ap.add_argument("--stratum-key", default=None)
+    ap.add_argument("--explode", default=None, metavar="FIELD=LABEL,...",
+                    help="question-answer rows: make one item per named answer field, with that "
+                         "label. e.g. right_answer=0,hallucinated_answer=1")
+    ap.add_argument("--split", default=None, metavar="SEP",
+                    help="with --explode: split each field on SEP first (TruthfulQA uses ';')")
+    ap.add_argument("--explain", action="store_true",
+                    help="after the verdict, list the features that carry each separating cell")
     ap.add_argument("--positive-label", default=None,
                     help="which label value is the fabricated/false class, when the tool cannot tell")
     ap.add_argument("--n-perm", type=int, default=600)
@@ -1244,8 +1408,13 @@ def main(argv):
         ap.print_help()
         return 2
 
+    explode = None
     try:
         raw_items = read_items(a.battery)
+        if a.explode:
+            explode = parse_explode(a.explode)
+            raw_items = explode_items(raw_items, explode, split=a.split)
+            a.text_key, a.label_key = "text", "label"
     except LabelError as e:
         sys.exit(str(e))
     tk, lk, sk = sniff_keys(raw_items, a.text_key, a.label_key, a.stratum_key)
@@ -1254,11 +1423,15 @@ def main(argv):
         sys.exit("could not find a %s field. The items carry: %s. Name it with %s."
                  % ("text" if tk is None else "label", ", ".join(have[:20]),
                     "--text-key" if tk is None else "--label-key"))
-    items = load(a.battery, tk, lk, a.positive_label)
+    items = load(a.battery, tk, lk, a.positive_label, explode=explode, split=a.split)
     tkeys = tk.split(",") if "," in tk else tk
     rep = evaluate(items, tkeys, lk, sk, n_perm=a.n_perm, alpha=a.alpha, jobs=a.jobs)
     rep["battery"] = os.path.basename(a.battery)
     rep["keys"] = {"text": tk, "label": lk, "stratum": sk}
+    if explode:
+        rep["explode"] = {"fields": dict(explode), "split": a.split, "rows": len(raw_items and {i.get("_row") for i in raw_items})}
+    if a.explain or rep["verdict"] == "DISQUALIFIED":
+        rep["explain"] = explain(items, tkeys, lk, sk, rep)
 
     if a.json:
         print(json.dumps(rep, indent=1))
@@ -1304,6 +1477,23 @@ def main(argv):
               "measurement" % rep["p_floor"])
     if rep.get("borderline"):
         print("  NOTE:    BORDERLINE — %s" % rep["borderline_note"])
+    if rep.get("explain"):
+        print()
+        print("  WHY (in-sample description of the separating cells; the verdict above is held-out):")
+        for c in rep["explain"]["cells"]:
+            print("  %s/%s  A* %.3f  adj p %.4f" % (c["probe"], c["stratum"], c["astar"], c["adj_p"]))
+            print("      %s" % c["reading"])
+            for side in ("favours_label1", "favours_label0"):
+                rows = c.get(side) or []
+                if rows:
+                    print("      %-15s %s" % (side.replace("favours_", "") + ":",
+                          "  ".join("%s %d:%d" % (_show_feature(c["probe"], r["feature"]), r["in_label1"], r["in_label0"])
+                                    for r in rows[:6])))
+            ex = c.get("examples")
+            if ex:
+                for lab in ("label1", "label0"):
+                    for t in ex[lab]:
+                        print("      e.g. %s: %s" % (lab, t))
     print()
     print("  " + rep["scope"].replace(". ", ".\n  "))
     return 0 if rep["verdict"] == "PASS" else 1

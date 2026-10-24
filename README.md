@@ -17,7 +17,9 @@ python3 nulltest.py your_benchmark.json
 python3 nulltest.py your_benchmark.csv --text-key statement --label-key label --positive-label 0
 python3 nulltest.py your_benchmark.json --json              # machine-readable
 python3 nulltest.py your_benchmark.json --jobs 8            # permutations in parallel
-python3 -m unittest discover -s tests                        # 29 tests, a few seconds
+python3 nulltest.py your_benchmark.json --explain           # which strings carry the label
+python3 nulltest.py qa_data.json --explode right_answer=0,hallucinated_answer=1   # QA rows
+python3 -m unittest discover -s tests                        # 40 tests, a few seconds
 ```
 
 (`pip install honesttools` is the plan, and `pyproject.toml` is ready for it, but the package is
@@ -48,33 +50,34 @@ Labels may be `0/1`, booleans, or a recognised word pair (`real/fake`, `true/fal
 asks for `--positive-label VALUE`. The tool does not guess, because a guess that happened to be
 backwards would still print a confident verdict.
 
-### Recipes for question-answer benchmarks
+### Question-answer benchmarks: `--explode`
 
-The test needs one text and one two-class label per row. Most QA benchmarks store a question with
-a right answer and a wrong one on the same row, so flatten them first. The natural question is
-"can the answer be told right from wrong **without the question**", so score the answer alone and
-keep the question only as a stratum if you want per-question cells.
-
-```python
-# HaluEval-style rows: {"question", "right_answer", "hallucinated_answer"}
-import json
-rows = [json.loads(l) for l in open("qa_data.json")]
-flat = []
-for i, r in enumerate(rows):
-    flat.append({"answer": r["right_answer"],        "label": 0, "qid": i})
-    flat.append({"answer": r["hallucinated_answer"], "label": 1, "qid": i})
-json.dump(flat, open("halueval_flat.json", "w"))
-```
+The test needs one text and one two-class label per item. Most QA benchmarks store a question
+with a right answer and a wrong one on the same row. `--explode FIELD=LABEL,...` turns each named
+field into its own item carrying that label; `--split ";"` separates several answers in one cell;
+the row's other fields are kept, so the question's category can be the stratum. The question that
+this asks of such data is: can the answer be told right from wrong **without the question**?
 
 ```bash
-python3 nulltest.py halueval_flat.json --text-key answer --label-key label
-python3 nulltest.py halueval_flat.json --text-key question,answer --label-key label   # with the question
+# HaluEval QA: {"question", "right_answer", "hallucinated_answer"} per line
+python3 nulltest.py qa_data.json --explode right_answer=0,hallucinated_answer=1
+
+# TruthfulQA: several ';'-separated answers per cell, one category per question
+python3 nulltest.py TruthfulQA.csv --explode "Correct Answers=0,Incorrect Answers=1" --split ";" --stratum-key Category
 ```
 
-TruthfulQA (`Correct Answers` / `Incorrect Answers` columns, several per cell, `;`-separated)
-flattens the same way: one row per answer, label 1 for incorrect, the question's `Category` as
-`--stratum-key`. A benchmark with more than two classes has to be filtered to two first; the tool
-refuses to pick.
+Both are in the audit table below. A benchmark with more than two classes has to be filtered to
+two first; the tool refuses to pick.
+
+### `--explain`: which strings carry the label
+
+A DISQUALIFIED verdict is only useful if the author can find the artifact. The report therefore
+ends with a WHY section (always on a DISQUALIFIED, `--explain` to force it) that describes each
+separating cell in-sample: for the fitted probes, the features most over-represented in each class
+with their counts; for the score probes, the class medians in plain words ("label-1 items are
+longer: median 9 vs 8 characters", "last-word initials: label-1 median 'g' vs label-0 median 'l'").
+These tables are a description for finding the artifact, not the evidence for the verdict; the
+verdict is held-out and permutation-calibrated, the tables are not.
 
 ## The seven surface probes
 
@@ -177,7 +180,7 @@ describes the code in front of them. CI checks that stamp on every commit.
 | file | role |
 |---|---|
 | `nulltest.py` | the instrument. `--selftest`, `--calibrate`, `--measure-power`, `--emit-grid` |
-| `nulltest.js` | the same instrument for a browser; `nulltest_parity.sh` proves the two agree cell by cell |
+| `nulltest.js` | the same instrument for a browser; `nulltest_parity.sh` proves the two agree cell by cell. The browser engine scores flat two-class files; `--explode` and `--explain` are command-line only |
 | `tests/` | unit tests: every probe catches the artifact it was written for, the loader refuses to guess, parallel equals serial |
 | `nulltest_audit.py` | scores a manifest of published benchmarks and writes the table behind [honesty.tools/audit](https://www.honesty.tools/audit) |
 | `nulltest_audit_manifest.json` | the targets: URL, exact field mapping, label polarity, and what kind of label each is |
@@ -190,14 +193,31 @@ describes the code in front of them. CI checks that stamp on every commit.
 `audit_cache/` is gitignored on purpose: the audit records a URL and a sha256 for each third-party
 corpus, never a copy.
 
-## Run it against us
+## Run it against us, and against the benchmarks the field uses
 
-All nine of our own batteries are in the audit table and four are DISQUALIFIED. Under v1.2 the
-four were `verifydomain-claims-147`, `calibration-battery-v1`, `photon-entities` and
-`grounding-coordinate`; under v1.3 `grounding-coordinate` is a BORDERLINE PASS and
-`prominence-people-v1`, which v1.2 missed, is caught. The two worst rows on the table are still ours.
-A DISQUALIFIED verdict is a measurement about a corpus, not a finding of error or misconduct by its
-authors.
+The audit table at [honesty.tools/audit](https://www.honesty.tools/audit) has 16 rows: our own nine
+batteries, five third-party honesty corpora, and, new in v1.3, the two QA benchmarks most often
+quoted in hallucination papers, scored by answer alone with `--explode`:
+
+| benchmark | items | worst cell | A* | verdict |
+|---|---|---|---|---|
+| TruthfulQA, reference answers (`Correct Answers` vs `Incorrect Answers`, per category) | 6028 | 77 of 222 cells separate | 1.000 | DISQUALIFIED |
+| HaluEval QA (`right_answer` vs `hallucinated_answer`) | 20000 | 5 of 6 cells separate | 0.979 | DISQUALIFIED |
+
+`--explain` says why. In TruthfulQA the correct column is full of "I have no comment" and "do
+not" hedges and the incorrect column of "believe that" and "that the" assertions; a model that
+learned to hedge scores without knowing anything. In HaluEval the hallucinated answers were
+written by ChatGPT and the right answers are HotpotQA's short reference strings: median 58
+characters against 12. Neither is a claim that the benchmarks are useless. It is a measurement of
+how much of a score on them is available to a reader who never sees the question.
+
+Ten of the sixteen rows are DISQUALIFIED and four of the ten are ours. Under v1.2 our four were
+`verifydomain-claims-147`, `calibration-battery-v1`, `photon-entities` and `grounding-coordinate`;
+under v1.3 `grounding-coordinate` is a BORDERLINE PASS and `prominence-people-v1`, which v1.2
+missed, is caught. The two worst rows on the table are still ours. A DISQUALIFIED verdict is a
+measurement about a corpus, not a finding of error or misconduct by its authors. Re-score the
+whole table with `python3 nulltest_audit.py --jobs 4` (about 7 minutes; the two QA corpora are
+fetched from their own repositories and recorded as a URL and a sha256).
 
 ## Licence
 

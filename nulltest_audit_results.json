@@ -10,7 +10,7 @@
   "alpha_last",
   "stratum"
  ],
- "tool_sha256": "9fb630a208a685b22fa0774c712aec47d778b390b3101d2a8fadeda236bc130e",
+ "tool_sha256": "8129a886dd5db1cbc99f6ef79a9e790b5c61562e0fe1b79d25e05e80031e2044",
  "n_perm": 600,
  "generated_from": "nulltest_audit_manifest.json",
  "rows": [
@@ -25,6 +25,9 @@
    "n": 147,
    "n_fake": 36,
    "n_real": 111,
+   "items_total": 147,
+   "explode": null,
+   "split": null,
    "cells": 6,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
@@ -63,6 +66,9 @@
    "n": 162,
    "n_fake": 81,
    "n_real": 81,
+   "items_total": 162,
+   "explode": null,
+   "split": null,
    "cells": 35,
    "verdict": "PASS",
    "worst_cell": {
@@ -101,6 +107,9 @@
    "n": 103,
    "n_fake": 27,
    "n_real": 76,
+   "items_total": 103,
+   "explode": null,
+   "split": null,
    "cells": 21,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
@@ -139,6 +148,9 @@
    "n": 156,
    "n_fake": 78,
    "n_real": 78,
+   "items_total": 156,
+   "explode": null,
+   "split": null,
    "cells": 6,
    "verdict": "PASS",
    "worst_cell": {
@@ -177,6 +189,9 @@
    "n": 168,
    "n_fake": 84,
    "n_real": 84,
+   "items_total": 168,
+   "explode": null,
+   "split": null,
    "cells": 6,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
@@ -215,6 +230,9 @@
    "n": 702,
    "n_fake": 351,
    "n_real": 351,
+   "items_total": 702,
+   "explode": null,
+   "split": null,
    "cells": 6,
    "verdict": "PASS",
    "worst_cell": {
@@ -253,6 +271,9 @@
    "n": 1440,
    "n_fake": 240,
    "n_real": 1200,
+   "items_total": 1440,
+   "explode": null,
+   "split": null,
    "cells": 24,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
@@ -291,6 +312,9 @@
    "n": 1000,
    "n_fake": 468,
    "n_real": 532,
+   "items_total": 1000,
+   "explode": null,
+   "split": null,
    "cells": 6,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
@@ -329,6 +353,9 @@
    "n": 1496,
    "n_fake": 748,
    "n_real": 748,
+   "items_total": 1496,
+   "explode": null,
+   "split": null,
    "cells": 5,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
@@ -367,6 +394,9 @@
    "n": 354,
    "n_fake": 177,
    "n_real": 177,
+   "items_total": 354,
+   "explode": null,
+   "split": null,
    "cells": 5,
    "verdict": "PASS",
    "worst_cell": {
@@ -405,6 +435,9 @@
    "n": 561,
    "n_fake": 282,
    "n_real": 279,
+   "items_total": 561,
+   "explode": null,
+   "split": null,
    "cells": 6,
    "verdict": "DISQUALIFIED",
    "worst_cell": {
@@ -433,6 +466,94 @@
    "strength": "slight"
   },
   {
+   "name": "truthfulqa/answers",
+   "paper": "TruthfulQA: Measuring How Models Mimic Human Falsehoods (arXiv:2109.07958, ACL 2022)",
+   "label_kind": "right_vs_wrong_answer",
+   "url": "https://raw.githubusercontent.com/sylinrl/TruthfulQA/main/TruthfulQA.csv",
+   "status": "scored",
+   "sha256": "b8d8ef1e12f98b4f2a9f47abc9765da0640b182b6c5d9b92f0c1a1f2f1e02e5c",
+   "bytes": 503550,
+   "n": 6028,
+   "n_fake": 3251,
+   "n_real": 2777,
+   "items_total": 6028,
+   "explode": {
+    "Correct Answers": 0,
+    "Incorrect Answers": 1
+   },
+   "split": ";",
+   "cells": 222,
+   "verdict": "DISQUALIFIED",
+   "worst_cell": {
+    "astar": 1.0,
+    "adj_p": 0.0017,
+    "raw_p": 0.0017,
+    "null": "alpha_first",
+    "stratum": "Misconceptions: Topical",
+    "n": 21,
+    "threshold": 0.722,
+    "underpowered": false
+   },
+   "headline": "worst cell A* = 1.0 in alpha_first/Misconceptions: Topical (n=21), family-adjusted p = 0.0017 over 222 cells",
+   "separating_cells": 77,
+   "astar": 1.0,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
+   "strength": "severe"
+  },
+  {
+   "name": "halueval/qa",
+   "paper": "HaluEval: A Large-Scale Hallucination Evaluation Benchmark for LLMs (arXiv:2305.11747, EMNLP 2023)",
+   "label_kind": "right_vs_wrong_answer",
+   "url": "https://raw.githubusercontent.com/RUCAIBox/HaluEval/main/data/qa_data.json",
+   "status": "scored",
+   "sha256": "89ed139ec5e3a3169a0b30e45569ac1283846f76f27f7bb5e908ee6deed57e88",
+   "bytes": 6164420,
+   "n": 20000,
+   "n_fake": 10000,
+   "n_real": 10000,
+   "items_total": 20000,
+   "explode": {
+    "right_answer": 0,
+    "hallucinated_answer": 1
+   },
+   "split": null,
+   "cells": 6,
+   "verdict": "DISQUALIFIED",
+   "worst_cell": {
+    "astar": 0.979,
+    "adj_p": 0.0017,
+    "raw_p": 0.0017,
+    "null": "lexicality",
+    "stratum": "_all",
+    "n": 20000,
+    "threshold": 0.51,
+    "underpowered": false
+   },
+   "headline": "worst cell A* = 0.979 in lexicality/_all (n=20000), family-adjusted p = 0.0017 over 6 cells",
+   "separating_cells": 5,
+   "astar": 0.979,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
+   "strength": "severe"
+  },
+  {
    "name": "aperture/knowledge-prominence-v1",
    "paper": "Aperture / Project Forty Two",
    "label_kind": "known_vs_unknown_real_entity",
@@ -443,6 +564,9 @@
    "n": 324,
    "n_fake": 162,
    "n_real": 162,
+   "items_total": 324,
+   "explode": null,
+   "split": null,
    "cells": 30,
    "verdict": "PASS",
    "worst_cell": {
@@ -481,6 +605,9 @@
    "n": 296,
    "n_fake": 148,
    "n_real": 148,
+   "items_total": 296,
+   "explode": null,
+   "split": null,
    "cells": 30,
    "verdict": "PASS",
    "worst_cell": {
@@ -519,6 +646,9 @@
    "n": 168,
    "n_fake": 84,
    "n_real": 84,
+   "items_total": 168,
+   "explode": null,
+   "split": null,
    "cells": 34,
    "verdict": "DISQUALIFIED",
    "worst_cell": {

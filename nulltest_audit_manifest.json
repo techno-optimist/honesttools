@@ -4,7 +4,8 @@
  "label_kinds": {
   "real_vs_fabricated_entity": "the item is an entity string. A surface hit means invented entities are spelled differently from real ones. This is the case the instrument was built for.",
   "true_vs_false_statement": "the item is a whole sentence. A surface hit may reflect TEMPLATING — how the false statements were generated — rather than anything about the entities. Still a real confound for a probe trained on those sentences, but a different claim, and this table says which kind each row is.",
-  "known_vs_unknown_real_entity": "both classes are REAL entities from one registry, split by date. A surface hit means the registry's language drifted between the two periods, not that the fabricated half was generated differently — there is no fabricated half. A row of this kind is only meaningful if the model actually knows the known half; see prominence-people-v1, whose label validity was measured on the live model rather than assumed."
+  "known_vs_unknown_real_entity": "both classes are REAL entities from one registry, split by date. A surface hit means the registry's language drifted between the two periods, not that the fabricated half was generated differently — there is no fabricated half. A row of this kind is only meaningful if the model actually knows the known half; see prominence-people-v1, whose label validity was measured on the live model rather than assumed.",
+  "right_vs_wrong_answer": "the item is an ANSWER to a question, scored without the question. Right and wrong answers to the same question share a row in the source and are exploded into one item each (the manifest's `explode` and `split` fields say how, and `python3 nulltest.py FILE --explode ... --split ...` does the same). A surface hit means a reader can tell the right answer from the wrong one by its wording alone, before reading the question: a model scored on that benchmark can do the same, and part of its score is that, not knowledge."
  },
  "targets": [
   {
@@ -178,6 +179,34 @@
    ],
    "label_kind": "true_vs_false_statement",
    "note": "label 1 = true, so the false class is 0."
+  },
+  {
+   "name": "truthfulqa/answers",
+   "paper": "TruthfulQA: Measuring How Models Mimic Human Falsehoods (arXiv:2109.07958, ACL 2022)",
+   "url": "https://raw.githubusercontent.com/sylinrl/TruthfulQA/main/TruthfulQA.csv",
+   "cache_as": "truthfulqa.csv",
+   "format": "csv",
+   "explode": {
+    "Correct Answers": 0,
+    "Incorrect Answers": 1
+   },
+   "split": ";",
+   "stratum_field": "Category",
+   "label_kind": "right_vs_wrong_answer",
+   "note": "790 questions in the repository's CSV, 37 categories; every reference answer in the `Correct Answers` and `Incorrect Answers` columns becomes one item, labelled by its column, with the question's category as the stratum. The question text is not scored."
+  },
+  {
+   "name": "halueval/qa",
+   "paper": "HaluEval: A Large-Scale Hallucination Evaluation Benchmark for LLMs (arXiv:2305.11747, EMNLP 2023)",
+   "url": "https://raw.githubusercontent.com/RUCAIBox/HaluEval/main/data/qa_data.json",
+   "cache_as": "halueval_qa.jsonl",
+   "format": "jsonl",
+   "explode": {
+    "right_answer": 0,
+    "hallucinated_answer": 1
+   },
+   "label_kind": "right_vs_wrong_answer",
+   "note": "10,000 HotpotQA questions, each with the reference answer and one ChatGPT-generated hallucinated answer; both answers become items, labelled by field. No category field is shipped, so one cell per probe. The question and the knowledge passage are not scored."
   },
   {
    "name": "aperture/knowledge-prominence-v1",
