@@ -1,0 +1,35 @@
+name: A verdict I believe is wrong
+description: The tool said PASS or DISQUALIFIED and you have reason to think it should not have
+title: "verdict: <battery> <what you expected>"
+labels: ["verdict"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        First run `python3 nulltest.py FILE --check receipt.json` on the receipt you are questioning. **DIVERGES** means the tool did not reproduce its own result from the same bytes: that is a bug and we want it. **REPLAYS** means the disagreement is about what the result means, which is also worth filing.
+  - type: textarea
+    id: command
+    attributes:
+      label: The exact command
+    validations:
+      required: true
+  - type: textarea
+    id: receipt
+    attributes:
+      label: The receipt
+      description: Paste the `--json` output (it carries battery_sha256 and tool_sha256), or attach it.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and why
+      description: If a specific cell looks wrong, name the probe and stratum. If you think an artifact was missed, say what it is; the POWER line in the report says what the tool can see at your n.
+    validations:
+      required: true
+  - type: input
+    id: check
+    attributes:
+      label: Output of --check
+      placeholder: "REPLAYS / DIVERGES / DIFFERENT FILE"

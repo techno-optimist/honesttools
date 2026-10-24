@@ -7,6 +7,8 @@
 Each test states the defect it would catch. A test that cannot fail on a plausible regression is
 decoration, so every one of these was watched failing against a deliberately broken version first.
 """
+import contextlib
+import io
 import json
 import os
 import random
@@ -333,6 +335,54 @@ class Explain(unittest.TestCase):
         ex = N.explain(items, "entity", "label", "category", rep)
         self.assertEqual(len(ex["cells"]), 1)
         self.assertEqual(ex["cells"][0]["probe"], rep["worst_cell"]["null"])
+
+
+class Receipt(unittest.TestCase):
+    """A published --json report must be replayable against the bytes it names, and nothing else."""
+
+    def _battery(self, d):
+        r = _rng(11)
+        items = ([{"entity": "NCT%08d" % r.randrange(10 ** 7), "label": 0, "category": "t"} for _ in range(40)]
+                 + [{"entity": "".join(r.choice("bcdfg") + r.choice("aeiou") for _ in range(4)),
+                     "label": 1, "category": "t"} for _ in range(40)])
+        p = os.path.join(d, "b.json")
+        with open(p, "w") as fh:
+            json.dump(items, fh)
+        return p
+
+    def test_receipt_replays_and_refuses_other_bytes(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = self._battery(d)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                N.main(["nulltest", p, "--json", "--n-perm", str(PERM)])
+            rec = json.loads(out.getvalue())
+            self.assertEqual(len(rec["battery_sha256"]), 64)
+            self.assertEqual(len(rec["tool_sha256"]), 64)
+            rp = os.path.join(d, "r.json")
+            with open(rp, "w") as fh:
+                json.dump(rec, fh)
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(N.check_receipt(rp, p), 0)
+            # one byte changed in the battery: the receipt no longer describes it
+            with open(p, "a") as fh:
+                fh.write("\n")
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(N.check_receipt(rp, p), 2)
+
+    def test_tampered_receipt_diverges(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = self._battery(d)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                N.main(["nulltest", p, "--json", "--n-perm", str(PERM)])
+            rec = json.loads(out.getvalue())
+            rec["verdict"] = "PASS"          # the lie a receipt could tell
+            rp = os.path.join(d, "r.json")
+            with open(rp, "w") as fh:
+                json.dump(rec, fh)
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(N.check_receipt(rp, p), 1)
 
 
 if __name__ == "__main__":

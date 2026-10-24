@@ -1,0 +1,53 @@
+# NullTest as a GitHub Action — run the surface floor on your own benchmark in your own CI.
+#
+#   - uses: techno-optimist/honestytools@main
+#     with:
+#       file: data/my_benchmark.json
+#       args: --text-key statement --label-key label      # any nulltest.py flags
+#       fail-on: DISQUALIFIED                             # or BORDERLINE, or NEVER
+#
+# No GPU, no network, no key: python3 and the standard library. The step writes the full JSON
+# report (with the file's sha256 and the tool's sha256, so the verdict is replayable) to
+# nulltest_report.json, prints the WHY section into the job summary when the verdict is
+# DISQUALIFIED, and exposes `verdict` and `headline` as outputs.
+name: "NullTest — surface floor for a two-class text benchmark"
+description: "Does a classifier that never sees a model recover your labels from the text alone? PASS / DISQUALIFIED, replayable."
+author: "honesty.tools"
+branding:
+  icon: "shield"
+  color: "gray-dark"
+inputs:
+  file:
+    description: "The benchmark file: JSON, JSONL, CSV or TSV"
+    required: true
+  args:
+    description: "Extra nulltest.py flags, split on spaces (e.g. --text-key answer --label-key label --jobs 4)"
+    required: false
+    default: ""
+  fail-on:
+    description: "Fail the step on: DISQUALIFIED (default), BORDERLINE (also fails a borderline PASS), or NEVER"
+    required: false
+    default: "DISQUALIFIED"
+  report:
+    description: "Where to write the JSON report"
+    required: false
+    default: "nulltest_report.json"
+outputs:
+  verdict:
+    description: "PASS, DISQUALIFIED or NOT_SCORABLE"
+    value: ${{ steps.run.outputs.verdict }}
+  headline:
+    description: "The one-line result"
+    value: ${{ steps.run.outputs.headline }}
+runs:
+  using: "composite"
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_FILE: ${{ inputs.file }}
+        INPUT_ARGS: ${{ inputs.args }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_REPORT: ${{ inputs.report }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: bash "${{ github.action_path }}/nulltest_action.sh"

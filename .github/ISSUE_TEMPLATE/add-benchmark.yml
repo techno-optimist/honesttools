@@ -1,0 +1,53 @@
+name: Add a benchmark to the audit table
+description: Put a two-class text benchmark through the surface floor and publish the row, whatever it says
+title: "audit: add <project>/<benchmark>"
+labels: ["audit"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The table at https://www.honesty.tools/audit records a URL, a sha256, a field mapping and a verdict for each benchmark. A DISQUALIFIED row is a measurement about a corpus, not about its authors; four of ours sit at the top of the table.
+  - type: input
+    id: url
+    attributes:
+      label: Download URL
+      description: The exact file a reader can fetch (raw GitHub, Zenodo, HF resolve URL). We record a URL and a hash, never a copy.
+    validations:
+      required: true
+  - type: input
+    id: paper
+    attributes:
+      label: Paper or project
+      placeholder: "Title (venue, year) or a project URL"
+  - type: textarea
+    id: mapping
+    attributes:
+      label: Field mapping
+      description: Which field is the text, which is the label, which value is the positive class, and which field (if any) is a category to stratify on. For QA corpora with right and wrong answers on one row, say which fields hold which.
+      placeholder: "text_field: statement, label_field: label, label_positive: [\"false\"], stratum_field: category"
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of label is it?
+      options:
+        - real_vs_fabricated_entity (the item is an entity string)
+        - true_vs_false_statement (the item is a whole sentence)
+        - right_vs_wrong_answer (the item is an answer, scored without its question)
+        - known_vs_unknown_real_entity (both classes real, split by date or prominence)
+        - something else (say what below)
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Your own run, if you have one
+      description: "Paste the headline from `python3 nulltest.py FILE --json` or `python3 nulltest_audit.py --only NAME`. Not required; we run it before merging either way."
+  - type: checkboxes
+    id: ok
+    attributes:
+      label: Publication
+      options:
+        - label: I understand the row is published whatever the verdict, with a dated note, and can be corrected but not removed.
+          required: true
