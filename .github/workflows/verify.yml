@@ -158,6 +158,19 @@ jobs:
           if [ "$code" = "1" ]; then echo "::error::the null test over-fires, or failed to fire on a planted-separable battery"; exit 1; fi
           if [ "$code" != "0" ] && [ "$code" != "2" ]; then echo "::error::selftest crashed"; exit 1; fi
 
+  claim-gate:
+    name: the claim gate fires on planted defects
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: plant unannotated, nested and retracted figures; the gate must report each one
+        # From its first version (2026-07-26) until 2026-10-20, claim_gate printed "0 failures"
+        # while a regex hid every figure nested in a <b> inside a <div>. This test was watched
+        # failing (6 of 9) against that version before the fix.
+        run: python3 -m unittest -v test_claim_gate
+
   read-only:
     name: no gate regenerates its own evidence
     runs-on: ubuntu-latest
