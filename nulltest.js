@@ -2,8 +2,8 @@
 // Copyright 2026 Kevin Russell (Aperture / Project Forty Two)
 /* nulltest.js — the null test, running in the reader's browser.
  *
- * A line-for-line port of /verifier/nulltest.py. Same four surface nulls, same two-sided
- * statistic, same permutation-calibrated thresholds, same worst-cell verdict rule.
+ * A line-for-line port of nulltest.py. Same seven surface probes, same two-sided statistic,
+ * same permutation-calibrated thresholds, same worst-cell verdict rule.
  *
  * PARITY IS THE POINT. If the page computed a different number from the CLI, one of them
  * would be lying and a reader could not tell which. So this file reimplements CPython's
@@ -120,7 +120,7 @@
     return a === null ? null : Math.max(a, 1 - a);
   }
 
-  /* ── the four surface nulls ──────────────────────────────────────────────── */
+  /* ── the seven surface probes ───────────────────────────────────────────── */
   function ngrams(t) {
     t = " " + t.toLowerCase() + " ";
     var out = new Set();
@@ -134,94 +134,156 @@
     return Array.from(out).sort();
   }
 
-  /* K-fold naive Bayes — NOT leave-one-out. LOO leaks the held-out label through the
-     subtraction; this tool's own selftest caught that scoring pure noise at A* = 1.000. */
-  function nbScores(texts, y, featfn, k, seed) {
+  /* Python's \w is UNICODE-aware; JavaScript's is ASCII-only. \p{L}\p{N}_ reproduces Python's
+     class, for the word probes and for the shape probe alike. */
+  var WORD_RE = /[\p{L}\p{N}_]+/gu;
+  function wordsOf(t) { return t.match(WORD_RE) || []; }
+
+  function words(t) {
+    var ws = wordsOf(t.toLowerCase()), out = new Set(ws);
+    for (var i = 0; i + 1 < ws.length; i++) out.add(ws[i] + " " + ws[i + 1]);
+    return Array.from(out).sort();
+  }
+
+  /* 1..26 for an ASCII letter (case-folded), else 0 — ASCII-only on purpose so both engines
+     agree on every input. toLowerCase can expand one code point into two (U+0130), hence the
+     length check, which mirrors nulltest.py. */
+  function alphaPos(ch) {
+    var c = ch.toLowerCase();
+    return (c.length === 1 && c >= "a" && c <= "z") ? c.charCodeAt(0) - 96 : 0;
+  }
+  function alphaFirst(t) { var ws = wordsOf(t); return ws.length ? alphaPos(ws[0][0]) : 0; }
+  function alphaLast(t) { var ws = wordsOf(t); return ws.length ? alphaPos(ws[ws.length - 1][0]) : 0; }
+
+  /* With /[^\w\s]/ the accented letters in mathematician names ("Poincaré") counted as
+     punctuation in JS and as word characters in Python — which made the shape null disagree
+     with the CLI on exactly the strata full of European surnames. */
+  var SHAPE_RE = /[A-Z]{2,}|\p{Nd}+|[^\p{L}\p{N}_\s]/gu;
+  function shapeSig(x) {
+    var out = new Set(), m = x.match(SHAPE_RE) || [];
+    m.forEach(function (z) {
+      // python: "D" if x.isdigit() else "U" if x.isupper() else "P"
+      var c = /^\p{Nd}+$/u.test(z) ? "D" : (/\p{L}/u.test(z) && z === z.toUpperCase()) ? "U" : "P";
+      out.add("S:" + c + Math.min(z.length, 4));
+    });
+    out.add("len" + Math.min(Math.floor(x.length / 4), 12));
+    return Array.from(out).sort();
+  }
+
+  /* K-fold naive Bayes, prepared once per (texts, features) and refit per label vector — the
+     same restructuring as nulltest.py's _NB, with the same arithmetic in the same order, so
+     every score is bit-identical to the one-shot version. NOT leave-one-out: LOO leaks the
+     held-out label through the subtraction; this tool's own selftest caught that scoring pure
+     noise at A* = 1.000. */
+  function NB(texts, featfn, k, seed) {
     k = k || 5; seed = seed || 20260724;
     var n = texts.length, feats = texts.map(featfn), i;
+    var vocab = Array.from(new Set([].concat.apply([], feats))).sort();
+    var idxOf = new Map(); vocab.forEach(function (g, j) { idxOf.set(g, j); });
+    var items = feats.map(function (f) { return f.map(function (g) { return idxOf.get(g); }); });
     var idx = []; for (i = 0; i < n; i++) idx.push(i);
     MT(seed).shuffle(idx);
     var folds = [];
-    for (i = 0; i < k; i++) { var f = []; for (var q = i; q < n; q += k) f.push(idx[q]); folds.push(f); }
-    var scores = new Float64Array(n);
-
-    folds.forEach(function (fte) {
+    for (var f = 0; f < k; f++) {
+      var fte = []; for (var q = f; q < n; q += k) fte.push(idx[q]);
       var te = new Set(fte);
       var tr = idx.filter(function (i2) { return !te.has(i2); });
-      if (!tr.length || !fte.length) return;
-      var pos = new Map(), neg = new Map(), npos = 0, nneg = 0, seen = new Map();
-      tr.forEach(function (i2) {
-        var d = y[i2] === 1 ? pos : neg;
-        if (y[i2] === 1) npos++; else nneg++;
-        feats[i2].forEach(function (g) { d.set(g, (d.get(g) || 0) + 1); });
+      if (!tr.length || !fte.length) continue;
+      var total = new Int32Array(vocab.length);
+      tr.forEach(function (i2) { items[i2].forEach(function (g) { total[g]++; }); });
+      // drop hapax (seen once in the training folds): pure memorisation
+      var teFeats = fte.map(function (i2) {
+        return [i2, items[i2].filter(function (g) { return total[g] >= 2; })];
       });
-      if (npos === 0 || nneg === 0) return;
-      tr.forEach(function (i2) {
-        feats[i2].forEach(function (g) { seen.set(g, (seen.get(g) || 0) + 1); });
+      folds.push([tr, teFeats, total]);
+    }
+    this.score = function (y) {
+      var scores = new Float64Array(n);
+      folds.forEach(function (fold) {
+        var tr = fold[0], teFeats = fold[1], total = fold[2];
+        var pos = new Int32Array(total.length), npos = 0;
+        tr.forEach(function (i2) {
+          if (y[i2] === 1) { npos++; items[i2].forEach(function (g) { pos[g]++; }); }
+        });
+        var nneg = tr.length - npos;
+        if (npos === 0 || nneg === 0) return;
+        var top = 0; for (var g2 = 0; g2 < total.length; g2++) if (total[g2] > top) top = total[g2];
+        var lp = new Float64Array(top + 1), ln = new Float64Array(top + 1);
+        for (var c = 0; c <= top; c++) {
+          lp[c] = Math.log((c + 0.5) / (npos + 1));
+          ln[c] = Math.log((c + 0.5) / (nneg + 1));
+        }
+        teFeats.forEach(function (tf) {
+          var sc = 0, fs = tf[1];
+          for (var j = 0; j < fs.length; j++) { var p = pos[fs[j]]; sc += lp[p] - ln[total[fs[j]] - p]; }
+          // quantize before ranking — see the matching note in nulltest.py (1-ulp Math.log
+          // differences between V8 and CPython's libm were creating/destroying tie groups)
+          scores[tf[0]] = Math.round(sc * 1e9) / 1e9;
+        });
+      });
+      return Array.prototype.slice.call(scores);
+    };
+  }
+  function nbScores(texts, y, featfn, k, seed) { return new NB(texts, featfn, k, seed).score(y); }
+
+  /* does the stratum label alone predict truth? then it's unbalanced by design */
+  function stratumScores(y, strata) {
+    var n = y.length, idx = []; for (var i = 0; i < n; i++) idx.push(i);
+    MT(20260724).shuffle(idx);
+    var out = new Array(n).fill(0.5);
+    for (var f = 0; f < 5; f++) {
+      var fte = []; for (var q = f; q < n; q += 5) fte.push(idx[q]);
+      var te = new Set(fte), r = new Map(), c = new Map();
+      idx.forEach(function (i2) {
+        if (te.has(i2)) return;
+        r.set(strata[i2], (r.get(strata[i2]) || 0) + y[i2]);
+        c.set(strata[i2], (c.get(strata[i2]) || 0) + 1);
       });
       fte.forEach(function (i2) {
-        var sc = 0;
-        feats[i2].forEach(function (g) {
-          if ((seen.get(g) || 0) < 2) return;                     // drop hapax: pure memorisation
-          sc += Math.log(((pos.get(g) || 0) + 0.5) / (npos + 1)) -
-                Math.log(((neg.get(g) || 0) + 0.5) / (nneg + 1));
-        });
-        // quantize before ranking — see the matching note in nulltest.py (1-ulp Math.log
-        // differences between V8 and CPython's libm were creating/destroying tie groups)
-        scores[i2] = Math.round(sc * 1e9) / 1e9;
+        var st = strata[i2];
+        out[i2] = c.get(st) ? (r.get(st) || 0) / c.get(st) : 0.5;
       });
-    });
-    return Array.prototype.slice.call(scores);
+    }
+    return out;
   }
 
-  /* Python's \w is UNICODE-aware; JavaScript's is ASCII-only. With /[^\w\s]/ the accented
-     letters in mathematician names ("Poincaré") count as punctuation in JS and as word
-     characters in Python — which made the shape null disagree with the CLI on exactly the
-     strata full of European surnames. \p{L}\p{N}_ reproduces Python's class. */
-  var SHAPE_RE = /[A-Z]{2,}|\p{Nd}+|[^\p{L}\p{N}_\s]/gu;
+  /* name -> [kind, fn]: "nb" is a fitted probe over features, "score" an unfitted per-text
+     score, "stratum" the category rate. Same names, same order as nulltest.py's NULLS. */
   var NULLS = {
-    lexicality: function (t) { return nbScores(t, arguments[1], ngrams); },
-    length: function (t) { return t.map(function (x) { return x.length + 0.001 * x.split(/\s+/).filter(Boolean).length; }); },
-    /* catches "reals are ID-shaped (NGC 6315, NCT02921971), fakes are pronounceable words" */
-    shape: function (t, y) {
-      return nbScores(t, y, function (x) {
-        var out = new Set(), m = x.match(SHAPE_RE) || [];
-        m.forEach(function (z) {
-          // python: "D" if x.isdigit() else "U" if x.isupper() else "P"
-          var c = /^\p{Nd}+$/u.test(z) ? "D" : (/\p{L}/u.test(z) && z === z.toUpperCase()) ? "U" : "P";
-          out.add("S:" + c + Math.min(z.length, 4));
-        });
-        out.add("len" + Math.min(Math.floor(x.length / 4), 12));
-        return Array.from(out).sort();
-      });
-    },
-    /* does the stratum label alone predict truth? then it's unbalanced by design */
-    stratum: function (t, y, strata) {
-      if (!strata) return null;
-      var n = y.length, idx = []; for (var i = 0; i < n; i++) idx.push(i);
-      MT(20260724).shuffle(idx);
-      var out = new Array(n).fill(0.5);
-      for (var f = 0; f < 5; f++) {
-        var fte = []; for (var q = f; q < n; q += 5) fte.push(idx[q]);
-        var te = new Set(fte), r = new Map(), c = new Map();
-        idx.forEach(function (i2) {
-          if (te.has(i2)) return;
-          r.set(strata[i2], (r.get(strata[i2]) || 0) + y[i2]);
-          c.set(strata[i2], (c.get(strata[i2]) || 0) + 1);
-        });
-        fte.forEach(function (i2) {
-          var st = strata[i2];
-          out[i2] = c.get(st) ? (r.get(st) || 0) / c.get(st) : 0.5;
-        });
-      }
-      return out;
-    }
+    lexicality: ["nb", ngrams],
+    words: ["nb", words],
+    length: ["score", function (x) { return x.length + 0.001 * x.split(/\s+/).filter(Boolean).length; }],
+    shape: ["nb", shapeSig],
+    alpha_first: ["score", alphaFirst],
+    alpha_last: ["score", alphaLast],
+    stratum: ["stratum", null]
   };
 
+  /* Everything about a battery that does not depend on the labels, computed once and shared by
+     the observation and every permutation — nulltest.py's _Prepared. */
+  function Prepared(texts, strata) {
+    var self = this;
+    this.strata = strata;
+    this.hasStrata = !!strata && new Set(strata).size > 1;
+    this.fixed = {}; this.nb = {};
+    Object.keys(NULLS).forEach(function (name) {
+      var kind = NULLS[name][0], fn = NULLS[name][1];
+      if (kind === "score") self.fixed[name] = texts.map(function (t) { return fn(t); });
+      else if (kind === "nb") self.nb[name] = new NB(texts, fn);
+    });
+    this.scores = function (name, y) {
+      var kind = NULLS[name][0];
+      if (kind === "score") return self.fixed[name];
+      if (kind === "nb") return self.nb[name].score(y);
+      return self.hasStrata ? stratumScores(y, self.strata) : null;
+    };
+  }
+
+  var VERSION = "1.3";
   var KEYSEP = "\u0000";   // NUL: cannot occur in a stratum name, so cell keys never collide
   var SCOPE =
     "SCOPE: this measures how much of the label signal is recoverable from SURFACE FORM alone " +
-    "by four model-free probes, two-sided, refit inside every permutation and family-wise " +
+    "by seven model-free probes, two-sided, refit inside every permutation and family-wise " +
     "corrected across all cells (Westfall-Young min-p). A PASS does NOT certify the benchmark " +
     "is good: it cannot see circularity (labels drawn from the same store the system under test " +
     "retrieves from), contamination, or mislabelling. It scores no model.";
@@ -275,13 +337,13 @@
     return pairs.size === uf.size;
   }
 
-  /* Fit all four nulls on THESE labels and return A* for every (null, stratum) cell.
+  /* Fit every probe on THESE labels and return A* for every (probe, stratum) cell.
      Called once for the observation and once per permutation — the refit IS the fix. */
-  function scoreAllCells(texts, y, strata, cells, useStratum, folds) {
+  function scoreAllCells(prep, y, cells, folds) {
     var out = {};
     if (!folds) folds = foldOf(y.length);
     Object.keys(NULLS).forEach(function (name) {
-      var s = NULLS[name](texts, y, useStratum ? strata : null);
+      var s = prep.scores(name, y);
       if (s === null) return;
       cells.forEach(function (c) {
         var st = c[0], idx = c[1];
@@ -361,18 +423,24 @@
     var minCell = opts.minCell || 12, alpha = opts.alpha || 0.05;
     var tk = keys.text, lk = keys.label, sk = keys.stratum;
 
-    var texts = items.map(function (i) { return String(i[tk]); });
+    var texts = items.map(function (i) {
+      if (Array.isArray(tk)) return tk.map(function (k) { return i[k] === undefined ? "" : String(i[k]); }).join("\n");
+      return String(i[tk]);
+    });
     var y = items.map(function (i) { return parseInt(i[lk], 10) || 0; });
     var strata = sk ? items.map(function (i) { return String(i[sk] === undefined ? "_all" : i[sk]); })
                     : items.map(function () { return "_all"; });
 
     var cells = cellDefs(strata);
+    var folds = foldOf(y.length);
     var rng = MT(seed);
-    var obs = scoreAllCells(texts, y, strata, cells, !!sk);
+    var prep = new Prepared(texts, strata);
+    var obs = scoreAllCells(prep, y, cells, folds);
     var ks = Object.keys(obs).filter(function (k) { return obs[k] !== null; }).sort();
 
     var nFake = y.reduce(function (a, b) { return a + b; }, 0);
     var report = {
+      tool: "nulltest", version: VERSION, probes: Object.keys(NULLS),
       n: items.length, n_fake: nFake, n_real: items.length - nFake,
       strata: cells.map(function (c) { return c[0]; }), min_cell: minCell, n_perm: nPerm,
       alpha: alpha, family_size: ks.length, correction: "westfall_young_min_p",
@@ -399,7 +467,7 @@
     var ys = y.slice();
     for (var b = 0; b < nPerm; b++) {
       rng.shuffle(ys);
-      var sc = scoreAllCells(texts, ys, strata, cells, !!sk);
+      var sc = scoreAllCells(prep, ys, cells, folds);
       for (var i = 0; i < ks.length; i++) {
         var v = sc[ks[i]];
         if (v !== null && v !== undefined) draws[ks[i]].push(v);
@@ -427,6 +495,8 @@
     ks.forEach(function (k) { adj[k] = (bisectRight(q, raw[k]) + 1.0) / (nPerm + 1.0); });
 
     // ---- report -------------------------------------------------------------------
+    // python renders a rounded float as "1.0", JS as "1" — match the CLI's text exactly
+    var pyf = function (x) { return Number.isInteger(x) ? x.toFixed(1) : String(x); };
     // _adjExact is the UNROUNDED adjusted p, kept only for comparison. Comparing the
     // unrounded adj[k] against the ROUNDED adj_p stored below made every cell tied at the
     // permutation floor overwrite the previous one (0.0016638 < 0.0017), so the reported
@@ -474,11 +544,20 @@
         "permutation count to resolve further; it cannot change the verdict.";
     }
     report.verdict = worst.adj_p < alpha ? "DISQUALIFIED" : "PASS";
+    // BORDERLINE — mirrors nulltest.py. A family-adjusted p within a factor of two of alpha is a
+    // PASS that the family size alone could have flipped; say so.
+    report.borderline = alpha <= worst.adj_p && worst.adj_p < 2 * alpha;
+    if (report.borderline) {
+      report.borderline_note = "PASS, but the worst cell's family-adjusted p (" + pyf(worst.adj_p) +
+        ") is within a factor of two of alpha (" + alpha.toFixed(2) + "). Treat this as 'not shown to " +
+        "separate at this n and this family size', not as clean. More items, or a smaller family " +
+        "(--stratum-key omitted), could flip it either way.";
+    }
     // MEASURED POWER — mirrors nulltest.py's _power_note exactly. Measured 2026-07-25 by planting
     // a +1-char marker on a fraction of the label-1 half of a clean synthetic base and finding the
     // smallest fraction caught in >=3 of 4 seeds (grid 15/30/60/100%). Low power costs DETECTIONS,
     // not false alarms, so a verdict that fired stands at any n; a PASS at small n does not.
-    var MDE = [[1496, 0.30], [702, 0.60], [324, 0.60], [156, 0.60]];
+    var MDE = [[1496, 0.15], [702, 0.30], [324, 0.60], [156, 0.60]];
     var mde = null;
     for (var mi = 0; mi < MDE.length; mi++) { if (report.n >= MDE[mi][0]) { mde = MDE[mi][1]; break; } }
     var dq = report.verdict === "DISQUALIFIED", pct = mde ? Math.round(mde * 100) : null, rd;
@@ -494,8 +573,6 @@
     report.power = { n: report.n, measured_mde: mde, comparable_across_batteries: false,
       note_on_comparison: "A* depends on n. Do not rank this battery against one of a different size: cities.csv is DISQUALIFIED at n=1496 and PASSES 5 of 5 subsamples at n=354.",
       reading: rd };
-    // python renders a rounded float as "1.0", JS as "1" — match the CLI's text exactly
-    var pyf = function (x) { return Number.isInteger(x) ? x.toFixed(1) : String(x); };
     report.headline = "worst cell A* = " + pyf(worst.astar) + " in " + worst["null"] + "/" +
       worst.stratum + " (n=" + worst.n + "), family-adjusted p = " + pyf(worst.adj_p) +
       " over " + ks.length + " cells";
@@ -504,51 +581,115 @@
   }
 
   /* ── input handling — same key sniffing and label coercion as the CLI ────── */
-  var FAKE_WORDS = ["fake", "fabrication", "fabricated", "false", "1", "coined"];
-  function loadItems(raw) {
-    var items;
-    raw = String(raw).trim();
-    if (!raw) throw new Error("nothing to read");
-    if (raw[0] !== "[" && raw[0] !== "{") throw new Error("that is not JSON — expected an array of items");
-    if (raw.indexOf("\n") > 0 && raw[0] === "{" && raw.trim().slice(-1) === "}" && raw.split("\n")[0].trim().slice(-1) === "}") {
-      items = raw.split("\n").filter(function (l) { return l.trim(); }).map(function (l) { return JSON.parse(l); });
+  var TEXT_KEYS = ["entity", "text", "claim", "statement", "question", "answer", "response", "name",
+                   "prompt", "title", "sentence"];
+  var LABEL_KEYS = ["label", "y", "is_fake", "fabricated", "hallucinated", "hallucination", "type",
+                    "kind", "truth", "is_true"];
+  var STRATUM_KEYS = ["category", "domain", "stratum", "cell", "topic", "source", "task"];
+  var POSITIVE_WORDS = ["fake", "fabrication", "fabricated", "false", "1", "coined", "hallucinated",
+                        "hallucination", "unfaithful", "incorrect", "wrong", "no", "yes_hallucinated"];
+  var NEGATIVE_WORDS = ["real", "true", "0", "genuine", "faithful", "correct", "right", "yes", "known",
+                        "grounded"];
+
+  function parseCSV(raw, sep) {
+    // RFC-4180-ish: quoted fields, doubled quotes, CR/LF line ends. Enough for the corpora the
+    // audit table scores; a stranger with something odder has the CLI.
+    var rows = [], row = [], field = "", i = 0, q = false;
+    while (i < raw.length) {
+      var ch = raw[i];
+      if (q) {
+        if (ch === '"') { if (raw[i + 1] === '"') { field += '"'; i++; } else q = false; }
+        else field += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === sep) { row.push(field); field = ""; }
+      else if (ch === "\n" || ch === "\r") {
+        if (ch === "\r" && raw[i + 1] === "\n") i++;
+        row.push(field); rows.push(row); row = []; field = "";
+      } else field += ch;
+      i++;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    if (!rows.length) return [];
+    var head = rows[0];
+    return rows.slice(1).filter(function (r) { return r.length > 1 || (r.length === 1 && r[0] !== ""); })
+      .map(function (r) { var o = {}; head.forEach(function (h, j) { o[h] = r[j] === undefined ? "" : r[j]; }); return o; });
+  }
+
+  /* Map whatever the label column holds onto 0/1, or refuse — nulltest.py's coerce_labels.
+     v1.2 mapped any unrecognised string to 0 silently; a yes/no corpus came out backwards and
+     a hallucinated/faithful one came out all-zero, and both looked like ordinary runs. */
+  function coerceLabels(items, lk, positive) {
+    var vals = items.map(function (it) {
+      var v = it[lk];
+      if (typeof v === "boolean") v = v ? "1" : "0";
+      return String(v).trim();
+    });
+    var distinct = Array.from(new Set(vals)).sort();
+    if (distinct.length !== 2)
+      throw new Error("the label field '" + lk + "' holds " + distinct.length + " distinct values (" +
+                      distinct.slice(0, 6).join(", ") + "); this test needs exactly two.");
+    var pos;
+    if (positive !== undefined && positive !== null && positive !== "") {
+      pos = String(positive).trim();
+      if (distinct.indexOf(pos) < 0) throw new Error("positive label '" + pos + "' is not one of " + distinct.join(" / "));
     } else {
-      items = JSON.parse(raw);
+      var low = distinct.map(function (d) { return d.toLowerCase(); });
+      if (POSITIVE_WORDS.indexOf(low[0]) >= 0 && NEGATIVE_WORDS.indexOf(low[1]) >= 0) pos = distinct[0];
+      else if (POSITIVE_WORDS.indexOf(low[1]) >= 0 && NEGATIVE_WORDS.indexOf(low[0]) >= 0) pos = distinct[1];
+      else if (low[0] === "0" && low[1] === "1") pos = distinct[1];
+      else if (low[0] === "0.0" && low[1] === "1.0") pos = distinct[1];
+      else throw new Error("the label field '" + lk + "' holds '" + distinct[0] + "' and '" + distinct[1] +
+                           "' and the tool cannot tell which one is the fabricated/false class. Say which " +
+                           "(positive label). It will not guess.");
+    }
+    return { items: items.map(function (it, i) { var c = {}; for (var k in it) c[k] = it[k]; c[lk] = vals[i] === pos ? 1 : 0; return c; }),
+             positive: pos };
+  }
+
+  /* opts: { text, label, stratum, positive } — any of them overrides the sniffing. `text` may
+     be "a,b": the fields are joined with a newline when scored, as the CLI does. */
+  function loadItems(raw, opts) {
+    opts = opts || {};
+    var items;
+    raw = String(raw).replace(/^﻿/, "");
+    var trimmed = raw.trim();
+    if (!trimmed) throw new Error("nothing to read");
+    if (trimmed[0] !== "[" && trimmed[0] !== "{") {
+      var firstLine = trimmed.split("\n")[0];
+      var sep = firstLine.indexOf("\t") >= 0 ? "\t" : ",";
+      items = parseCSV(raw, sep);
+      if (!items.length) throw new Error("that is not JSON, and did not parse as CSV/TSV either");
+    } else {
+      try { items = JSON.parse(trimmed); }
+      catch (e) { items = trimmed.split("\n").filter(function (l) { return l.trim(); }).map(function (l) { return JSON.parse(l); }); }
     }
     if (!Array.isArray(items)) {
       var found = null;
-      ["items", "battery", "data", "rows"].forEach(function (k) {
+      ["items", "battery", "data", "rows", "examples", "instances"].forEach(function (k) {
         if (!found && Array.isArray(items[k])) found = items[k];
       });
-      if (!found) throw new Error("could not find a list of items (looked for items / battery / data / rows)");
+      if (!found) throw new Error("could not find a list of items (looked for items / battery / data / rows / examples / instances)");
       items = found;
     }
     if (!items.length) throw new Error("the list of items is empty");
 
-    var probe = JSON.stringify(items.slice(0, 40));
-    function sniff(cands) {
-      for (var i = 0; i < cands.length; i++) if (probe.indexOf('"' + cands[i] + '"') >= 0) return cands[i];
-      return null;
-    }
-    var tk = sniff(["entity", "text", "claim", "question", "name", "prompt"]);
-    var lk = sniff(["label", "y", "is_fake", "type"]);
-    var sk = sniff(["category", "domain", "stratum", "cell"]);
-    if (!tk) throw new Error("no text field found (looked for entity / text / claim / question / name / prompt)");
-    if (!lk) throw new Error("no label field found (looked for label / y / is_fake / type)");
+    var keys = new Set();
+    items.slice(0, 200).forEach(function (it) { if (it && typeof it === "object") Object.keys(it).forEach(function (k) { keys.add(k); }); });
+    function sniff(cands) { for (var i = 0; i < cands.length; i++) if (keys.has(cands[i])) return cands[i]; return null; }
+    var tk = opts.text || sniff(TEXT_KEYS);
+    var lk = opts.label || sniff(LABEL_KEYS);
+    var sk = opts.stratum || sniff(STRATUM_KEYS);
+    if (!tk) throw new Error("no text field found (looked for " + TEXT_KEYS.join(" / ") + "). The items carry: " + Array.from(keys).slice(0, 20).join(", "));
+    if (!lk) throw new Error("no label field found (looked for " + LABEL_KEYS.join(" / ") + "). The items carry: " + Array.from(keys).slice(0, 20).join(", "));
+    var tkeys = tk.indexOf(",") >= 0 ? tk.split(",").map(function (x) { return x.trim(); }).filter(Boolean) : [tk];
 
-    var out = items.filter(function (it) { return it && it[tk] !== undefined && it[lk] !== undefined; })
-      .map(function (it) {
-        var v = it[lk], c = {};
-        for (var k in it) c[k] = it[k];
-        if (typeof v === "string") v = FAKE_WORDS.indexOf(v.toLowerCase()) >= 0 ? 1 : 0;
-        else if (typeof v === "boolean") v = v ? 1 : 0;
-        c[lk] = parseInt(v, 10) || 0;
-        return c;
-      });
+    var out = items.filter(function (it) {
+      return it && it[lk] !== undefined && tkeys.every(function (k) { return it[k] !== undefined; });
+    });
     if (!out.length) throw new Error("no item had both a text field and a label field");
-    var lab = new Set(out.map(function (it) { return it[lk]; }));
-    if (lab.size < 2) throw new Error("every item carries the same label — there is nothing to separate");
-    return { items: out, keys: { text: tk, label: lk, stratum: sk } };
+    var coerced = coerceLabels(out, lk, opts.positive);
+    return { items: coerced.items, keys: { text: tkeys.length > 1 ? tkeys : tk, label: lk, stratum: sk },
+             positive: coerced.positive };
   }
 
   /* ── the two planted controls ────────────────────────────────────────────
@@ -584,6 +725,8 @@
     return out;
   }
 
-  global.NullTest = { _MT: MT, _scoreAllCells: scoreAllCells, _cellDefs: cellDefs, evaluate: evaluate, evaluateAsync: evaluateAsync, loadItems: loadItems, astar: astar, auroc: auroc,
-                      plantedSeparable: plantedSeparable, plantedClean: plantedClean };
+  global.NullTest = { VERSION: VERSION, PROBES: Object.keys(NULLS), _MT: MT, _scoreAllCells: scoreAllCells,
+                      _cellDefs: cellDefs, _Prepared: Prepared, evaluate: evaluate, evaluateAsync: evaluateAsync,
+                      loadItems: loadItems, coerceLabels: coerceLabels, parseCSV: parseCSV, astar: astar,
+                      auroc: auroc, plantedSeparable: plantedSeparable, plantedClean: plantedClean };
 })(window);

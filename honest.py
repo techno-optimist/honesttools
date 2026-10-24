@@ -28,6 +28,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 def _load(mod, path):
     spec = importlib.util.spec_from_file_location(mod, os.path.join(HERE, path))
     m = importlib.util.module_from_spec(spec)
+    sys.modules[mod] = m          # so multiprocessing can pickle references into it
     spec.loader.exec_module(m)
     return m
 
@@ -42,11 +43,13 @@ class NullTool(Tool):
 
     def run(self, battery_path, n_perm=600) -> Verdict:
         nt = self._nt()
-        probe = open(battery_path, encoding="utf-8").read(4000)
-        tk = next((k for k in ("entity", "text", "claim", "question", "name", "prompt")
-                   if '"%s"' % k in probe), "entity")
-        lk = next((k for k in ("label", "y", "is_fake", "type") if '"%s"' % k in probe), "label")
-        sk = next((k for k in ("category", "domain", "stratum", "cell") if '"%s"' % k in probe), None)
+        # Same reader and the same key sniffing as `python3 nulltest.py`, so `honest null` and
+        # the bare tool cannot disagree about what a file contains. JSON, JSONL, CSV and TSV.
+        tk, lk, sk = nt.sniff_keys(nt.read_items(battery_path))
+        if tk is None or lk is None:
+            raise SystemExit("could not find a text and a label field in %s; run "
+                             "`python3 nulltest.py %s --text-key ... --label-key ...` to name them"
+                             % (battery_path, battery_path))
         items = nt.load(battery_path, tk, lk)
         rep = nt.evaluate(items, tk, lk, sk, n_perm=n_perm)
         w = rep.get("worst_cell") or {}
@@ -169,7 +172,8 @@ def _cmd_fpr(name):
         print("  tool can verify against the code you are running — and it will not quote one it")
         print("  cannot verify. The calibrated false-positive rate for the published version is at")
         print("  https://www.honesty.tools/audit ; reproduce it yourself with:")
-        print("      python3 -m nulltest --calibrate --emit-grid ./grid.json   (~a few minutes)")
+        print("      python3 -m nulltest --calibrate --jobs 4 --emit-grid ./grid.json")
+        print("  (500 seeds per grid row at 600 permutations; about 17 minutes on 4 cores)")
         return 1
     import json
     print(json.dumps(fpr, indent=1))

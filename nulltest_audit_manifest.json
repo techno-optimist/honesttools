@@ -1,15 +1,16 @@
 {
- "about": "Audit targets for nulltest_audit.py. Every target names the exact download URL, the exact field mapping, and what kind of label it carries. A target with no url, or one that fails to fetch, is reported as such \u2014 you cannot audit what nobody published, and that is a finding too. OUR OWN BATTERIES ARE THE FIRST TWO ROWS AND BOTH FAIL.",
+ "about": "Audit targets for nulltest_audit.py. Every target names the exact download URL, the exact field mapping, and what kind of label it carries. A target with no url, or one that fails to fetch, is reported as such — you cannot audit what nobody published, and that is a finding too. ALL NINE OF OUR OWN BATTERIES ARE IN THIS TABLE.",
  "disqualified_means": "On this corpus a model-free classifier recovers the labels from surface form above what label-shuffling produces, so a model-based score on it needs a surface control to be interpretable. It is NOT a finding of error or misconduct by the authors, NOT a claim that the paper's conclusion is wrong, and NOT a statement about the method the paper proposes. Several of these corpora predate the practice of publishing a surface control. Ours do too, and ours fail.",
  "label_kinds": {
   "real_vs_fabricated_entity": "the item is an entity string. A surface hit means invented entities are spelled differently from real ones. This is the case the instrument was built for.",
-  "true_vs_false_statement": "the item is a whole sentence. A surface hit may reflect TEMPLATING \u2014 how the false statements were generated \u2014 rather than anything about the entities. Still a real confound for a probe trained on those sentences, but a different claim, and this table says which kind each row is.",
-  "known_vs_unknown_real_entity": "both classes are REAL entities from one registry, split by date. A surface hit means the registry's language drifted between the two periods, not that the fabricated half was generated differently \u2014 there is no fabricated half. A row of this kind is only meaningful if the model actually knows the known half; see prominence-people-v1, whose label validity was measured on the live model rather than assumed."
+  "true_vs_false_statement": "the item is a whole sentence. A surface hit may reflect TEMPLATING — how the false statements were generated — rather than anything about the entities. Still a real confound for a probe trained on those sentences, but a different claim, and this table says which kind each row is.",
+  "known_vs_unknown_real_entity": "both classes are REAL entities from one registry, split by date. A surface hit means the registry's language drifted between the two periods, not that the fabricated half was generated differently — there is no fabricated half. A row of this kind is only meaningful if the model actually knows the known half; see prominence-people-v1, whose label validity was measured on the live model rather than assumed.",
+  "right_vs_wrong_answer": "the item is an ANSWER to a question, scored without the question. Right and wrong answers to the same question share a row in the source and are exploded into one item each (the manifest's `explode` and `split` fields say how, and `python3 nulltest.py FILE --explode ... --split ...` does the same). A surface hit means a reader can tell the right answer from the wrong one by its wording alone, before reading the question: a model scored on that benchmark can do the same, and part of its score is that, not knowledge."
  },
  "targets": [
   {
    "name": "aperture/verifydomain-claims-147",
-   "paper": "Aperture / Project Forty Two \u2014 the battery behind our own front-page headline, withdrawn",
+   "paper": "Aperture / Project Forty Two — the battery behind our own front-page headline, withdrawn",
    "url": "https://www.honesty.tools/verifier/batteries/verifydomain-claims-147.json",
    "cache_as": "aperture_verifydomain_147.json",
    "format": "json",
@@ -26,7 +27,7 @@
   },
   {
    "name": "aperture/grounding-coordinate",
-   "paper": "Aperture / Project Forty Two \u2014 published null-floor certificate (ours)",
+   "paper": "Aperture / Project Forty Two — published null-floor certificate (ours)",
    "url": "https://www.honesty.tools/verifier/batteries/grounding-coordinate.json",
    "cache_as": "aperture_grounding.json",
    "format": "json",
@@ -39,11 +40,11 @@
     "1"
    ],
    "label_kind": "real_vs_fabricated_entity",
-   "note": "ours. in the table because a referee who is not in the table is not a referee."
+   "note": "ours. in the table because a referee who is not in the table is not a referee. BORDERLINE: DISQUALIFIED under v1.2 (worst cell length/eponymous_signs, A* 0.855, n=28, adjusted p 0.030 over 18 cells) and PASS under v1.3 (same cell, same A*, adjusted p 0.057 over 35 cells). Nothing about the battery changed; the family of cells it is corrected against nearly doubled. A verdict that a family size can flip was marginal in both versions, and the report now says so."
   },
   {
    "name": "aperture/photon-entities",
-   "paper": "Aperture / Project Forty Two \u2014 the battery we used for months (ours)",
+   "paper": "Aperture / Project Forty Two — the battery we used for months (ours)",
    "url": "https://www.honesty.tools/verifier/batteries/photon-entities.json",
    "cache_as": "aperture_photon.json",
    "format": "json",
@@ -59,7 +60,7 @@
   },
   {
    "name": "aperture/prominence-people-v2",
-   "paper": "Aperture / Project Forty Two \u2014 the first battery of ours that clears its own surface floor",
+   "paper": "Aperture / Project Forty Two — the first battery of ours that clears its own surface floor",
    "url": "https://www.honesty.tools/verifier/batteries/prominence-people-v2.json",
    "cache_as": "aperture_prominence_v2.json",
    "format": "json",
@@ -76,7 +77,7 @@
   },
   {
    "name": "aperture/prominence-people-v1",
-   "paper": "Aperture / Project Forty Two \u2014 a battery that PASSED this floor and was still broken",
+   "paper": "Aperture / Project Forty Two — a battery that PASSED the v1.2 floor and was still broken; caught by v1.3",
    "url": "https://www.honesty.tools/verifier/batteries/prominence-people-v1.json",
    "cache_as": "aperture_prominence_v1.json",
    "format": "json",
@@ -89,11 +90,11 @@
     "1"
    ],
    "label_kind": "known_vs_unknown_real_entity",
-   "note": "ours, retained as evidence. PASSES at worst A* 0.602, adjusted p 0.2246 - and is defective anyway: a fifth probe outside the shipped four, the surname's initial letter, recovers the labels at A* 0.661, because the builder measured the alphabetically-first 200 members of each Wikipedia category and biography categories sort by surname. Superseded by v2. In this table because a floor that cannot be shown to miss things will be mistaken for a proof of correctness."
+   "note": "ours, retained as evidence. Under the four probes of nulltest v1.2 it PASSED at worst A* 0.602, adjusted p 0.2246 - and was defective anyway: the surname's initial letter recovers the labels at A* 0.661, because the builder measured the alphabetically-first 200 members of each Wikipedia category and biography categories sort by surname. v1.3 added two alphabet-position probes for exactly this class of construction artifact, and it is now DISQUALIFIED (alpha_last/person, A* 0.661, adjusted p at the permutation floor). Superseded by v2. In this table because a floor that cannot be shown to miss things will be mistaken for a proof of correctness - and because the probe that caught it was written AFTER the miss."
   },
   {
    "name": "aperture/postcutoff-trials-v1",
-   "paper": "Aperture / Project Forty Two \u2014 surface-blind by construction: BOTH classes real, split by registry date",
+   "paper": "Aperture / Project Forty Two — surface-blind by construction: BOTH classes real, split by registry date",
    "url": "https://www.honesty.tools/verifier/batteries/postcutoff-trials-v1.json",
    "cache_as": "aperture_postcutoff.json",
    "format": "json",
@@ -180,6 +181,34 @@
    "note": "label 1 = true, so the false class is 0."
   },
   {
+   "name": "truthfulqa/answers",
+   "paper": "TruthfulQA: Measuring How Models Mimic Human Falsehoods (arXiv:2109.07958, ACL 2022)",
+   "url": "https://raw.githubusercontent.com/sylinrl/TruthfulQA/main/TruthfulQA.csv",
+   "cache_as": "truthfulqa.csv",
+   "format": "csv",
+   "explode": {
+    "Correct Answers": 0,
+    "Incorrect Answers": 1
+   },
+   "split": ";",
+   "stratum_field": "Category",
+   "label_kind": "right_vs_wrong_answer",
+   "note": "790 questions in the repository's CSV, 37 categories; every reference answer in the `Correct Answers` and `Incorrect Answers` columns becomes one item, labelled by its column, with the question's category as the stratum. The question text is not scored."
+  },
+  {
+   "name": "halueval/qa",
+   "paper": "HaluEval: A Large-Scale Hallucination Evaluation Benchmark for LLMs (arXiv:2305.11747, EMNLP 2023)",
+   "url": "https://raw.githubusercontent.com/RUCAIBox/HaluEval/main/data/qa_data.json",
+   "cache_as": "halueval_qa.jsonl",
+   "format": "jsonl",
+   "explode": {
+    "right_answer": 0,
+    "hallucinated_answer": 1
+   },
+   "label_kind": "right_vs_wrong_answer",
+   "note": "10,000 HotpotQA questions, each with the reference answer and one ChatGPT-generated hallucinated answer; both answers become items, labelled by field. No category field is shipped, so one cell per probe. The question and the knowledge passage are not scored."
+  },
+  {
    "name": "aperture/knowledge-prominence-v1",
    "paper": "Aperture / Project Forty Two",
    "url": "https://www.honesty.tools/verifier/batteries/knowledge-prominence-v1.json",
@@ -194,7 +223,7 @@
     "1"
    ],
    "label_kind": "known_vs_unknown_real_entity",
-   "note": "ours. SERVED and cited on /calibrate, yet it had never been in this manifest \u2014 so the table's claim to cover 'every one of our own' was false for as long as that page has been live. Audited here for the first time."
+   "note": "ours. SERVED and cited on /calibrate, yet it had never been in this manifest — so the table's claim to cover 'every one of our own' was false for as long as that page has been live. Audited here for the first time."
   },
   {
    "name": "aperture/knowledge-prominence-v2",
@@ -211,11 +240,11 @@
     "1"
    ],
    "label_kind": "known_vs_unknown_real_entity",
-   "note": "ours. Served but cited on no live page \u2014 a dangling artifact. In the table so that being unpublished is not a way to stay unaudited."
+   "note": "ours. Served but cited on no live page — a dangling artifact. In the table so that being unpublished is not a way to stay unaudited."
   },
   {
    "name": "aperture/calibration-battery-v1",
-   "paper": "Aperture / Project Forty Two \u2014 the battery we invited other labs to calibrate against",
+   "paper": "Aperture / Project Forty Two — the battery we invited other labs to calibrate against",
    "url": "https://www.honesty.tools/verifier/batteries/calibration-battery-v1.json",
    "cache_as": "aperture_calibration_v1.json",
    "format": "json",
@@ -228,7 +257,7 @@
     "1"
    ],
    "label_kind": "real_vs_fabricated_entity",
-   "note": "ours, and the worst artifact we have produced. It was absent from this table while the page promised 'every one of our own' \u2014 the single most load-bearing omission on it, since this is the battery we asked other labs to calibrate against."
+   "note": "ours, and the worst artifact we have produced. It was absent from this table while the page promised 'every one of our own' — the single most load-bearing omission on it, since this is the battery we asked other labs to calibrate against."
   }
  ]
 }

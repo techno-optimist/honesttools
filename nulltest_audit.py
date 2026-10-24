@@ -16,8 +16,8 @@ WHAT A "DISQUALIFIED" VERDICT IS NOT. It is not a finding of error, misconduct, 
 the authors, and it is not a claim that the paper's conclusion is wrong. It says one specific
 thing: on this corpus, a model-free classifier recovers the labels above what label-shuffling
 produces, so a model-based score on it needs a surface control to be interpretable. Several of
-these papers predate the practice. ALL NINE OF OUR OWN BATTERIES ARE IN THIS TABLE AND FOUR ARE
-DISQUALIFIED, INCLUDING THE TWO WORST ROWS ON IT.
+these papers predate the practice. ALL NINE OF OUR OWN BATTERIES ARE IN THIS TABLE; see the README for
+which of them fail under the current probes.
 
 (That sentence used to read "our own two batteries, and both are disqualified". It was true when
 written and quietly stopped being true as the manifest grew — while four of ours, including the
@@ -60,6 +60,7 @@ UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
 def _nt():
     spec = importlib.util.spec_from_file_location("nt", os.path.join(HERE, "nulltest.py"))
     m = importlib.util.module_from_spec(spec)
+    sys.modules["nt"] = m         # so multiprocessing can pickle references into it
     spec.loader.exec_module(m)
     return m
 
@@ -134,8 +135,26 @@ def parse_items(raw_bytes, spec):
 
 
 def normalise(items, spec):
-    """Map a corpus onto nulltest's keys. Explicit and auditable — no sniffing."""
-    tk, lk, sk = spec["text_field"], spec["label_field"], spec.get("stratum_field")
+    """Map a corpus onto nulltest's keys. Explicit and auditable — no sniffing.
+
+    A manifest entry with `explode` is a question-answer corpus whose right and wrong answers
+    share a row: `explode` maps answer fields to labels and `split` separates several answers in
+    one cell, exactly as `nulltest.py --explode/--split` does, so the table and the command line
+    cannot disagree. `max_items` draws a seeded subsample (seed 20260724) when a corpus is too
+    large to re-score in CI; the row records how many of how many were scored."""
+    sk = spec.get("stratum_field")
+    if spec.get("explode"):
+        nt = _nt()
+        mapping = [(f, int(v)) for f, v in spec["explode"].items()]
+        items = nt.explode_items(items, mapping, spec.get("split"), text_key="text", label_key="label")
+        out = []
+        for it in items:
+            row = {"entity": str(it["text"]), "label": int(it["label"])}
+            if sk and it.get(sk) is not None:
+                row["category"] = str(it[sk])
+            out.append(row)
+        return out
+    tk, lk = spec["text_field"], spec["label_field"]
     pos = set(str(v).lower() for v in spec.get("label_positive", [1, "1", True, "true"]))
     invert = bool(spec.get("invert_label"))
     out = []
@@ -153,6 +172,16 @@ def normalise(items, spec):
     return out
 
 
+def _subsample(items, spec):
+    """Seeded, so two runs of the audit score the same items; recorded in the row."""
+    m = spec.get("max_items")
+    if not m or len(items) <= m:
+        return items
+    import random
+    idx = sorted(random.Random(20260724).sample(range(len(items)), m))
+    return [items[i] for i in idx]
+
+
 def strength(astar):
     """A verdict is binary; the effect is not. Without this, a corpus at A* 0.565 and one at
     A* 1.000 both print DISQUALIFIED and a reader takes them as equivalent. They are not: one
@@ -167,7 +196,7 @@ def strength(astar):
     return "slight"
 
 
-def run_one(spec, n_perm=600, verbose=True):
+def run_one(spec, n_perm=600, verbose=True, jobs=1):
     name = spec["name"]
     row = {"name": name, "paper": spec.get("paper", ""), "label_kind": spec.get("label_kind", "unknown"),
            "url": spec.get("url", ""), "status": None}
@@ -191,6 +220,8 @@ def run_one(spec, n_perm=600, verbose=True):
         row["note"] = str(e)[:140]
         return row
 
+    n_total = len(items)
+    items = _subsample(items, spec)
     ys = set(i["label"] for i in items)
     if len(items) < 30 or len(ys) < 2:
         row["status"] = "unscorable"
@@ -199,13 +230,17 @@ def run_one(spec, n_perm=600, verbose=True):
 
     nt = _nt()
     has_stratum = any("category" in i for i in items)
-    rep = nt.evaluate(items, "entity", "label", "category" if has_stratum else None, n_perm=n_perm)
+    rep = nt.evaluate(items, "entity", "label", "category" if has_stratum else None, n_perm=n_perm,
+                      jobs=jobs)
     row.update({
         "status": "scored", "n": rep["n"], "n_fake": rep["n_fake"], "n_real": rep["n_real"],
+        "items_total": n_total, "explode": spec.get("explode"), "split": spec.get("split"),
         "cells": rep["family_size"], "verdict": rep["verdict"],
         "worst_cell": rep["worst_cell"], "headline": rep["headline"],
         "separating_cells": rep.get("n_separating_cells", 0),
         "astar": rep["worst_cell"]["astar"],
+        "borderline": bool(rep.get("borderline")),
+        "probes": rep.get("probes"),
         "strength": strength(rep["worst_cell"]["astar"]) if rep["verdict"] == "DISQUALIFIED" else "—",
     })
     if verbose:
@@ -221,6 +256,7 @@ def main(argv):
     ap.add_argument("--only")
     ap.add_argument("--list", action="store_true")
     ap.add_argument("--n-perm", type=int, default=600)
+    ap.add_argument("--jobs", type=int, default=1, help="processes per battery (wall clock only)")
     a = ap.parse_args(argv[1:])
 
     if not os.path.exists(MANIFEST):
@@ -243,7 +279,7 @@ def main(argv):
 
     print("nulltest audit — %d targets, %d permutations each" % (len(targets), a.n_perm))
     print()
-    rows = [run_one(t, n_perm=a.n_perm) for t in targets]
+    rows = [run_one(t, n_perm=a.n_perm, jobs=a.jobs) for t in targets]
     dest = os.path.join(HERE, "nulltest_audit_results.json")
 
     # --only USED TO REPLACE THE WHOLE FILE. Re-scoring one target rewrote the results with a
@@ -267,7 +303,10 @@ def main(argv):
             carried += 1
         merged.append(r)
 
-    out = {"tool": "nulltest", "version": "1.1", "n_perm": a.n_perm,
+    nt = _nt()
+    out = {"tool": "nulltest", "version": nt.VERSION, "probes": list(nt.NULLS),
+           "tool_sha256": hashlib.sha256(open(os.path.join(HERE, "nulltest.py"), "rb").read()).hexdigest(),
+           "n_perm": a.n_perm,
            "generated_from": os.path.basename(MANIFEST), "rows": merged}
     if carried:
         out["partial_run"] = ("%d of %d rows were carried over from an earlier run, not scored "

@@ -1,24 +1,24 @@
 {
  "tool": "nulltest",
- "version": "1.2",
+ "version": "1.3",
  "measures": "share of NO-SIGNAL batteries falsely returned DISQUALIFIED",
  "ceiling": 0.1,
  "state": "PASS",
  "seeds": 500,
- "n_perm": 200,
+ "n_perm": 600,
  "seed_base": 9000,
- "worst_observed_rate": 0.056,
+ "worst_observed_rate": 0.05,
  "grid": [
   {
    "construction": "planted-clean as shipped (alternating, 1 stratum)",
    "mode": "alt",
    "strata": 1,
-   "false_disqualified": 26,
+   "false_disqualified": 24,
    "seeds": 500,
-   "rate": 0.052,
+   "rate": 0.048,
    "ci95": [
-    0.03424569808276701,
-    0.07526637103062231
+    0.030993168793488332,
+    0.07058079625732966
    ],
    "reading": "below ceiling"
   },
@@ -30,8 +30,8 @@
    "seeds": 500,
    "rate": 0.038,
    "ci95": [
-    0.023030770806232365,
-    0.058707290463229006
+    0.023030770806223844,
+    0.05870729046322849
    ],
    "reading": "below ceiling"
   },
@@ -43,8 +43,8 @@
    "seeds": 500,
    "rate": 0.046,
    "ci95": [
-    0.029380175392394056,
-    0.06822542788123823
+    0.029380175392383925,
+    0.06822542788123817
    ],
    "reading": "below ceiling"
   },
@@ -52,12 +52,12 @@
    "construction": "coin-flip, 4 strata",
    "mode": "coin",
    "strata": 4,
-   "false_disqualified": 28,
+   "false_disqualified": 25,
    "seeds": 500,
-   "rate": 0.056,
+   "rate": 0.05,
    "ci95": [
-    0.0375304444750251,
-    0.07992130060435981
+    0.032615180149314485,
+    0.07292762165047845
    ],
    "reading": "below ceiling"
   },
@@ -69,15 +69,41 @@
    "seeds": 500,
    "rate": 0.04,
    "ci95": [
-    0.024601312085531228,
-    0.06110260938824501
+    0.024601312085522256,
+    0.0611026093882447
+   ],
+   "reading": "below ceiling"
+  },
+  {
+   "construction": "coin-flip, word-shaped text (all 7 probes live), 1 stratum",
+   "mode": "coinword",
+   "strata": 1,
+   "false_disqualified": 24,
+   "seeds": 500,
+   "rate": 0.048,
+   "ci95": [
+    0.030993168793488332,
+    0.07058079625732966
+   ],
+   "reading": "below ceiling"
+  },
+  {
+   "construction": "coin-flip, word-shaped text (all 7 probes live), 4 strata",
+   "mode": "coinword",
+   "strata": 4,
+   "false_disqualified": 25,
+   "seeds": 500,
+   "rate": 0.05,
+   "ci95": [
+    0.032615180149314485,
+    0.07292762165047845
    ],
    "reading": "below ceiling"
   }
  ],
  "provenance": {
-  "tool_sha256": "89ce656234712731979d322899a599fc46a1b5cc65ff90c59e883f5c08ea9f23",
-  "git_commit": "3eeedcd208c3adf7e41e4f4940c82dd0b2861bab",
+  "tool_sha256": "8129a886dd5db1cbc99f6ef79a9e790b5c61562e0fe1b79d25e05e80031e2044",
+  "git_commit": "afd5ec154247a3b0e5f96c612981e3c08ce4ec65",
   "git_dirty": true,
   "pythonhashseed": null,
   "note": "This artifact is evidence about the code whose sha256 is recorded here. If tool_sha256 does not match the served nulltest.py, the certificate does not describe the served tool and must not be trusted."

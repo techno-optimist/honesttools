@@ -22,16 +22,16 @@
                  note: "The real/fabricated half of the benchmark battery we used for months." },
     front:     { url: "/verifier/batteries/verifydomain-claims-147.json",
                  label: "the battery behind our own headline",
-                 note: "This led the honesty.tools home page for months: \u201con our 147-claim battery, Photon confirmed 0 of 36 fabricated entities.\u201d It lived on one machine, outside version control, never served and never floored. We floored it on 2026-07-25: all three scorable cells separate, lexicality A* 0.967. The number was withdrawn the same day. Run it yourself." },
-    knowledge: { url: "/verifier/batteries/knowledge-prominence-v1.json",
-                 label: "our knowledge battery — 324 items, five domains",
-                 note: "Books, firms, paintings, places and people: high-pageview entities against low-pageview ones from the SAME Wikipedia category, matched on last-word initial and length. Built to replace the /calibrate battery, which separates on 17 of 18 cells. Passes at A* 0.655; a +1-character injection flips it to DISQUALIFIED at p 0.0017; six probes outside the shipped four all sit at chance." },
+                 note: "This led the honesty.tools home page for about four weeks, 2026-06-28 to 2026-07-25 (an earlier version of this note said \u201cfor months\u201d; corrected 2026-10-20): \u201con our 147-claim battery, Photon confirmed 0 of 36 fabricated entities.\u201d It lived on one machine, outside version control, never served and never floored. We floored it on 2026-07-25: all three scorable cells separate, lexicality A* 0.967. The number was withdrawn the same day. Run it yourself." },
+    knowledge: { url: "/verifier/batteries/knowledge-prominence-v2.json",
+                 label: "our knowledge battery — 296 items, five domains",
+                 note: "Books, firms, paintings, places and people: high-pageview entities against low-pageview ones from the SAME Wikipedia category, matched on last-word initial and length. Built to replace the /calibrate battery, which separates on 16 of 18 cells (this note said 17 until 2026-10-20; nulltest prints 16). Passes at A* 0.689 on the bare names and 0.655 on the question text the model receives — both published, because quoting only the friendlier number is the defect this instrument exists to catch. v1 of this battery had a book stratum that was 64% fictional characters." },
     prominence:{ url: "/verifier/batteries/prominence-people-v2.json",
                  label: "our prominence battery",
                  note: "Both halves are real people. Each obscure counterpart is drawn from one of the famous person's own Wikipedia categories, and matched on surname initial and name length, so what varies inside the pair is mostly readership. The first battery of ours to clear this floor AND carry a label the model can be scored against." },
     prominence1:{ url: "/verifier/batteries/prominence-people-v1.json",
                  label: "prominence battery v1 — the version that fooled us",
-                 note: "This one PASSES: A* 0.602, adjusted p 0.22, every shipped null clear. It is still broken. A fifth probe we had not written — the surname's first letter — recovers the labels at A* 0.661, because the builder measured the alphabetically-first 200 members of each Wikipedia category and biography categories are sorted by surname. Superseded by v2. Kept here so the floor cannot be mistaken for a proof of correctness." },
+                 note: "Under the four probes of v1.2 this PASSED at A* 0.602, adjusted p 0.22 — and was still broken: the surname's first letter recovers the labels at A* 0.661, because the builder measured the alphabetically-first 200 members of each Wikipedia category and biography categories are sorted by surname. v1.3 added two alphabet-position probes for that class of artifact and now DISQUALIFIES it. Superseded by v2. Kept here so the floor cannot be mistaken for a proof of correctness, and because the probe that caught it was written after the miss." },
     separable: { gen: "plantedSeparable",
                  label: "planted-separable control",
                  note: "Reals are ID-shaped, fakes are pronounceable words — the exact defect we shipped. A null test that cannot fire is decoration, so this one must come back DISQUALIFIED." },
@@ -146,7 +146,7 @@
       if (PRESETS[current].paste && pastedName) label = pastedName;
       // permutation cost is linear in items x cells; keep a big pasted battery from hanging the tab
       var nPerm = L.items.length > BIG_BATTERY ? REDUCED_PERM : FULL_PERM;
-      // Run in slices rather than one blocking call. Each permutation now REFITS all four
+      // Run in slices rather than one blocking call. Each permutation now REFITS every fitted
       // nulls, so this is real work — seconds, not milliseconds. The permutation count is NOT
       // cut to hide that: cutting it would change the numbers and break parity with the CLI.
       // The work is made visible instead.

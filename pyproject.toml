@@ -12,7 +12,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "honesttools"
-version = "0.1.0"
+version = "0.1.1"
 description = "Honesty tools that never take their own word for it — model-free checks for AI of every size, replayable offline."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,7 +32,7 @@ dependencies = []
 
 [project.urls]
 Homepage = "https://www.honesty.tools"
-Repository = "https://github.com/techno-optimist/nulltest"
+Repository = "https://github.com/techno-optimist/honestytools"
 
 [project.scripts]
 honest = "honest:main"
