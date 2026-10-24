@@ -203,7 +203,7 @@ most often quoted in hallucination papers, scored by answer alone with `--explod
 |---|---|---|---|---|
 | TruthfulQA, reference answers (`Correct Answers` vs `Incorrect Answers`, per category) | 6028 | 77 of 222 cells separate | 1.000 | DISQUALIFIED |
 | HaluEval QA (`right_answer` vs `hallucinated_answer`) | 20000 | 5 of 6 cells separate | 0.979 | DISQUALIFIED |
-| HaluEval dialogue (`right_response` vs `hallucinated_response`) | 20000 | 4 of 6 cells separate | 0.849 | DISQUALIFIED |
+| HaluEval dialogue (`right_response` vs `hallucinated_response`) | 20000 | 6 of 6 cells separate | 0.849 | DISQUALIFIED |
 
 `--explain` says why. In TruthfulQA the correct column is full of "I have no comment" and "do
 not" hedges and the incorrect column of "believe that" and "that the" assertions; a model that
