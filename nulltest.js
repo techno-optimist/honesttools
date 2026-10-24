@@ -725,8 +725,111 @@
     return out;
   }
 
+  /* ── EXPLAIN — mirrors nulltest.py's explain_cell / explain ──────────────
+     An in-sample description of the separating cells: the n-grams, words, length gap or
+     initials that carry the label. For FINDING the artifact, never for the verdict, which is
+     held-out and permutation-calibrated. Same thresholds (min_count 3, top 8) as the CLI. */
+  function median(xs) {
+    var a = xs.slice().sort(function (p, q) { return p - q; }), n = a.length;
+    if (!n) return null;
+    return n % 2 ? a[(n - 1) / 2] : 0.5 * (a[n / 2 - 1] + a[n / 2]);
+  }
+  function pyRound(x, nd) {   // python's round(): half to even, so 12.5 -> 12 as the CLI prints it
+    var m = Math.pow(10, nd || 0), v = x * m, f = Math.floor(v), d = v - f;
+    var r = d > 0.5 ? f + 1 : d < 0.5 ? f : (f % 2 === 0 ? f : f + 1);
+    return r / m;
+  }
+  function showFeature(name, g) { return "'" + (name === "lexicality" ? g.replace(/ /g, "␣") : g) + "'"; }
+  function explainCell(name, texts, y, top, minCount) {
+    top = top || 8; minCount = minCount || 3;
+    var kind = NULLS[name][0], fn = NULLS[name][1];
+    var n1 = y.reduce(function (a, b) { return a + b; }, 0), n0 = y.length - n1;
+    var out = { probe: name, n: y.length, n_label0: n0, n_label1: n1 };
+    if (kind === "nb") {
+      var pos = new Map(), neg = new Map();
+      var feats = texts.map(function (t) { return fn(t); });
+      feats.forEach(function (f, i) {
+        var d = y[i] === 1 ? pos : neg;
+        f.forEach(function (g) { d.set(g, (d.get(g) || 0) + 1); });
+      });
+      var rows = [];
+      new Set([].concat(Array.from(pos.keys()), Array.from(neg.keys()))).forEach(function (g) {
+        var p = pos.get(g) || 0, q = neg.get(g) || 0;
+        if (p + q < minCount) return;
+        var lo = Math.log((p + 0.5) / (n1 + 1.0)) - Math.log((q + 0.5) / (n0 + 1.0));
+        rows.push([lo, g, p, q]);
+      });
+      rows.sort(function (a, b) { return a[0] - b[0] || (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0); });
+      var row = function (r) { return { feature: r[1], in_label1: r[2], in_label0: r[3], log_odds: pyRound(r[0], 2) }; };
+      var fav1 = rows.slice(-top).reverse().filter(function (r) { return r[0] > 0; }).map(row);
+      var fav0 = rows.slice(0, top).filter(function (r) { return r[0] < 0; }).map(row);
+      out.favours_label1 = fav1; out.favours_label0 = fav0;
+      var score = feats.map(function (f) {
+        var fs = new Set(f), s = 0;
+        fav1.forEach(function (r) { if (fs.has(r.feature)) s += r.log_odds; });
+        fav0.forEach(function (r) { if (fs.has(r.feature)) s += r.log_odds; });
+        return s;
+      });
+      var idx = y.map(function (_, i) { return i; });
+      var ones = idx.filter(function (i) { return y[i] === 1; }).sort(function (a, b) { return score[b] - score[a] || a - b; }).slice(0, 2);
+      var zeros = idx.filter(function (i) { return y[i] === 0; }).sort(function (a, b) { return score[a] - score[b] || a - b; }).slice(0, 2);
+      out.examples = { label1: ones.map(function (i) { return texts[i].slice(0, 120); }),
+                       label0: zeros.map(function (i) { return texts[i].slice(0, 120); }) };
+      var sf = function (r) { return showFeature(name, r.feature); };
+      out.reading = "features over-represented in label-1: " + (fav1.slice(0, 5).map(sf).join(", ") || "none") +
+                    "; in label-0: " + (fav0.slice(0, 5).map(sf).join(", ") || "none");
+    } else if (kind === "score") {
+      var s = texts.map(function (t) { return Number(fn(t)); });
+      var m0 = median(s.filter(function (_, i) { return y[i] === 0; }));
+      var m1 = median(s.filter(function (_, i) { return y[i] === 1; }));
+      out.median_label0 = m0; out.median_label1 = m1;
+      if (name === "length") {
+        out.reading = "label-1 items are " + (m1 > m0 ? "longer" : m1 < m0 ? "shorter" : "the same length") +
+                      ": median " + pyRound(m1) + " vs " + pyRound(m0) + " characters";
+      } else {
+        var letter = function (v) { return (v >= 1 && v <= 26) ? String.fromCharCode(96 + pyRound(v)) : "non-letter"; };
+        out.reading = (name === "alpha_first" ? "first" : "last") + "-word initials: label-1 median '" + letter(m1) +
+                      "' vs label-0 median '" + letter(m0) + "' (alphabet position " + m1.toFixed(1) + " vs " + m0.toFixed(1) + ")";
+      }
+    } else {
+      out.reading = "the label-1 rate differs between strata; see the per-stratum counts";
+    }
+    return out;
+  }
+  function explain(items, keys, rep, maxCells) {
+    maxCells = maxCells || 4;
+    var tk = keys.text, lk = keys.label, sk = keys.stratum;
+    var texts = items.map(function (i) {
+      if (Array.isArray(tk)) return tk.map(function (k) { return i[k] === undefined ? "" : String(i[k]); }).join("\n");
+      return String(i[tk]);
+    });
+    var y = items.map(function (i) { return parseInt(i[lk], 10) || 0; });
+    var strata = sk ? items.map(function (i) { return String(i[sk] === undefined ? "_all" : i[sk]); })
+                    : items.map(function () { return "_all"; });
+    var cells = [];
+    Object.keys(rep.nulls).forEach(function (nm) {
+      var e = rep.nulls[nm];
+      Object.keys(e.per_stratum).forEach(function (st) {
+        var c = e.per_stratum[st];
+        if (c.separates) cells.push([nm, st, c]);
+      });
+    });
+    var w = rep.worst_cell || {};
+    if (!cells.length && w.null) cells.push([w.null, w.stratum, rep.nulls[w.null].per_stratum[w.stratum]]);
+    cells.sort(function (a, b) { return a[2].adj_p - b[2].adj_p || b[2].astar - a[2].astar; });
+    var out = { note: "In-sample description of the separating cells, for finding the artifact. The " +
+                      "verdict above is held-out; these tables are not evidence for it.", cells: [] };
+    cells.slice(0, maxCells).forEach(function (t) {
+      var idx = []; strata.forEach(function (x, i) { if (x === t[1]) idx.push(i); });
+      var d = explainCell(t[0], idx.map(function (i) { return texts[i]; }), idx.map(function (i) { return y[i]; }));
+      d.stratum = t[1]; d.astar = t[2].astar; d.adj_p = t[2].adj_p;
+      out.cells.push(d);
+    });
+    return out;
+  }
+
   global.NullTest = { VERSION: VERSION, PROBES: Object.keys(NULLS), _MT: MT, _scoreAllCells: scoreAllCells,
                       _cellDefs: cellDefs, _Prepared: Prepared, evaluate: evaluate, evaluateAsync: evaluateAsync,
-                      loadItems: loadItems, coerceLabels: coerceLabels, parseCSV: parseCSV, astar: astar,
+                      loadItems: loadItems, coerceLabels: coerceLabels, explain: explain, explainCell: explainCell, parseCSV: parseCSV, astar: astar,
                       auroc: auroc, plantedSeparable: plantedSeparable, plantedClean: plantedClean };
 })(window);

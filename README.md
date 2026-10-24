@@ -195,29 +195,31 @@ corpus, never a copy.
 
 ## Run it against us, and against the benchmarks the field uses
 
-The audit table at [honesty.tools/audit](https://www.honesty.tools/audit) has 16 rows: our own nine
-batteries, five third-party honesty corpora, and, new in v1.3, the two QA benchmarks most often
-quoted in hallucination papers, scored by answer alone with `--explode`:
+The audit table at [honesty.tools/audit](https://www.honesty.tools/audit) has 17 rows: our own nine
+batteries, five third-party honesty corpora, and, new in v1.3, three rows from the two benchmarks
+most often quoted in hallucination papers, scored by answer alone with `--explode`:
 
 | benchmark | items | worst cell | A* | verdict |
 |---|---|---|---|---|
 | TruthfulQA, reference answers (`Correct Answers` vs `Incorrect Answers`, per category) | 6028 | 77 of 222 cells separate | 1.000 | DISQUALIFIED |
 | HaluEval QA (`right_answer` vs `hallucinated_answer`) | 20000 | 5 of 6 cells separate | 0.979 | DISQUALIFIED |
+| HaluEval dialogue (`right_response` vs `hallucinated_response`) | 20000 | 4 of 6 cells separate | 0.849 | DISQUALIFIED |
 
 `--explain` says why. In TruthfulQA the correct column is full of "I have no comment" and "do
 not" hedges and the incorrect column of "believe that" and "that the" assertions; a model that
 learned to hedge scores without knowing anything. In HaluEval the hallucinated answers were
 written by ChatGPT and the right answers are HotpotQA's short reference strings: median 58
-characters against 12. Neither is a claim that the benchmarks are useless. It is a measurement of
+characters against 12, and in the dialogue set 104 against 69. None of this is a claim that the benchmarks are useless. It is a measurement of
 how much of a score on them is available to a reader who never sees the question.
 
-Ten of the sixteen rows are DISQUALIFIED and four of the ten are ours. Under v1.2 our four were
+Eleven of the seventeen rows are DISQUALIFIED and four of the eleven are ours. Under v1.2 our four were
 `verifydomain-claims-147`, `calibration-battery-v1`, `photon-entities` and `grounding-coordinate`;
 under v1.3 `grounding-coordinate` is a BORDERLINE PASS and `prominence-people-v1`, which v1.2
 missed, is caught. The two worst rows on the table are still ours. A DISQUALIFIED verdict is a
 measurement about a corpus, not a finding of error or misconduct by its authors. Re-score the
-whole table with `python3 nulltest_audit.py --jobs 4` (about 7 minutes; the two QA corpora are
-fetched from their own repositories and recorded as a URL and a sha256).
+whole table with `python3 nulltest_audit.py --jobs 4` (about 17 minutes on 4 cores, most of it
+the two 20000-item HaluEval rows; the corpora are fetched from their own repositories and
+recorded as a URL and a sha256).
 
 ## Licence
 

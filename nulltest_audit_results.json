@@ -554,6 +554,50 @@
    "strength": "severe"
   },
   {
+   "name": "halueval/dialogue",
+   "paper": "HaluEval: A Large-Scale Hallucination Evaluation Benchmark for LLMs (arXiv:2305.11747, EMNLP 2023)",
+   "label_kind": "right_vs_wrong_answer",
+   "url": "https://raw.githubusercontent.com/RUCAIBox/HaluEval/main/data/dialogue_data.json",
+   "status": "scored",
+   "sha256": "9c461df2691e4362837f66fceaaff3bc260453350c3a1cae76a5a52e5e338bfd",
+   "bytes": 6984266,
+   "n": 20000,
+   "n_fake": 10000,
+   "n_real": 10000,
+   "items_total": 20000,
+   "explode": {
+    "right_response": 0,
+    "hallucinated_response": 1
+   },
+   "split": null,
+   "cells": 6,
+   "verdict": "DISQUALIFIED",
+   "worst_cell": {
+    "astar": 0.849,
+    "adj_p": 0.0017,
+    "raw_p": 0.0017,
+    "null": "words",
+    "stratum": "_all",
+    "n": 20000,
+    "threshold": 0.511,
+    "underpowered": false
+   },
+   "headline": "worst cell A* = 0.849 in words/_all (n=20000), family-adjusted p = 0.0017 over 6 cells",
+   "separating_cells": 6,
+   "astar": 0.849,
+   "borderline": false,
+   "probes": [
+    "lexicality",
+    "words",
+    "length",
+    "shape",
+    "alpha_first",
+    "alpha_last",
+    "stratum"
+   ],
+   "strength": "substantial"
+  },
+  {
    "name": "aperture/knowledge-prominence-v1",
    "paper": "Aperture / Project Forty Two",
    "label_kind": "known_vs_unknown_real_entity",

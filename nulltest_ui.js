@@ -83,7 +83,31 @@
     result.innerHTML = '<pre class="ev-out ev-out--bad"><span class="ev-bad">could not run</span> — ' + esc(msg) + "</pre>";
   }
 
-  function render(rep, keys, label) {
+  // WHY — the same in-sample description the CLI prints under a DISQUALIFIED verdict: which
+  // n-grams, words, length gap or initials carry each separating cell. For finding the artifact,
+  // not evidence for the verdict; the verdict above it is held-out and permutation-calibrated.
+  function renderWhy(rep, keys, items) {
+    if (!items || !window.NullTest.explain) return "";
+    var ex;
+    try { ex = window.NullTest.explain(items, keys, rep); } catch (e) { return ""; }
+    if (!ex.cells.length) return "";
+    var html = '<p class="ev-note" style="margin-bottom:4px"><b>WHY</b> &middot; ' + esc(ex.note) + "</p>";
+    ex.cells.forEach(function (c) {
+      html += '<p class="ev-note" style="margin:4px 0"><code>' + esc(c.probe) + "/" + esc(c.stratum) + "</code> A* " +
+        f3(c.astar) + ", adj p " + f4(c.adj_p) + " &mdash; " + esc(c.reading || "") + "</p>";
+      if (c.favours_label1 || c.favours_label0) {
+        var tr = function (r) {
+          return "<tr><td>" + esc(r.feature) + '</td><td class="num">' + r.in_label1 + '</td><td class="num">' + r.in_label0 + "</td></tr>";
+        };
+        html += '<div class="nt-scroll"><table class="nt-table"><thead><tr><th>feature</th><th>in label-1</th><th>in label-0</th></tr></thead><tbody>' +
+          (c.favours_label1 || []).slice(0, 5).map(tr).join("") + (c.favours_label0 || []).slice(0, 5).map(tr).join("") +
+          "</tbody></table></div>";
+      }
+    });
+    return html;
+  }
+
+  function render(rep, keys, label, items) {
     var bad = rep.verdict === "DISQUALIFIED";
     var rows = "";
     // Same display rule as the CLI: show a cell if it separates after correction, or if it
@@ -122,6 +146,7 @@
         '<div class="nt-scroll"><table class="nt-table">' +
           "<thead><tr><th>null</th><th>stratum</th><th>n</th><th>A*</th><th>raw p</th><th>adj p</th><th></th></tr></thead>" +
           "<tbody>" + rows + "</tbody></table></div>" +
+        (bad ? renderWhy(rep, keys, items) : "") +
         '<p class="ev-note">Fields read: text=<code>' + esc(keys.text) + "</code>, label=<code>" + esc(keys.label) +
           "</code>, stratum=<code>" + esc(keys.stratum || "none") + "</code>. " +
           "A* is two-sided, so an inverted classifier still counts. Every permutation <b>refits</b> " +
@@ -159,10 +184,10 @@
       }).then(function (rep) {
         // compare against the DEFAULT, not a stale literal — this said "reduced" on every run
         if (nPerm < FULL_PERM) rep.headline += "  (reduced to " + nPerm + " permutations — large battery)";
-        return { rep: rep, keys: L.keys };
+        return { rep: rep, keys: L.keys, items: L.items };
       });
     }).then(function (o) {
-      render(o.rep, o.keys, label);
+      render(o.rep, o.keys, label, o.items);
     }).catch(function (e) {
       renderError((e && e.message) ? e.message : String(e));
     }).then(function () {
