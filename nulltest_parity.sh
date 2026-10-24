@@ -21,7 +21,7 @@ BATTERIES="batteries/grounding-coordinate.json batteries/photon-entities.json ba
 
 node nulltest_parity.js $BATTERIES > /tmp/nt_js.json || { echo "JS engine failed"; exit 1; }
 for b in $BATTERIES; do
-  python3 nulltest.py "$b" --json --n-perm 600 > "/tmp/nt_py_$(basename "$b")" 2>&1
+  python3 nulltest.py "$b" --json --n-perm 600 --explain > "/tmp/nt_py_$(basename "$b")" 2>&1
 done
 
 python3 - "$BATTERIES" <<'PY'
@@ -43,18 +43,24 @@ for b in sys.argv[1].split():
     name = os.path.basename(b)
     py = json.load(open('/tmp/nt_py_%s' % name))
     j = js[name]
+    # `explain` is the WHY section: the feature tables the page and the CLI show under a
+    # verdict. Compared too, so the browser never names a different artifact than the CLI.
     a = canon({"verdict": py["verdict"], "headline": py["headline"],
-               "worst_cell": py["worst_cell"], "nulls": py["nulls"]})
+               "worst_cell": py["worst_cell"], "nulls": py["nulls"], "explain": py.get("explain")})
     c = canon({"verdict": j["verdict"], "headline": j["headline"],
-               "worst_cell": j["worst_cell"], "nulls": j["nulls"]})
+               "worst_cell": j["worst_cell"], "nulls": j["nulls"], "explain": j.get("explain")})
     cells = sum(1 + len(v["per_stratum"]) for v in py["nulls"].values())
     total += cells
     same = json.dumps(a, sort_keys=True) == json.dumps(c, sort_keys=True)
     ok &= same
-    print("  %-34s %s  (%d cells: A*, threshold and separates each compared)"
+    print("  %-34s %s  (%d cells: A*, threshold, separates and WHY tables each compared)"
           % (name, "IDENTICAL" if same else "DIVERGES", cells))
     print("     %s | %s" % (py["verdict"], py["headline"]))
     if not same:
+        if a["explain"] != c["explain"]:
+            print("     DIFF in explain:")
+            print("       py", json.dumps(a["explain"], sort_keys=True, ensure_ascii=False)[:600])
+            print("       js", json.dumps(c["explain"], sort_keys=True, ensure_ascii=False)[:600])
         for nm in a["nulls"]:
             if a["nulls"][nm] != c["nulls"].get(nm):
                 print("     DIFF in null %r:" % nm)

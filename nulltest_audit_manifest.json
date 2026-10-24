@@ -209,6 +209,19 @@
    "note": "10,000 HotpotQA questions, each with the reference answer and one ChatGPT-generated hallucinated answer; both answers become items, labelled by field. No category field is shipped, so one cell per probe. The question and the knowledge passage are not scored."
   },
   {
+   "name": "halueval/dialogue",
+   "paper": "HaluEval: A Large-Scale Hallucination Evaluation Benchmark for LLMs (arXiv:2305.11747, EMNLP 2023)",
+   "url": "https://raw.githubusercontent.com/RUCAIBox/HaluEval/main/data/dialogue_data.json",
+   "cache_as": "halueval_dialogue.jsonl",
+   "format": "jsonl",
+   "explode": {
+    "right_response": 0,
+    "hallucinated_response": 1
+   },
+   "label_kind": "right_vs_wrong_answer",
+   "note": "10,000 OpenDialKG turns, each with the human reference response and one ChatGPT-generated hallucinated response; both become items, labelled by field. The dialogue history and the knowledge triples are not scored."
+  },
+  {
    "name": "aperture/knowledge-prominence-v1",
    "paper": "Aperture / Project Forty Two",
    "url": "https://www.honesty.tools/verifier/batteries/knowledge-prominence-v1.json",

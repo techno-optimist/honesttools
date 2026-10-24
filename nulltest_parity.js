@@ -20,7 +20,8 @@ files.forEach(function (f) {
   var L = window.NullTest.loadItems(fs.readFileSync(f, "utf8"));
   var rep = window.NullTest.evaluate(L.items, L.keys, { nPerm: 600 });
   out[path.basename(f)] = { keys: L.keys, verdict: rep.verdict, headline: rep.headline,
-                            worst_cell: rep.worst_cell, nulls: rep.nulls };
+                            worst_cell: rep.worst_cell, nulls: rep.nulls,
+                            explain: window.NullTest.explain(L.items, L.keys, rep) };
 });
 
 /* the two planted controls the PAGE offers as buttons. They are generated from the same
