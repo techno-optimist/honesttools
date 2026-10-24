@@ -245,3 +245,13 @@ the gates on every commit; the PyPI release has not been made. Phases 2–4 have
 `checkerboard`, `renew`, `observertest` and `abstaintest` tools described above exist as research
 notes and partial code elsewhere, not in this repository, and nothing here should be read as
 claiming they ship.
+
+**Later the same day.** The audit table has 17 rows: TruthfulQA's reference answers and both
+HaluEval sets were added and all three fail by answer alone, so the figure in *The toolbox today*
+("8 of 14 audited benchmarks fail it") is now 11 of 17, still 4 of them ours. The `gate`, `verify`
+and `audit` entries under *Shipped* describe `claim_gate.py`, `verify_widget.js` and
+`nulltest_audit.py`: real and in this repository, but only `null` is wrapped in the contract that
+section says they all share; `honest audit` runs the harness and `honest check` replays a receipt,
+and neither is a contract tool. CI runs eight jobs, not five. A GitHub Action now lets a benchmark
+author run the test on every commit of their own repository, which is the install path the
+adoption clause was waiting for; the clock starts when someone outside this project uses it.

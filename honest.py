@@ -4,7 +4,11 @@
 """honest — the toolbox entry point. One command, many tools, one contract.
 
     honest list                     what is in the box, and at which tier
-    honest null <battery.json>      run the model-free surface floor
+    honest null <battery> [flags]   run the model-free surface floor; same flags as nulltest.py
+                                    (--text-key --label-key --stratum-key --explode --split
+                                     --positive-label --n-perm --jobs --explain)
+    honest check <receipt> <file>   replay a published verdict against the bytes in front of you
+    honest audit [--only N] [...]   re-score the published audit table (repository checkout only)
     honest selftest [tool]          run a tool's break-test (all tools if omitted)
     honest fpr <tool>               print a tool's calibrated false-positive rate
 
@@ -41,23 +45,39 @@ class NullTool(Tool):
     def _nt(self):
         return _load("nulltest", "nulltest.py")
 
-    def run(self, battery_path, n_perm=600) -> Verdict:
+    def run(self, battery_path, n_perm=600, text_key=None, label_key=None, stratum_key=None,
+            explode=None, split=None, positive_label=None, jobs=1, explain=False) -> Verdict:
         nt = self._nt()
-        # Same reader and the same key sniffing as `python3 nulltest.py`, so `honest null` and
-        # the bare tool cannot disagree about what a file contains. JSON, JSONL, CSV and TSV.
-        tk, lk, sk = nt.sniff_keys(nt.read_items(battery_path))
+        # Same reader, the same key sniffing and the same flags as `python3 nulltest.py`, so
+        # `honest null` and the bare tool cannot disagree about what a file contains or says.
+        raw = nt.read_items(battery_path)
+        mapping = None
+        if explode:
+            mapping = nt.parse_explode(explode)
+            raw = nt.explode_items(raw, mapping, split=split)
+            text_key, label_key = "text", "label"
+        tk, lk, sk = nt.sniff_keys(raw, text_key, label_key, stratum_key)
         if tk is None or lk is None:
-            raise SystemExit("could not find a text and a label field in %s; run "
-                             "`python3 nulltest.py %s --text-key ... --label-key ...` to name them"
-                             % (battery_path, battery_path))
-        items = nt.load(battery_path, tk, lk)
-        rep = nt.evaluate(items, tk, lk, sk, n_perm=n_perm)
+            raise SystemExit("could not find a text and a label field in %s; name them with "
+                             "--text-key and --label-key" % battery_path)
+        items = nt.load(battery_path, tk, lk, positive_label, explode=mapping, split=split)
+        tkeys = tk.split(",") if "," in tk else tk
+        rep = nt.evaluate(items, tkeys, lk, sk, n_perm=n_perm, jobs=jobs)
         w = rep.get("worst_cell") or {}
+        import hashlib
+        with open(battery_path, "rb") as fh:
+            battery_sha = hashlib.sha256(fh.read()).hexdigest()
+        evidence = {"worst_cell": w, "n": rep.get("n"), "family_size": rep.get("family_size"),
+                    "n_separating_cells": rep.get("n_separating_cells"),
+                    "borderline": bool(rep.get("borderline")),
+                    "battery": os.path.basename(battery_path), "battery_sha256": battery_sha,
+                    "tool_sha256": nt._tool_sha256(), "nulltest_version": nt.VERSION,
+                    "keys": {"text": tk, "label": lk, "stratum": sk}, "n_perm": n_perm}
+        if explain or rep["verdict"] == "DISQUALIFIED":
+            evidence["explain"] = nt.explain(items, tkeys, lk, sk, rep)
         return Verdict(
             tool=self.name, tier=STABLE, verdict=rep["verdict"], headline=rep["headline"],
-            evidence={"worst_cell": w, "n": rep.get("n"), "family_size": rep.get("family_size"),
-                      "battery": os.path.basename(battery_path)},
-            fpr=self.false_positive_rate(), replayable=True)
+            evidence=evidence, fpr=self.false_positive_rate(), replayable=True)
 
     def selftest(self) -> bool:
         """null's break-test: a battery separable by string shape ALONE must come back DISQUALIFIED,
@@ -198,11 +218,40 @@ def main(argv=None):
             print("usage: honest fpr <tool>")
             return 2
         return _cmd_fpr(argv[2])
+    if cmd == "check":
+        if len(argv) < 4:
+            print("usage: honest check <receipt.json> <battery>")
+            return 2
+        return _load("nulltest", "nulltest.py").check_receipt(argv[2], argv[3])
+    if cmd == "audit":
+        p = os.path.join(HERE, "nulltest_audit.py")
+        if not os.path.exists(p):
+            print("  the audit harness ships in the repository checkout, not in the wheel:")
+            print("  git clone https://github.com/techno-optimist/honestytools && python3 nulltest_audit.py")
+            return 2
+        return _load("nulltest_audit", "nulltest_audit.py").main(["nulltest_audit"] + argv[2:]) or 0
     if cmd in contract._REGISTRY:
         if len(argv) < 3:
-            print("usage: honest %s <battery.json>" % cmd)
+            print("usage: honest %s <battery> [--text-key K] [--label-key K] [--stratum-key K] "
+                  "[--explode F=L,...] [--split SEP] [--positive-label V] [--n-perm N] [--jobs N] "
+                  "[--explain]" % cmd)
             return 2
-        v = contract.run(cmd, argv[2])
+        import argparse
+        ap = argparse.ArgumentParser(prog="honest %s" % cmd)
+        ap.add_argument("battery")
+        ap.add_argument("--text-key", default=None)
+        ap.add_argument("--label-key", default=None)
+        ap.add_argument("--stratum-key", default=None)
+        ap.add_argument("--explode", default=None)
+        ap.add_argument("--split", default=None)
+        ap.add_argument("--positive-label", default=None)
+        ap.add_argument("--n-perm", type=int, default=600)
+        ap.add_argument("--jobs", type=int, default=1)
+        ap.add_argument("--explain", action="store_true")
+        a = ap.parse_args(argv[2:])
+        v = contract.run(cmd, a.battery, n_perm=a.n_perm, text_key=a.text_key, label_key=a.label_key,
+                         stratum_key=a.stratum_key, explode=a.explode, split=a.split,
+                         positive_label=a.positive_label, jobs=a.jobs, explain=a.explain)
         print(v.to_json())
         # exit 0 only on a verdict a downstream pipeline may actually rely on
         return 0 if v.is_stable_green() or v.verdict == "DISQUALIFIED" else 1

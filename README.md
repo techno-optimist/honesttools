@@ -19,11 +19,25 @@ python3 nulltest.py your_benchmark.json --json              # machine-readable
 python3 nulltest.py your_benchmark.json --jobs 8            # permutations in parallel
 python3 nulltest.py your_benchmark.json --explain           # which strings carry the label
 python3 nulltest.py qa_data.json --explode right_answer=0,hallucinated_answer=1   # QA rows
-python3 -m unittest discover -s tests                        # 40 tests, a few seconds
+python3 -m unittest discover -s tests                        # 42 tests, a few seconds
 ```
 
 (`pip install honesttools` is the plan, and `pyproject.toml` is ready for it, but the package is
 **not on PyPI yet**. Until it is, clone.)
+
+## What this repository offers
+
+| you want to | do this |
+|---|---|
+| test a benchmark file on your laptop | `python3 nulltest.py FILE` (JSON, JSONL, CSV, TSV; `--explode` for QA rows) |
+| know *why* it failed | `--explain`, or read the WHY section every DISQUALIFIED report prints |
+| test it in your own CI, every commit | the [GitHub Action](#run-it-in-your-own-ci) below, two lines of YAML |
+| test it in a browser, nothing uploaded | [honesty.tools/evidence](https://www.honesty.tools/evidence) runs the same engine, proven bit-identical |
+| publish a verdict someone else can check | `--json` writes a receipt with the file's sha256 and the tool's; `--check RECEIPT` replays it |
+| see how published benchmarks fare | the [audit table](https://www.honesty.tools/audit), 17 rows, every one with a URL and a sha256 |
+| put your benchmark in that table | one manifest entry; see [CONTRIBUTING](CONTRIBUTING.md) or open an [issue](https://github.com/techno-optimist/honestytools/issues/new/choose) |
+| know what the tool cannot see | the measured [false-positive](#what-the-tool-says-about-itself) and power tables, and the [limits](#known-limits--read-these-before-quoting-a-verdict) |
+| one entry point for the toolbox | `honest null FILE`, `honest check RECEIPT FILE`, `honest audit`, `honest fpr null` |
 
 ## Who this is for
 
@@ -78,6 +92,36 @@ with their counts; for the score probes, the class medians in plain words ("labe
 longer: median 9 vs 8 characters", "last-word initials: label-1 median 'g' vs label-0 median 'l'").
 These tables are a description for finding the artifact, not the evidence for the verdict; the
 verdict is held-out and permutation-calibrated, the tables are not.
+
+### Run it in your own CI
+
+```yaml
+- uses: techno-optimist/honestytools@main
+  with:
+    file: data/benchmark.jsonl
+    args: --text-key statement --label-key label        # any nulltest.py flags
+    fail-on: DISQUALIFIED                               # or BORDERLINE, or NEVER
+```
+
+The step needs Python 3.10+ and nothing else. It writes the full report to `nulltest_report.json`,
+puts the verdict and the WHY section in the job summary, exposes `verdict` and `headline` as step
+outputs, and fails the job on a DISQUALIFIED (configurable). Our own CI runs the action on our own
+batteries and checks that it fails where it should.
+
+### Receipts: a verdict someone else can check
+
+Every `--json` report carries `battery_sha256` (the bytes scored), `tool_sha256` (the code that
+scored them), the keys it read and the permutation count. Publish that file next to your benchmark
+and anyone can replay it:
+
+```bash
+python3 nulltest.py benchmark.jsonl --json > nulltest_receipt.json
+python3 nulltest.py benchmark.jsonl --check nulltest_receipt.json
+#   REPLAYS — the same verdict, the same worst cell, the same numbers, from the same bytes.
+```
+
+`--check` refuses a receipt that names different bytes, says so when the tool version differs,
+and exits non-zero on DIVERGES. Nothing in this repository asks to be taken on trust.
 
 ## The seven surface probes
 
@@ -154,6 +198,30 @@ read-only. `--calibrate --emit-grid PATH` writes the certificate, refuses to wri
 own directory, and stamps the tool's sha256 into it so a reader can tell whether a certificate
 describes the code in front of them. CI checks that stamp on every commit.
 
+## Your benchmark failed. Now what?
+
+A DISQUALIFIED verdict means a reader who never sees the question or the model can tell your two
+classes apart from the text alone. It does not mean the benchmark is worthless; it means part of
+every score on it is that. What to do, by what the WHY section names:
+
+- **`length`** (one class is longer): match the length distributions. Trim or regenerate the longer
+  class, or sample pairs matched on length, and re-run. HaluEval's hallucinated answers are nearly
+  five times longer than its reference answers; that alone scores A* 0.97.
+- **`words` or `lexicality`** (a word, a phrase, a spelling pattern): look at the feature table.
+  Template leaks ("I have no comment", "it is not true that") mean the wrong answers were written
+  by a different process than the right ones. Regenerate both classes with the same process, or
+  paraphrase the leaking phrases away, then re-run; the probe will find the next-biggest leak, which
+  is the point.
+- **`shape`** (digits, capitals, punctuation): usually an ID-shaped class against a word-shaped
+  class. Normalise the formatting or drop the field that carries it.
+- **`alpha_first` / `alpha_last`** (alphabet position of an initial): one class was taken from the
+  top of a sorted list. Sample at random, or from the whole list, and re-run.
+- **`stratum`** (the category predicts the label): rebalance labels within each category.
+
+Then re-run and read the POWER line: a PASS at n=156 says only that no artifact covering 60% of a
+class survived. Fixing the surface does not fix provenance; a benchmark can pass this test and
+still be contaminated, circular or mislabelled.
+
 ## Known limits — read these before quoting a verdict
 
 - **A PASS is not a certificate of quality.** It says these seven probes did not recover the labels
@@ -181,13 +249,15 @@ describes the code in front of them. CI checks that stamp on every commit.
 |---|---|
 | `nulltest.py` | the instrument. `--selftest`, `--calibrate`, `--measure-power`, `--emit-grid` |
 | `nulltest.js` | the same instrument for a browser; `nulltest_parity.sh` proves the two agree cell by cell. The browser engine scores flat two-class files; `--explode` and `--explain` are command-line only |
-| `tests/` | unit tests: every probe catches the artifact it was written for, the loader refuses to guess, parallel equals serial |
+| `tests/` | 42 unit tests: every probe catches the artifact it was written for, the loader refuses to guess, parallel equals serial, receipts replay |
+| `action.yml`, `nulltest_action.sh` | the GitHub Action; the script runs without GitHub too |
+| `CONTRIBUTING.md`, `CHANGELOG.md` | how to add a benchmark to the table, how to change the tool, what shipped and what did not |
 | `nulltest_audit.py` | scores a manifest of published benchmarks and writes the table behind [honesty.tools/audit](https://www.honesty.tools/audit) |
 | `nulltest_audit_manifest.json` | the targets: URL, exact field mapping, label polarity, and what kind of label each is |
 | `nulltest_audit_results.json` | the table. Every row carries the sha256 of the bytes scored |
 | `nulltest_grid.json` | the false-positive certificate, sha256-stamped to the tool that produced it |
 | `batteries/` | our own nine batteries, all of them in the table |
-| `honest.py`, `contract.py` | the toolbox entry point (`honest null battery.json`) and the four-method tool contract; see `CHARTER.md` |
+| `honest.py`, `contract.py` | the toolbox entry point (`honest null`, `honest check`, `honest audit`, `honest fpr`) and the four-method tool contract; see `CHARTER.md` |
 | `render_audit.py`, `claim_gate.py`, `null_floor_reconcile.py`, `demo.sh` | the harness we run against our own site; they expect the site tree beside them and do nothing useful in a bare checkout |
 
 `audit_cache/` is gitignored on purpose: the audit records a URL and a sha256 for each third-party

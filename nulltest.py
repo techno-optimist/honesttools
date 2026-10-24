@@ -70,6 +70,7 @@ same bits as the CLI. Do not cite it as a new method.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -1310,7 +1311,6 @@ def _emit_grid(path, rows_out, seeds, n_perm, seed_base, worst, state):
     So this is a separate, explicit act, it refuses to write into the served directory, and it
     stamps enough provenance into the artifact that a stranger can tell which code produced it.
     """
-    import hashlib
     import subprocess
 
     here = os.path.dirname(os.path.abspath(__file__))
@@ -1351,6 +1351,71 @@ def _emit_grid(path, rows_out, seeds, n_perm, seed_base, worst, state):
     return 0
 
 
+def _tool_sha256():
+    with open(os.path.abspath(__file__), "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def check_receipt(receipt_path, battery_path, jobs=1):
+    """Replay a published report against the bytes in front of you.
+
+    Nothing self-certifies: the receipt names the file hash, the tool hash, the keys it read and
+    the permutation count it used. This re-runs under exactly those settings and says whether the
+    verdict and the worst cell come out the same. Exit 0 on REPLAYS, 1 on DIVERGES, 2 on a
+    receipt that cannot be replayed (different file, missing fields)."""
+    with open(receipt_path, encoding="utf-8") as fh:
+        rec = json.load(fh)
+    need = ("verdict", "worst_cell", "keys", "n_perm", "battery_sha256")
+    missing = [k for k in need if k not in rec]
+    if missing:
+        print("  receipt lacks %s; only reports written by nulltest 1.3+ with --json can be replayed"
+              % ", ".join(missing))
+        return 2
+    with open(battery_path, "rb") as fh:
+        sha = hashlib.sha256(fh.read()).hexdigest()
+    print("nulltest --check — replaying %s against %s" % (os.path.basename(receipt_path),
+                                                            os.path.basename(battery_path)))
+    if sha != rec["battery_sha256"]:
+        print("  DIFFERENT FILE: receipt sha256 %s..., this file %s..." % (rec["battery_sha256"][:16], sha[:16]))
+        print("  The receipt does not describe these bytes. Nothing to replay.")
+        return 2
+    tool_now = _tool_sha256()
+    same_tool = rec.get("tool_sha256") == tool_now
+    print("  file hash matches; tool %s" % ("identical to the one that wrote the receipt" if same_tool
+                                           else "DIFFERS from the one that wrote the receipt (%s... vs %s...)"
+                                           % (str(rec.get("tool_sha256"))[:12], tool_now[:12])))
+    keys = rec["keys"]
+    raw = read_items(battery_path)
+    explode = None
+    ex = rec.get("explode") or {}
+    if ex.get("fields"):
+        explode = [(f, v) for f, v in ex["fields"].items()]
+        raw = explode_items(raw, explode, split=ex.get("split"))
+    tk, lk, sk = keys.get("text"), keys.get("label"), keys.get("stratum")
+    items = load(battery_path, tk, lk, None, explode=explode, split=ex.get("split"))
+    tkeys = tk.split(",") if "," in tk else tk
+    rep = evaluate(items, tkeys, lk, sk, n_perm=int(rec["n_perm"]), alpha=float(rec.get("alpha", 0.05)),
+                   jobs=jobs)
+    w0, w1 = rec["worst_cell"], rep["worst_cell"]
+    same_verdict = rep["verdict"] == rec["verdict"]
+    same_cell = (w0.get("null"), w0.get("stratum")) == (w1.get("null"), w1.get("stratum"))
+    same_num = abs(float(w0.get("astar", -1)) - w1["astar"]) < 1e-9 and \
+        abs(float(w0.get("adj_p", -1)) - w1["adj_p"]) < 1e-9
+    print("  receipt: %-12s %s/%s A* %s adj p %s" % (rec["verdict"], w0.get("null"), w0.get("stratum"),
+                                                     w0.get("astar"), w0.get("adj_p")))
+    print("  replay : %-12s %s/%s A* %s adj p %s" % (rep["verdict"], w1["null"], w1["stratum"],
+                                                     w1["astar"], w1["adj_p"]))
+    if same_verdict and same_cell and same_num:
+        print("  REPLAYS — the same verdict, the same worst cell, the same numbers, from the same bytes.")
+        return 0
+    if same_verdict and same_cell:
+        print("  REPLAYS with different numbers — same verdict and worst cell; the numbers differ, which "
+              "happens when the tool version changed between the receipt and now.")
+        return 0
+    print("  DIVERGES — this is not the result the receipt claims for these bytes.")
+    return 1
+
+
 def main(argv):
     ap = argparse.ArgumentParser(description="does this honesty benchmark measure honesty, or string shape?")
     ap.add_argument("battery", nargs="?")
@@ -1382,6 +1447,9 @@ def main(argv):
                     help="first noise seed. Change it to check a result is not tuned to 9000..")
     ap.add_argument("--measure-power", action="store_true",
                     help="re-derive the measured-power (MDE) table that the POWER line quotes")
+    ap.add_argument("--check", default=None, metavar="RECEIPT.json",
+                    help="replay: re-score BATTERY with the receipt's own keys and permutation "
+                         "count and report whether verdict, worst cell and file hash agree")
     ap.add_argument("--emit-grid", default=None, metavar="PATH",
                     help="write the certificate to PATH with provenance stamped in. Refuses to "
                          "write into the served directory — the verifier does not certify itself.")
@@ -1407,6 +1475,8 @@ def main(argv):
     if not a.battery:
         ap.print_help()
         return 2
+    if a.check:
+        return check_receipt(a.check, a.battery, jobs=a.jobs)
 
     explode = None
     try:
@@ -1427,6 +1497,11 @@ def main(argv):
     tkeys = tk.split(",") if "," in tk else tk
     rep = evaluate(items, tkeys, lk, sk, n_perm=a.n_perm, alpha=a.alpha, jobs=a.jobs)
     rep["battery"] = os.path.basename(a.battery)
+    # The receipt. A verdict that cannot be tied to bytes is an anecdote: these two hashes let a
+    # stranger confirm WHICH file and WHICH tool produced it, and `--check` replays the whole thing.
+    with open(a.battery, "rb") as fh:
+        rep["battery_sha256"] = hashlib.sha256(fh.read()).hexdigest()
+    rep["tool_sha256"] = _tool_sha256()
     rep["keys"] = {"text": tk, "label": lk, "stratum": sk}
     if explode:
         rep["explode"] = {"fields": dict(explode), "split": a.split, "rows": len(raw_items and {i.get("_row") for i in raw_items})}

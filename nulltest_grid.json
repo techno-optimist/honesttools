@@ -102,8 +102,8 @@
   }
  ],
  "provenance": {
-  "tool_sha256": "8129a886dd5db1cbc99f6ef79a9e790b5c61562e0fe1b79d25e05e80031e2044",
-  "git_commit": "afd5ec154247a3b0e5f96c612981e3c08ce4ec65",
+  "tool_sha256": "391c8b8a3279df8e6a67705fc02133a0ef8ede7599e6e3447d0a83a750a46cee",
+  "git_commit": "23bd3af041848ac44a848fc2e1d77e79428c41db",
   "git_dirty": true,
   "pythonhashseed": null,
   "note": "This artifact is evidence about the code whose sha256 is recorded here. If tool_sha256 does not match the served nulltest.py, the certificate does not describe the served tool and must not be trusted."

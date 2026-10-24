@@ -209,3 +209,37 @@ jobs:
           python3 -c "import json; d = json.load(open('nt.json')); assert d['version'] == '1.3', d"
           # no grid ships in the wheel yet, so `honest fpr null` must decline to quote a rate
           if honest fpr null; then echo '::error::fpr quoted a rate with no certificate installed'; exit 1; fi
+
+  action:
+    name: the GitHub Action a benchmark author would use
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: a separable battery must come back DISQUALIFIED
+        id: dq
+        uses: ./
+        with:
+          file: batteries/photon-entities.json
+          fail-on: NEVER
+          report: dq_report.json
+      - name: and the step must have reported it
+        run: |
+          test "${{ steps.dq.outputs.verdict }}" = "DISQUALIFIED" || { echo "::error::got ${{ steps.dq.outputs.verdict }}"; exit 1; }
+          python3 nulltest.py batteries/photon-entities.json --check dq_report.json
+      - name: a clean battery passes the step
+        uses: ./
+        with:
+          file: batteries/knowledge-prominence-v1.json
+          args: --jobs 2
+          report: pass_report.json
+      - name: a separable battery fails the step by default
+        id: must_fail
+        uses: ./
+        continue-on-error: true
+        with:
+          file: batteries/photon-entities.json
+          report: fail_report.json
+      - name: and that failure is the designed one
+        run: test "${{ steps.must_fail.outcome }}" = "failure"
